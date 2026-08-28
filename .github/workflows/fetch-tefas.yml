@@ -1,0 +1,30 @@
+name: TEFAS Veri Cekme Testi
+
+on:
+  workflow_dispatch:   # "Run workflow" butonuyla elle tetikleme
+  schedule:
+    - cron: '35 7 * * 1-5'   # Hafta ici, TR saatiyle ~10:35 (UTC 07:35)
+
+jobs:
+  veri-cek:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu indir
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Kutuphaneleri kur
+        run: pip install -r requirements.txt
+
+      - name: TEFAS verisini cek
+        run: python fetch_tefas.py
+
+      - name: Sonucu sakla
+        uses: actions/upload-artifact@v4
+        with:
+          name: tefas-gunluk-veri
+          path: tefas_gunluk.json
