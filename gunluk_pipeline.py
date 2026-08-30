@@ -43,6 +43,21 @@ def yukle(dosya):
         return json.load(f)
 
 
+def tarihte_fiyat(tarihler, fiyatlar, hedef_tarih):
+    """tarihler (en yeniden eskiye siralı) icinde hedef_tarih'e esit ya da
+    ondan once gelen ilk (en yakin) fiyati dondurur. Bulunamazsa None."""
+    for i, t in enumerate(tarihler):
+        if t and t <= hedef_tarih:
+            return fiyatlar[i]
+    return None
+
+
+def ay_yil_baslangici(tarih_str):
+    """'YYYY-MM-DD' -> (ay_baslangici, yil_baslangici)ayni formatta."""
+    yil, ay = tarih_str[:4], tarih_str[5:7]
+    return f"{yil}-{ay}-01", f"{yil}-01-01"
+
+
 def kaydet(veri, dosya):
     with open(KOK / dosya, "w", encoding="utf-8") as f:
         json.dump(veri, f, ensure_ascii=False, indent=1)
@@ -77,9 +92,13 @@ def main():
     except FileNotFoundError:
         onceki_rank = {}
     try:
-        portfoy = yukle("portfoy.json")  # {kod: adet} -- elle guncellenen elde tutulan fonlar
+        portfoy = yukle("portfoy.json")  # {kod: {adet, alis_tarihi?}} -- elde tutulan fonlar
     except FileNotFoundError:
         portfoy = {}
+    try:
+        bekleyen_emirler = yukle("bekleyen_emirler.json")
+    except FileNotFoundError:
+        bekleyen_emirler = []
 
     tarih_tahmin = bugunun_tarihi_veya_son_is_gunu()
     print(f"Tahmini tarih: {tarih_tahmin} (TEFAS'in kendi tarihiyle dogrulanacak)")
@@ -118,6 +137,31 @@ def main():
     else:
         print("Pencere kaydirilmadi -- ayni gun icin sadece skorlar yeniden hesaplanacak.")
 
+    # --- bekleyen AL/SAT emirlerini isle (Rutin'in 212/213 mantiginin karsiligi) ---
+    if bekleyen_emirler:
+        print(f"{len(bekleyen_emirler)} bekleyen emir isleniyor...")
+        kalan_emirler = []
+        for emir in bekleyen_emirler:
+            kod = emir.get("kod")
+            tip = emir.get("tip")
+            fiyat_bugun_kod = bugun_fiyat.get(kod)
+            if fiyat_bugun_kod is None or fiyat_bugun_kod <= 0:
+                print(f"  UYARI: {kod} icin bugun fiyat yok, emir ertelendi.")
+                kalan_emirler.append(emir)
+                continue
+            if tip == "AL":
+                tutar = emir.get("tutar", 0)
+                adet = int(tutar / fiyat_bugun_kod)
+                portfoy[kod] = {"adet": adet, "alis_tarihi": tarih}
+                print(f"  AL: {kod} {adet} adet ({tutar} TL / {fiyat_bugun_kod})")
+            elif tip == "SAT":
+                if kod in portfoy:
+                    del portfoy[kod]
+                print(f"  SAT: {kod} pozisyonu kapatildi")
+        bekleyen_emirler = kalan_emirler  # sadece ertelenenler kalir
+        kaydet(bekleyen_emirler, "bekleyen_emirler.json")
+        kaydet(portfoy, "portfoy.json")
+
     kodlar = list(fon_listesi.keys())
     fiyat_full = np.array([fiyat_gecmisi["fiyatlar"][k] for k in kodlar])
     n = sabitler["periyod"]
@@ -152,18 +196,43 @@ def main():
     fiyat_91 = fiyat_full[:, :91]
     tema_sonuc = dict(tema_olustur(fiyat_91, kodlar, valorler))
 
+    # --- Is gunu sayilari (TarihKontrol'un G216/G217 karsiligi) ---
+    # tarih formati YYYY-MM-DD; ay/yil karsilastirmasi bugunku (en yeni) tarihe gore
+    bugun_ay, bugun_yil = tarih[:7], tarih[:4]
+    ay_sayisi = sum(1 for t in fiyat_gecmisi["tarihler"] if t and t[:7] == bugun_ay)
+    yil_sayisi = sum(1 for t in fiyat_gecmisi["tarihler"] if t and t[:4] == bugun_yil)
+
     sira = np.argsort(-Z)
     yeni_rank = {}
     dashboard_funds = []
+    ay_baslangic, yil_baslangic = ay_yil_baslangici(tarih)
     for sirano, idx in enumerate(sira, start=1):
         kod = kodlar[idx]
         yeni_rank[kod] = sirano
         dunku = onceki_rank.get(kod)
-        adet = portfoy.get(kod, 0)
+        pozisyon = portfoy.get(kod)
+        adet = pozisyon.get("adet", 0) if isinstance(pozisyon, dict) else (pozisyon or 0)
+        alis_tarihi = pozisyon.get("alis_tarihi") if isinstance(pozisyon, dict) else None
         fiyat_bugun = float(fiyat_full[idx, 0])
         fiyat_dun = float(fiyat_full[idx, 1]) if fiyat_full.shape[1] > 1 else fiyat_bugun
         guncel = round(adet * fiyat_bugun, 2)
         gunluk_tl = round(adet * (fiyat_bugun - fiyat_dun), 2)
+
+        # Maliyet bazli kar/zarar: SADECE tek seferde (blok) alinan fonlar icin
+        # (alis_tarihi biliniyorsa). PPF gibi kismi alim-satim yapilan fonlarda
+        # (alis_tarihi yok) tek bir maliyet fiyati olmadigindan hesaplanamaz --
+        # yanlis sayi gostermektense hic gostermiyoruz (None).
+        ay_kar = yil_kar = None
+        if adet > 0 and alis_tarihi:
+            ay_baz = max(alis_tarihi, ay_baslangic)
+            yil_baz = max(alis_tarihi, yil_baslangic)
+            fiyat_ay_baz = tarihte_fiyat(fiyat_gecmisi["tarihler"], fiyat_gecmisi["fiyatlar"][kod], ay_baz)
+            fiyat_yil_baz = tarihte_fiyat(fiyat_gecmisi["tarihler"], fiyat_gecmisi["fiyatlar"][kod], yil_baz)
+            if fiyat_ay_baz:
+                ay_kar = round(adet * (fiyat_bugun - fiyat_ay_baz), 2)
+            if fiyat_yil_baz:
+                yil_kar = round(adet * (fiyat_bugun - fiyat_yil_baz), 2)
+
         dashboard_funds.append({
             "kod": kod,
             "ad": fon_listesi[kod].get("ad"),
@@ -178,16 +247,19 @@ def main():
             "ay6": round(float(donemsel["alti_aylik"][idx]), 4),
             "yil": round(float(donemsel["yillik"][idx]), 4),
             "tema": tema_sonuc.get(kod),
-            "guncel": guncel,       # elde tutulan fonun bugunku TL degeri (adet x fiyat)
-            "toplam": guncel,       # simdilik guncel ile ayni (birikmis kar/zarar takibi sonraki asama)
-            "gunlukTL": gunluk_tl,  # bugunku TL bazli kar/zarar (adet x fiyat degisimi)
+            "guncel": guncel,        # elde tutulan fonun bugunku TL degeri (adet x fiyat)
+            "toplam": guncel,
+            "gunlukTL": gunluk_tl,   # bugunku TL bazli kar/zarar (maliyete ihtiyac duymaz)
+            "ayKarZarar": ay_kar,    # None ise: PPF/kismi alim -- hesaplanamiyor
+            "yilKarZarar": yil_kar,
         })
+
 
     portfolio = [f for f in dashboard_funds if f["guncel"] and f["guncel"] > 0]
     totals = {
         "daily": round(sum(f["gunlukTL"] for f in portfolio), 2),
-        "monthly": round(sum(f["guncel"] * f["ay"] / 100 for f in portfolio), 2),
-        "yearly": round(sum(f["guncel"] * f["yil"] / 100 for f in portfolio), 2),
+        "monthly": round(sum(f["ayKarZarar"] for f in portfolio if f["ayKarZarar"] is not None), 2),
+        "yearly": round(sum(f["yilKarZarar"] for f in portfolio if f["yilKarZarar"] is not None), 2),
     }
 
     data_json = {
@@ -196,6 +268,7 @@ def main():
         "totals": totals,
         "timestamp": int(datetime.datetime.now().timestamp() * 1000),
         "tableDate": tarih,
+        "isGunuSayilari": {"aylik": ay_sayisi, "yillik": yil_sayisi},
     }
 
     kaydet(fiyat_gecmisi, "price_history.json")
