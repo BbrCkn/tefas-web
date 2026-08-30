@@ -43,6 +43,7 @@ function App(){
   const [totals,setTotals]=React.useState({monthly:0, yearly:0, daily:0});
   const [lastUpdate,setLastUpdate]=React.useState(null);
   const [tableDate,setTableDate]=React.useState(null);
+  const [isGunuSayilari,setIsGunuSayilari]=React.useState(null);
   const [toast,setToast]=React.useState("");
   const fileRef=React.useRef(null);
   const portfolioRef=React.useRef(null);
@@ -180,6 +181,7 @@ function App(){
           if(o.totals) setTotals(o.totals);
           if(o.timestamp) setLastUpdate(o.timestamp);
           if(o.tableDate!=null) setTableDate(o.tableDate);
+          if(o.isGunuSayilari) setIsGunuSayilari(o.isGunuSayilari);
           try{ localStorage.setItem(Ku, JSON.stringify(o)); }catch(e){}
           showToast(`${o.funds.length} fon yuklendi (otomatik)`);
         } else {
@@ -308,11 +310,11 @@ function App(){
                 <div className="mt-1 text-[15px] font-bold mono">{lp(totals.daily)} ₺</div>
               </div>
               <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
-                <div className="text-[10px] uppercase tracking-wider text-zinc-500">Aylık</div>
+                <div className="text-[10px] uppercase tracking-wider text-zinc-500">Aylık{isGunuSayilari?.aylik ? ` · ${isGunuSayilari.aylik} iş günü` : ""}</div>
                 <div className="mt-1 text-[15px] font-bold mono">{lp(totals.monthly)} ₺</div>
               </div>
               <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
-                <div className="text-[10px] uppercase tracking-wider text-zinc-500">Yıllık</div>
+                <div className="text-[10px] uppercase tracking-wider text-zinc-500">Yıllık{isGunuSayilari?.yillik ? ` · ${isGunuSayilari.yillik} iş günü` : ""}</div>
                 <div className="mt-1 text-[15px] font-bold mono">{lp(totals.yearly)} ₺</div>
               </div>
             </div>
