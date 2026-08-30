@@ -76,6 +76,10 @@ def main():
         onceki_rank = yukle("onceki_rank.json")
     except FileNotFoundError:
         onceki_rank = {}
+    try:
+        portfoy = yukle("portfoy.json")  # {kod: adet} -- elle guncellenen elde tutulan fonlar
+    except FileNotFoundError:
+        portfoy = {}
 
     tarih_tahmin = bugunun_tarihi_veya_son_is_gunu()
     print(f"Tahmini tarih: {tarih_tahmin} (TEFAS'in kendi tarihiyle dogrulanacak)")
@@ -155,6 +159,11 @@ def main():
         kod = kodlar[idx]
         yeni_rank[kod] = sirano
         dunku = onceki_rank.get(kod)
+        adet = portfoy.get(kod, 0)
+        fiyat_bugun = float(fiyat_full[idx, 0])
+        fiyat_dun = float(fiyat_full[idx, 1]) if fiyat_full.shape[1] > 1 else fiyat_bugun
+        guncel = round(adet * fiyat_bugun, 2)
+        gunluk_tl = round(adet * (fiyat_bugun - fiyat_dun), 2)
         dashboard_funds.append({
             "kod": kod,
             "ad": fon_listesi[kod].get("ad"),
@@ -169,15 +178,22 @@ def main():
             "ay6": round(float(donemsel["alti_aylik"][idx]), 4),
             "yil": round(float(donemsel["yillik"][idx]), 4),
             "tema": tema_sonuc.get(kod),
-            "guncel": 0,       # portfoy adet/deger takibi henuz baglanmadi
-            "toplam": 0,
-            "gunlukTL": 0,
+            "guncel": guncel,       # elde tutulan fonun bugunku TL degeri (adet x fiyat)
+            "toplam": guncel,       # simdilik guncel ile ayni (birikmis kar/zarar takibi sonraki asama)
+            "gunlukTL": gunluk_tl,  # bugunku TL bazli kar/zarar (adet x fiyat degisimi)
         })
+
+    portfolio = [f for f in dashboard_funds if f["guncel"] and f["guncel"] > 0]
+    totals = {
+        "daily": round(sum(f["gunlukTL"] for f in portfolio), 2),
+        "monthly": round(sum(f["guncel"] * f["ay"] / 100 for f in portfolio), 2),
+        "yearly": round(sum(f["guncel"] * f["yil"] / 100 for f in portfolio), 2),
+    }
 
     data_json = {
         "funds": dashboard_funds,
-        "portfolio": [],  # portfoy takibi bir sonraki asamada eklenecek
-        "totals": {"daily": 0, "monthly": 0, "yearly": 0},
+        "portfolio": portfolio,
+        "totals": totals,
         "timestamp": int(datetime.datetime.now().timestamp() * 1000),
         "tableDate": tarih,
     }
