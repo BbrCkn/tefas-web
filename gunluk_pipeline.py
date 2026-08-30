@@ -152,6 +152,12 @@ def main():
     fiyat_91 = fiyat_full[:, :91]
     tema_sonuc = dict(tema_olustur(fiyat_91, kodlar, valorler))
 
+    # --- Is gunu sayilari (TarihKontrol'un G216/G217 karsiligi) ---
+    # tarih formati YYYY-MM-DD; ay/yil karsilastirmasi bugunku (en yeni) tarihe gore
+    bugun_ay, bugun_yil = tarih[:7], tarih[:4]
+    ay_sayisi = sum(1 for t in fiyat_gecmisi["tarihler"] if t and t[:7] == bugun_ay)
+    yil_sayisi = sum(1 for t in fiyat_gecmisi["tarihler"] if t and t[:4] == bugun_yil)
+
     sira = np.argsort(-Z)
     yeni_rank = {}
     dashboard_funds = []
@@ -196,6 +202,7 @@ def main():
         "totals": totals,
         "timestamp": int(datetime.datetime.now().timestamp() * 1000),
         "tableDate": tarih,
+        "isGunuSayilari": {"aylik": ay_sayisi, "yillik": yil_sayisi},
     }
 
     kaydet(fiyat_gecmisi, "price_history.json")
