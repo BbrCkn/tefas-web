@@ -1,0 +1,21 @@
+{
+ "periyod": 69,
+ "risksiz_yillik": 0.11363095238095237,
+ "risksiz_backtest": 0.415,
+ "k": 3,
+ "donemsel_katsayilar": {
+  "gunluk": 0.026932500000000005,
+  "haftalik": 0.05195520000000003,
+  "aylik": 1.2079584000000005,
+  "uc_aylik": 1.7945280000000006,
+  "alti_aylik": 3.5032000000000005,
+  "yillik": 2.49
+ },
+ "risk_metrik_oranlari": {
+  "sharpe": 0.2,
+  "mdd": 0.2,
+  "consistency": 0.24,
+  "otokorelasyon": 0.2,
+  "ebg": 0.16
+ }
+}
