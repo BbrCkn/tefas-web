@@ -3716,6 +3716,10 @@
   "monthly": 5026.46,
   "yearly": 42014.26
  },
- "timestamp": 1788072955696,
- "tableDate": "2026-08-28"
+ "timestamp": 1788085642222,
+ "tableDate": "2026-08-28",
+ "isGunuSayilari": {
+  "aylik": 22,
+  "yillik": 165
+ }
 }
