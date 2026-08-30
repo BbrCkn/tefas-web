@@ -120,10 +120,34 @@ def main():
     print(f"TEFAS'in gercek veri tarihi: {tarih} (elimizdeki en yeni: {son_bilinen_tarih}) "
           f"-> {'YENI GUN' if yeni_gun_var_mi else 'henuz yeni veri yok, pencere kaydirilmayacak'}")
 
-    eksik = [k for k in fon_listesi if k not in bugun_fiyat]
+    eksik = [k for k in fon_listesi if k not in bugun_fiyat and k not in ("END", "BBR")]
     if eksik:
         print(f"UYARI: {len(eksik)} fon icin bugun fiyat gelmedi (islem "
               f"gormemis olabilir): {eksik[:10]}{'...' if len(eksik)>10 else ''}")
+
+    # --- END sentetik endeksi (Endeks.bas / EndeksHesapla ile ayni mantik) ---
+    # END'in "fiyati" gercek bir TEFAS fiyati degil; tum evrenin (END, BBR
+    # haric) esit-agirlikli ortalama gunluk getirisiyle zincirlenerek
+    # hesaplanan sentetik bir gosterge. Sadece gercekten yeni bir gun
+    # varsa hesaplanir (ayni gun icin tekrar tekrar zincirlenmesin diye).
+    if yeni_gun_var_mi:
+        haric = {"END", "BBR"}
+        getiriler = []
+        for kod in fon_listesi:
+            if kod in haric:
+                continue
+            dun_fiyat = fiyat_gecmisi["fiyatlar"].get(kod, [0.0])[0]
+            bugun_fiyat_kod = bugun_fiyat.get(kod)
+            if dun_fiyat and bugun_fiyat_kod:
+                getiriler.append((bugun_fiyat_kod - dun_fiyat) / dun_fiyat * 100)
+        if getiriler:
+            ort_getiri = sum(getiriler) / len(getiriler)
+            end_dun = fiyat_gecmisi["fiyatlar"].get("END", [0.0])[0]
+            if not end_dun or end_dun <= 0:
+                end_dun = 100.0  # ilk calistirma tabani
+            bugun_fiyat["END"] = end_dun * (1 + ort_getiri / 100)
+            print(f"END guncellendi: ortalama getiri %{ort_getiri:.4f}, "
+                  f"yeni deger {bugun_fiyat['END']:.4f}")
 
     # --- fiyat gecmisini SADECE gercekten yeni bir gun varsa guncelle ---
     if yeni_gun_var_mi:
