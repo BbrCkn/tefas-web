@@ -155,9 +155,20 @@ def main():
                 portfoy[kod] = {"adet": adet, "alis_tarihi": tarih}
                 print(f"  AL: {kod} {adet} adet ({tutar} TL / {fiyat_bugun_kod})")
             elif tip == "SAT":
-                if kod in portfoy:
-                    del portfoy[kod]
-                print(f"  SAT: {kod} pozisyonu kapatildi")
+                satilacak_adet = emir.get("adet", 0)
+                mevcut = portfoy.get(kod)
+                mevcut_adet = mevcut.get("adet", 0) if isinstance(mevcut, dict) else (mevcut or 0)
+                kalan_adet = mevcut_adet - satilacak_adet
+                if kalan_adet <= 0:
+                    if kod in portfoy:
+                        del portfoy[kod]
+                    print(f"  SAT: {kod} pozisyonu tamamen kapatildi "
+                          f"({satilacak_adet} adet satildi, {mevcut_adet} adet vardi)")
+                else:
+                    alis_tarihi_eski = mevcut.get("alis_tarihi") if isinstance(mevcut, dict) else None
+                    portfoy[kod] = {"adet": kalan_adet, "alis_tarihi": alis_tarihi_eski}
+                    print(f"  SAT: {kod} kismi satis, {satilacak_adet} adet satildi, "
+                          f"{kalan_adet} adet kaldi (alis tarihi korunuyor)")
         bekleyen_emirler = kalan_emirler  # sadece ertelenenler kalir
         kaydet(bekleyen_emirler, "bekleyen_emirler.json")
         kaydet(portfoy, "portfoy.json")
