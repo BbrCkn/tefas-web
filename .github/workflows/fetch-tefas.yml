@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: '35 7 * * 1-5'   # Hafta ici, TR saatiyle ~10:35 (UTC 07:35)
 
+concurrency:
+  group: tefas-gunluk-pipeline
+  cancel-in-progress: false
+
 jobs:
   gunluk-calistir:
     runs-on: ubuntu-latest
