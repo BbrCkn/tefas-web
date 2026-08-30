@@ -48,18 +48,24 @@ def kaydet(veri, dosya):
         json.dump(veri, f, ensure_ascii=False, indent=1)
 
 
-def bugunku_fiyatlari_cek(fon_kodlari: set, tarih: str) -> dict:
+def bugunku_fiyatlari_cek(fon_kodlari: set, tarih: str):
     """TEFAS'tan o gune ait tum fon fiyatlarini ceker, sadece takip
-    listemizdeki fonlari dondurur: {kod: fiyat}."""
+    listemizdeki fonlari dondurur: (fiyatlar_dict, tefas_tarihi).
+    tefas_tarihi, TEFAS'in kendi dondurdugu 'date' alanindan okunur --
+    yerel tarih tahminine guvenilmez (hafta sonu/tatil/henuz yayinlanmamis
+    veri durumlarinda yanlis olabilir)."""
     tefas = Crawler()
     df = tefas.fetch(tarih, columns="info", kind="YAT")
     kayitlar = json.loads(df.to_json(orient="records"))
     sonuc = {}
+    tefas_tarihi = None
     for k in kayitlar:
         kod = k.get("fund_code")
         if kod in fon_kodlari:
             sonuc[kod] = k.get("price")
-    return sonuc
+        if tefas_tarihi is None and k.get("date"):
+            tefas_tarihi = str(k["date"])[:10]
+    return sonuc, tefas_tarihi
 
 
 def main():
@@ -71,29 +77,42 @@ def main():
     except FileNotFoundError:
         onceki_rank = {}
 
-    tarih = bugunun_tarihi_veya_son_is_gunu()
-    print(f"Tarih: {tarih}")
+    tarih_tahmin = bugunun_tarihi_veya_son_is_gunu()
+    print(f"Tahmini tarih: {tarih_tahmin} (TEFAS'in kendi tarihiyle dogrulanacak)")
 
     print("TEFAS'tan bugunun fiyatlari cekiliyor...")
     try:
-        bugun_fiyat = bugunku_fiyatlari_cek(set(fon_listesi.keys()), tarih)
+        bugun_fiyat, tefas_tarihi = bugunku_fiyatlari_cek(set(fon_listesi.keys()), tarih_tahmin)
     except (TefasRateLimitError, TefasAPIError) as e:
         print(f"HATA: TEFAS'tan veri cekilemedi: {e}")
         return
+
+    if not tefas_tarihi:
+        print("HATA: TEFAS'tan tarih bilgisi alinamadi, islem durduruldu.")
+        return
+
+    son_bilinen_tarih = fiyat_gecmisi["tarihler"][0] if fiyat_gecmisi["tarihler"] else None
+    yeni_gun_var_mi = (tefas_tarihi != son_bilinen_tarih)
+    tarih = tefas_tarihi
+    print(f"TEFAS'in gercek veri tarihi: {tarih} (elimizdeki en yeni: {son_bilinen_tarih}) "
+          f"-> {'YENI GUN' if yeni_gun_var_mi else 'henuz yeni veri yok, pencere kaydirilmayacak'}")
 
     eksik = [k for k in fon_listesi if k not in bugun_fiyat]
     if eksik:
         print(f"UYARI: {len(eksik)} fon icin bugun fiyat gelmedi (islem "
               f"gormemis olabilir): {eksik[:10]}{'...' if len(eksik)>10 else ''}")
 
-    # --- fiyat gecmisini guncelle (yeni gunu basa ekle, en eskiyi at) ---
-    fiyat_gecmisi["tarihler"].insert(0, tarih)
-    fiyat_gecmisi["tarihler"] = fiyat_gecmisi["tarihler"][:GUN_SAYISI]
-    for kod in fon_listesi:
-        eski_seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0] * GUN_SAYISI)
-        yeni_fiyat = bugun_fiyat.get(kod, eski_seri[0] if eski_seri else 0.0)
-        eski_seri = [yeni_fiyat] + eski_seri
-        fiyat_gecmisi["fiyatlar"][kod] = eski_seri[:GUN_SAYISI]
+    # --- fiyat gecmisini SADECE gercekten yeni bir gun varsa guncelle ---
+    if yeni_gun_var_mi:
+        fiyat_gecmisi["tarihler"].insert(0, tarih)
+        fiyat_gecmisi["tarihler"] = fiyat_gecmisi["tarihler"][:GUN_SAYISI]
+        for kod in fon_listesi:
+            eski_seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0] * GUN_SAYISI)
+            yeni_fiyat = bugun_fiyat.get(kod, eski_seri[0] if eski_seri else 0.0)
+            eski_seri = [yeni_fiyat] + eski_seri
+            fiyat_gecmisi["fiyatlar"][kod] = eski_seri[:GUN_SAYISI]
+    else:
+        print("Pencere kaydirilmadi -- ayni gun icin sadece skorlar yeniden hesaplanacak.")
 
     kodlar = list(fon_listesi.keys())
     fiyat_full = np.array([fiyat_gecmisi["fiyatlar"][k] for k in kodlar])
