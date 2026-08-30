@@ -108,7 +108,10 @@ function App(){
         showToast(`${kod} için PPF adedi anında güncellendi`);
       } else {
         const {data, sha} = await githubReadJson("bekleyen_emirler.json");
-        data.push({kod, tip: orderTip, tutar: orderTip==="AL" ? Number(orderTutar) : null, talep_tarihi: new Date().toISOString().slice(0,10)});
+        const emir = {kod, tip: orderTip, talep_tarihi: new Date().toISOString().slice(0,10)};
+        if(orderTip==="AL") emir.tutar = Number(orderTutar);
+        else emir.adet = Number(orderTutar);
+        data.push(emir);
         await githubWriteJson("bekleyen_emirler.json", data, sha, `Emir kuyruguna eklendi: ${orderTip} ${kod}`);
         showToast(`${kod} emri kaydedildi, bir sonraki güncellemede işlenecek`);
       }
@@ -327,28 +330,44 @@ function App(){
           <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-5 w-full max-w-sm" onClick={e=>e.stopPropagation()}>
             <h3 className="text-lg font-bold mb-4">Alım / Satım</h3>
             <div className="flex flex-col gap-3">
-              <div>
-                <label className="text-[11px] text-zinc-400">Fon Kodu</label>
-                <input value={orderKod} onChange={e=>setOrderKod(e.target.value.toUpperCase())} placeholder="ör: KHA"
-                  className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm uppercase" />
-              </div>
-              <div className="flex gap-2">
-                <button onClick={()=>setOrderTip("AL")} className={`flex-1 py-2 rounded-lg text-sm font-semibold ${orderTip==="AL"?"bg-emerald-500/25 border border-emerald-500/50 text-emerald-300":"bg-zinc-800 border border-zinc-700 text-zinc-400"}`}>AL</button>
-                <button onClick={()=>setOrderTip("SAT")} className={`flex-1 py-2 rounded-lg text-sm font-semibold ${orderTip==="SAT"?"bg-rose-500/25 border border-rose-500/50 text-rose-300":"bg-zinc-800 border border-zinc-700 text-zinc-400"}`}>SAT</button>
+              <div className="flex gap-2 items-end">
+                <div className="w-20">
+                  <label className="text-[11px] text-zinc-400">Fon Kodu</label>
+                  <input value={orderKod} onChange={e=>setOrderKod(e.target.value.toUpperCase())} placeholder="KHA" maxLength={3}
+                    className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-2 text-sm uppercase text-center" />
+                </div>
+                <button onClick={()=>setOrderTip("AL")} className={`flex-1 h-[38px] mt-[18px] rounded-lg text-sm font-semibold ${orderTip==="AL"?"bg-emerald-500/25 border border-emerald-500/50 text-emerald-300":"bg-zinc-800 border border-zinc-700 text-zinc-400"}`}>AL</button>
+                <button onClick={()=>setOrderTip("SAT")} className={`flex-1 h-[38px] mt-[18px] rounded-lg text-sm font-semibold ${orderTip==="SAT"?"bg-rose-500/25 border border-rose-500/50 text-rose-300":"bg-zinc-800 border border-zinc-700 text-zinc-400"}`}>SAT</button>
               </div>
               {(() => {
                 const fon = funds.find(f=>f.kod===orderKod);
                 const ppf = fon && fon.val===0;
-                if(orderTip==="SAT" && !ppf){
-                  return <div className="text-[12px] text-zinc-400">Pozisyon tamamen kapatılacak (bir sonraki güncellemede).</div>;
+                if(ppf){
+                  return (
+                    <div>
+                      <label className="text-[11px] text-zinc-400">Yeni toplam adet</label>
+                      <input type="number" value={orderTutar} onChange={e=>setOrderTutar(e.target.value)}
+                        className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mono" />
+                      <div className="text-[11px] text-amber-400/80 mt-1">PPF fonu — anında uygulanır.</div>
+                    </div>
+                  );
+                }
+                if(orderTip==="AL"){
+                  return (
+                    <div>
+                      <label className="text-[11px] text-zinc-400">Tutar (TL)</label>
+                      <input type="number" value={orderTutar} onChange={e=>setOrderTutar(e.target.value)}
+                        className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mono" />
+                      <div className="text-[11px] text-zinc-500 mt-1">Bir sonraki güncellemede işlenir.</div>
+                    </div>
+                  );
                 }
                 return (
                   <div>
-                    <label className="text-[11px] text-zinc-400">{ppf ? "Yeni toplam adet" : "Tutar (TL)"}</label>
+                    <label className="text-[11px] text-zinc-400">Adet (satılacak pay)</label>
                     <input type="number" value={orderTutar} onChange={e=>setOrderTutar(e.target.value)}
                       className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mono" />
-                    {ppf && <div className="text-[11px] text-amber-400/80 mt-1">PPF fonu — anında uygulanır.</div>}
-                    {!ppf && orderTip==="AL" && <div className="text-[11px] text-zinc-500 mt-1">Bir sonraki güncellemede işlenir.</div>}
+                    <div className="text-[11px] text-zinc-500 mt-1">Bir sonraki güncellemede işlenir. Tüm adedi girerseniz pozisyon kapanır.</div>
                   </div>
                 );
               })()}
@@ -372,12 +391,10 @@ function App(){
             <div className="mt-1.5 text-[11px] text-zinc-400 ml-[1px]">{timeAgo(lastUpdate)}</div>
           </div>
           <div className="flex items-center gap-2">
-            <div onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault(); let f=e.dataTransfer.files?.[0]; if(f) handleFile(f);}} className="flex items-center gap-2 rounded-full border border-zinc-700 bg-white text-black px-4 py-2.5 cursor-pointer h-[42px] hover:bg-zinc-100 transition" onClick={()=>fileRef.current?.click()} title="2030.xlsm dosyasını seç">
+            <div onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault(); let f=e.dataTransfer.files?.[0]; if(f) handleFile(f);}} className="flex items-center gap-2 rounded-full border border-zinc-700 bg-white text-black px-4 py-2.5 cursor-pointer h-[42px] hover:bg-zinc-100 transition" onClick={()=>fileRef.current?.click()}>
               <span className="text-[13px] font-semibold leading-none">Güncelle</span>
             </div>
-            <button onClick={()=>setEditMode(v=>!v)} className={`h-[42px] rounded-full border px-4 text-[12px] font-medium flex items-center gap-1.5 transition ${editMode?"bg-amber-400 text-black border-amber-400":"bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800"}`}>{editMode?"Bitir":"Düzenle"}</button>
             <button onClick={scrollToPortfolio} className="h-[42px] rounded-full border border-violet-500/40 bg-violet-500/15 text-violet-200 px-4 text-[12px] font-medium hover:bg-violet-500/25">Portföy</button>
-            <span className="text-[11px] text-zinc-500 ml-2 hidden sm:inline">Güncelle = dosya seç • Sürükle-bırak da olur</span>
             <button onClick={()=>{ localStorage.removeItem(Ku); localStorage.removeItem("omurga_excel_cache_v5_DleAA"); localStorage.removeItem("omurga_excel_cache_v4_TLfix"); localStorage.removeItem("omurga_excel_cache_v3_F"); showToast("Önbellek temizlendi, şimdi Güncelle ile dosya seç"); }} className="h-[32px] px-3 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-400 hover:text-zinc-200 ml-1">Hafızayı temizle</button>
             <input ref={fileRef} type="file" accept=".xlsx,.xls,.xlsm,.xls" className="hidden" onChange={e=>{ let f=e.target.files?.[0]; if(f){ handleFile(f); e.target.value=''; }}}/>
           </div>
@@ -407,7 +424,7 @@ function App(){
           <GroupCard title={titles.haftalik} funds={groups.haftalik} avgYil={avg(groups.haftalik)} color="blue" editMode={editMode} onTitleChange={v=>setTitles(s=>({...s,haftalik:v}))}/>
         </div>
 
-        <div ref={portfolioRef} className="mt-8 rounded-[22px] border border-zinc-800 bg-[#101014] overflow-hidden">
+        <div ref={portfolioRef} className="mt-8 scroll-mt-20 rounded-[22px] border border-zinc-800 bg-[#101014] overflow-hidden">
           <div className="px-5 md:px-7 py-5 border-b border-zinc-800/80 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-[28px] md:text-3xl font-bold tracking-tight leading-none flex items-center gap-3">
