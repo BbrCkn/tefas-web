@@ -16,7 +16,9 @@
    "tema": "1.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KHA",
@@ -34,7 +36,9 @@
    "tema": "9.01",
    "guncel": 9998.88,
    "toplam": 9998.88,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": 0.0,
+   "yilKarZarar": 0.0
   },
   {
    "kod": "ICH",
@@ -52,7 +56,9 @@
    "tema": "7.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RPM",
@@ -70,7 +76,9 @@
    "tema": "2.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TRJ",
@@ -88,7 +96,9 @@
    "tema": "6.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DFI",
@@ -106,7 +116,9 @@
    "tema": "3.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "BIH",
@@ -124,7 +136,9 @@
    "tema": "8.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": -0.0
+   "gunlukTL": -0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "PHE",
@@ -142,7 +156,9 @@
    "tema": "9.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "THF",
@@ -160,7 +176,9 @@
    "tema": "7.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "BBR",
@@ -178,7 +196,9 @@
    "tema": null,
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IJI",
@@ -196,7 +216,9 @@
    "tema": "9.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "BMU",
@@ -214,7 +236,9 @@
    "tema": "3.03",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "NJR",
@@ -232,7 +256,9 @@
    "tema": "6.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "PBI",
@@ -250,7 +276,9 @@
    "tema": "9.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RSK",
@@ -268,7 +296,9 @@
    "tema": "9.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OSD",
@@ -286,7 +316,9 @@
    "tema": "6.03",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RBR",
@@ -304,7 +336,9 @@
    "tema": "5.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IDI",
@@ -322,7 +356,9 @@
    "tema": "9.03",
    "guncel": 9998.6,
    "toplam": 9998.6,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": 0.0,
+   "yilKarZarar": 0.0
   },
   {
    "kod": "AP7",
@@ -340,7 +376,9 @@
    "tema": "3.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "SOS",
@@ -358,7 +396,9 @@
    "tema": "2.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RBT",
@@ -376,7 +416,9 @@
    "tema": "6.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OLE",
@@ -394,7 +436,9 @@
    "tema": "3.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "UP2",
@@ -412,7 +456,9 @@
    "tema": "6.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "BRG",
@@ -430,7 +476,9 @@
    "tema": null,
    "guncel": 51253.25,
    "toplam": 51253.25,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TBV",
@@ -448,7 +496,9 @@
    "tema": "6.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FYO",
@@ -466,7 +516,9 @@
    "tema": "6.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GUB",
@@ -484,7 +536,9 @@
    "tema": "6.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "EDT",
@@ -502,7 +556,9 @@
    "tema": "6.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YHK",
@@ -520,7 +576,9 @@
    "tema": "7.03",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YBS",
@@ -538,7 +596,9 @@
    "tema": "6.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "PBR",
@@ -556,7 +616,9 @@
    "tema": "3.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GO1",
@@ -574,7 +636,9 @@
    "tema": "5.03",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DBZ",
@@ -592,7 +656,9 @@
    "tema": "6.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RPT",
@@ -610,7 +676,9 @@
    "tema": "6.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ARE",
@@ -628,7 +696,9 @@
    "tema": "2.03",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "AYR",
@@ -646,7 +716,9 @@
    "tema": "6.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "NSH",
@@ -664,7 +736,9 @@
    "tema": "3.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OKT",
@@ -682,7 +756,9 @@
    "tema": "6.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GBN",
@@ -700,7 +776,9 @@
    "tema": "6.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TOT",
@@ -718,7 +796,9 @@
    "tema": "6.17",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YHZ",
@@ -736,7 +816,9 @@
    "tema": "9.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ZBI",
@@ -754,7 +836,9 @@
    "tema": "7.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YVD",
@@ -772,7 +856,9 @@
    "tema": null,
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GYK",
@@ -790,7 +876,9 @@
    "tema": "6.19",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "BBF",
@@ -808,7 +896,9 @@
    "tema": "6.16",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OPD",
@@ -826,7 +916,9 @@
    "tema": "6.18",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IRV",
@@ -844,7 +936,9 @@
    "tema": "3.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DKR",
@@ -862,7 +956,9 @@
    "tema": "9.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "NVT",
@@ -880,7 +976,9 @@
    "tema": "3.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ONN",
@@ -898,7 +996,9 @@
    "tema": "6.21",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "MPK",
@@ -916,7 +1016,9 @@
    "tema": "6.20",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HEH",
@@ -934,7 +1036,9 @@
    "tema": "3.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TPF",
@@ -952,7 +1056,9 @@
    "tema": "6.22",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "USY",
@@ -970,7 +1076,9 @@
    "tema": "2.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GLS",
@@ -988,7 +1096,9 @@
    "tema": "6.23",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ICZ",
@@ -1006,7 +1116,9 @@
    "tema": "9.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YIT",
@@ -1024,7 +1136,9 @@
    "tema": "10.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KCV",
@@ -1042,7 +1156,9 @@
    "tema": "9.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DPK",
@@ -1060,7 +1176,9 @@
    "tema": "6.24",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IJZ",
@@ -1078,7 +1196,9 @@
    "tema": "4.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ZPG",
@@ -1096,7 +1216,9 @@
    "tema": "6.25",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KPC",
@@ -1114,7 +1236,9 @@
    "tema": "7.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "CPU",
@@ -1132,7 +1256,9 @@
    "tema": "10.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HJB",
@@ -1150,7 +1276,9 @@
    "tema": "9.17",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KTJ",
@@ -1168,7 +1296,9 @@
    "tema": "10.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IRT",
@@ -1186,7 +1316,9 @@
    "tema": "4.03",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "SGT",
@@ -1204,7 +1336,9 @@
    "tema": "4.01",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TTE",
@@ -1222,7 +1356,9 @@
    "tema": "9.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TE4",
@@ -1240,7 +1376,9 @@
    "tema": "6.26",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DOH",
@@ -1258,7 +1396,9 @@
    "tema": "7.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RBH",
@@ -1276,7 +1416,9 @@
    "tema": "9.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IAT",
@@ -1294,7 +1436,9 @@
    "tema": "6.27",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "SUA",
@@ -1312,7 +1456,9 @@
    "tema": "2.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KNJ",
@@ -1330,7 +1476,9 @@
    "tema": "5.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "CKF",
@@ -1348,7 +1496,9 @@
    "tema": "10.03",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "BVV",
@@ -1366,7 +1516,9 @@
    "tema": "4.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HIM",
@@ -1384,7 +1536,9 @@
    "tema": "3.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IAE",
@@ -1402,7 +1556,9 @@
    "tema": "9.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "END",
@@ -1420,7 +1576,9 @@
    "tema": null,
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YDP",
@@ -1438,7 +1596,9 @@
    "tema": "7.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GPF",
@@ -1456,7 +1616,9 @@
    "tema": "9.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IAU",
@@ -1474,7 +1636,9 @@
    "tema": "3.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FNO",
@@ -1492,7 +1656,9 @@
    "tema": "7.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "CPT",
@@ -1510,7 +1676,9 @@
    "tema": "10.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HGM",
@@ -1528,7 +1696,9 @@
    "tema": "9.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FFH",
@@ -1546,7 +1716,9 @@
    "tema": "7.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IJC",
@@ -1564,7 +1736,9 @@
    "tema": "10.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HPO",
@@ -1582,7 +1756,9 @@
    "tema": "5.04",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GBG",
@@ -1600,7 +1776,9 @@
    "tema": "4.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YAY",
@@ -1618,7 +1796,9 @@
    "tema": "10.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IKL",
@@ -1636,7 +1816,9 @@
    "tema": "2.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DVT",
@@ -1654,7 +1836,9 @@
    "tema": "4.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "AFV",
@@ -1672,7 +1856,9 @@
    "tema": "3.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YJK",
@@ -1690,7 +1876,9 @@
    "tema": "4.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HDA",
@@ -1708,7 +1896,9 @@
    "tema": "8.02",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YFV",
@@ -1726,7 +1916,9 @@
    "tema": "3.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ITP",
@@ -1744,7 +1936,9 @@
    "tema": "4.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "SPN",
@@ -1762,7 +1956,9 @@
    "tema": "3.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FZP",
@@ -1780,7 +1976,9 @@
    "tema": "9.20",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OJT",
@@ -1798,7 +1996,9 @@
    "tema": "4.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GPB",
@@ -1816,7 +2016,9 @@
    "tema": "9.18",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TE3",
@@ -1834,7 +2036,9 @@
    "tema": "7.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ZDD",
@@ -1852,7 +2056,9 @@
    "tema": "9.21",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "SPT",
@@ -1870,7 +2076,9 @@
    "tema": "5.05",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OPF",
@@ -1888,7 +2096,9 @@
    "tema": "10.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RTG",
@@ -1906,7 +2116,9 @@
    "tema": "10.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "AFA",
@@ -1924,7 +2136,9 @@
    "tema": "2.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TMG",
@@ -1942,7 +2156,9 @@
    "tema": "2.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DBB",
@@ -1960,7 +2176,9 @@
    "tema": "2.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GA1",
@@ -1978,7 +2196,9 @@
    "tema": "2.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GPU",
@@ -1996,7 +2216,9 @@
    "tema": "9.19",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GBV",
@@ -2014,7 +2236,9 @@
    "tema": "10.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YUN",
@@ -2032,7 +2256,9 @@
    "tema": "3.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ALC",
@@ -2050,7 +2276,9 @@
    "tema": "7.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YAK",
@@ -2068,7 +2296,9 @@
    "tema": "7.18",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GPI",
@@ -2086,7 +2316,9 @@
    "tema": "9.22",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GPT",
@@ -2104,7 +2336,9 @@
    "tema": "4.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ROF",
@@ -2122,7 +2356,9 @@
    "tema": "9.16",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YEF",
@@ -2140,7 +2376,9 @@
    "tema": "7.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DSP",
@@ -2158,7 +2396,9 @@
    "tema": "5.21",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HRZ",
@@ -2176,7 +2416,9 @@
    "tema": "9.25",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GSP",
@@ -2194,7 +2436,9 @@
    "tema": "7.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KPU",
@@ -2212,7 +2456,9 @@
    "tema": "7.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KTN",
@@ -2230,7 +2476,9 @@
    "tema": "3.17",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "EKF",
@@ -2248,7 +2496,9 @@
    "tema": "3.16",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "APT",
@@ -2266,7 +2516,9 @@
    "tema": "2.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FI3",
@@ -2284,7 +2536,9 @@
    "tema": "2.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GAH",
@@ -2302,7 +2556,9 @@
    "tema": "9.23",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IDY",
@@ -2320,7 +2576,9 @@
    "tema": "10.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": -0.0
+   "gunlukTL": -0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "CKS",
@@ -2338,7 +2596,9 @@
    "tema": "2.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "PFS",
@@ -2356,7 +2616,9 @@
    "tema": "5.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OIR",
@@ -2374,7 +2636,9 @@
    "tema": "5.27",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GTY",
@@ -2392,7 +2656,9 @@
    "tema": "4.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ZFB",
@@ -2410,7 +2676,9 @@
    "tema": "10.11",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RPG",
@@ -2428,7 +2696,9 @@
    "tema": "5.07",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OVD",
@@ -2446,7 +2716,9 @@
    "tema": "5.19",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ILZ",
@@ -2464,7 +2736,9 @@
    "tema": "3.19",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IPV",
@@ -2482,7 +2756,9 @@
    "tema": "2.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OMG",
@@ -2500,7 +2776,9 @@
    "tema": "7.16",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "EDU",
@@ -2518,7 +2796,9 @@
    "tema": "3.18",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HIZ",
@@ -2536,7 +2816,9 @@
    "tema": "4.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "NJF",
@@ -2554,7 +2836,9 @@
    "tema": "5.09",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IML",
@@ -2572,7 +2856,9 @@
    "tema": "9.26",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IDF",
@@ -2590,7 +2876,9 @@
    "tema": "2.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "UPD",
@@ -2608,7 +2896,9 @@
    "tema": "2.16",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "SPE",
@@ -2626,7 +2916,9 @@
    "tema": "2.17",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OJK",
@@ -2644,7 +2936,9 @@
    "tema": "5.10",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TZT",
@@ -2662,7 +2956,9 @@
    "tema": "3.20",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GID",
@@ -2680,7 +2976,9 @@
    "tema": "9.24",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HAM",
@@ -2698,7 +2996,9 @@
    "tema": "5.12",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OPL",
@@ -2716,7 +3016,9 @@
    "tema": "5.17",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TI6",
@@ -2734,7 +3036,9 @@
    "tema": "2.18",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "AK3",
@@ -2752,7 +3056,9 @@
    "tema": "7.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KZL",
@@ -2770,7 +3076,9 @@
    "tema": "5.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GZE",
@@ -2788,7 +3096,9 @@
    "tema": "5.24",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TGE",
@@ -2806,7 +3116,9 @@
    "tema": "5.28",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "UP1",
@@ -2824,7 +3136,9 @@
    "tema": "5.16",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "JET",
@@ -2842,7 +3156,9 @@
    "tema": "10.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "MJG",
@@ -2860,7 +3176,9 @@
    "tema": "5.06",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "TIE",
@@ -2878,7 +3196,9 @@
    "tema": "7.17",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HBF",
@@ -2896,7 +3216,9 @@
    "tema": "5.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IJA",
@@ -2914,7 +3236,9 @@
    "tema": "7.20",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DBA",
@@ -2932,7 +3256,9 @@
    "tema": "5.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GAE",
@@ -2950,7 +3276,9 @@
    "tema": "7.19",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KUT",
@@ -2968,7 +3296,9 @@
    "tema": "5.08",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GBC",
@@ -2986,7 +3316,9 @@
    "tema": "4.13",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YAC",
@@ -3004,7 +3336,9 @@
    "tema": "10.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YKT",
@@ -3022,7 +3356,9 @@
    "tema": "5.22",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DPB",
@@ -3040,7 +3376,9 @@
    "tema": "2.20",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GTA",
@@ -3058,7 +3396,9 @@
    "tema": "5.23",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OFI",
@@ -3076,7 +3416,9 @@
    "tema": "9.27",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "OGD",
@@ -3094,7 +3436,9 @@
    "tema": "5.25",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FJZ",
@@ -3112,7 +3456,9 @@
    "tema": "2.21",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RKS",
@@ -3130,7 +3476,9 @@
    "tema": "2.19",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HDK",
@@ -3148,7 +3496,9 @@
    "tema": "3.21",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IUV",
@@ -3166,7 +3516,9 @@
    "tema": "2.22",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YLO",
@@ -3184,7 +3536,9 @@
    "tema": "4.14",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FFP",
@@ -3202,7 +3556,9 @@
    "tema": "7.21",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KHC",
@@ -3220,7 +3576,9 @@
    "tema": "9.28",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "KKH",
@@ -3238,7 +3596,9 @@
    "tema": "3.23",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DMG",
@@ -3256,7 +3616,9 @@
    "tema": "5.18",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": -0.0
+   "gunlukTL": -0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YBE",
@@ -3274,7 +3636,9 @@
    "tema": "2.24",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IBB",
@@ -3292,7 +3656,9 @@
    "tema": "3.22",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DBH",
@@ -3310,7 +3676,9 @@
    "tema": "2.23",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YZG",
@@ -3328,7 +3696,9 @@
    "tema": "5.20",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DFD",
@@ -3346,7 +3716,9 @@
    "tema": "5.29",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "BHF",
@@ -3364,7 +3736,9 @@
    "tema": "9.29",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GPA",
@@ -3382,7 +3756,9 @@
    "tema": "2.25",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "RPD",
@@ -3400,7 +3776,9 @@
    "tema": "10.18",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "ZCN",
@@ -3418,7 +3796,9 @@
    "tema": "5.30",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "FMG",
@@ -3436,7 +3816,9 @@
    "tema": "5.26",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IPJ",
@@ -3454,7 +3836,9 @@
    "tema": "10.17",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IKP",
@@ -3472,7 +3856,9 @@
    "tema": "10.19",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "IPG",
@@ -3490,7 +3876,9 @@
    "tema": "3.24",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "PIL",
@@ -3508,7 +3896,9 @@
    "tema": "10.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YGM",
@@ -3526,7 +3916,9 @@
    "tema": "5.31",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "AFT",
@@ -3544,7 +3936,9 @@
    "tema": "10.16",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "HVK",
@@ -3562,7 +3956,9 @@
    "tema": "2.26",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "DYN",
@@ -3580,7 +3976,9 @@
    "tema": "4.15",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "YJH",
@@ -3598,7 +3996,9 @@
    "tema": "10.21",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "AOY",
@@ -3616,7 +4016,9 @@
    "tema": "10.20",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GVA",
@@ -3634,7 +4036,9 @@
    "tema": "10.23",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   },
   {
    "kod": "GZH",
@@ -3652,7 +4056,9 @@
    "tema": "10.22",
    "guncel": 0.0,
    "toplam": 0.0,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   }
  ],
  "portfolio": [
@@ -3672,7 +4078,9 @@
    "tema": "9.01",
    "guncel": 9998.88,
    "toplam": 9998.88,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": 0.0,
+   "yilKarZarar": 0.0
   },
   {
    "kod": "IDI",
@@ -3690,7 +4098,9 @@
    "tema": "9.03",
    "guncel": 9998.6,
    "toplam": 9998.6,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": 0.0,
+   "yilKarZarar": 0.0
   },
   {
    "kod": "BRG",
@@ -3708,15 +4118,17 @@
    "tema": null,
    "guncel": 51253.25,
    "toplam": 51253.25,
-   "gunlukTL": 0.0
+   "gunlukTL": 0.0,
+   "ayKarZarar": null,
+   "yilKarZarar": null
   }
  ],
  "totals": {
   "daily": 0.0,
-  "monthly": 5026.46,
-  "yearly": 42014.26
+  "monthly": 0.0,
+  "yearly": 0.0
  },
- "timestamp": 1788085642222,
+ "timestamp": 1788110424366,
  "tableDate": "2026-08-28",
  "isGunuSayilari": {
   "aylik": 22,
