@@ -53,6 +53,7 @@ function App(){
   const [fonListKod,setFonListKod]=React.useState("");
   const [fonListValor,setFonListValor]=React.useState("");
   const [fonListBusy,setFonListBusy]=React.useState(false);
+  const [guncelBusy,setGuncelBusy]=React.useState(false);
   const [orderKod,setOrderKod]=React.useState("");
   const [orderTip,setOrderTip]=React.useState("AL");
   const [orderTutar,setOrderTutar]=React.useState("");
@@ -161,6 +162,30 @@ function App(){
       showToast("Hata: "+e.message);
     } finally {
       setFonListBusy(false);
+    }
+  }
+
+  async function guncellemeTetikle(){
+    const token = getToken();
+    if(!token) return;
+    setGuncelBusy(true);
+    try{
+      const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/fetch-tefas.yml/dispatches`;
+      const res = await fetch(url, {
+        method:"POST",
+        headers:{Authorization:`token ${token}`, Accept:"application/vnd.github+json", "Content-Type":"application/json"},
+        body: JSON.stringify({ref:"main"}),
+      });
+      if(res.ok){
+        showToast("Güncelleme tetiklendi — birkaç dakika içinde tamamlanır");
+      } else {
+        const t = await res.text();
+        throw new Error(`${res.status}: ${t.slice(0,150)}`);
+      }
+    } catch(e){
+      showToast("Hata: "+e.message);
+    } finally {
+      setGuncelBusy(false);
     }
   }
   const [toast,setToast]=React.useState("");
@@ -466,11 +491,12 @@ function App(){
             <div className="mt-1.5 text-[11px] text-zinc-400 ml-[1px]">{timeAgo(lastUpdate)}</div>
           </div>
           <div className="flex items-center gap-2">
-            <div onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault(); let f=e.dataTransfer.files?.[0]; if(f) handleFile(f);}} className="flex items-center gap-2 rounded-full border border-zinc-700 bg-white text-black px-4 py-2.5 cursor-pointer h-[42px] hover:bg-zinc-100 transition" onClick={()=>fileRef.current?.click()}>
-              <span className="text-[13px] font-semibold leading-none">Güncelle</span>
-            </div>
+            <button onClick={guncellemeTetikle} disabled={guncelBusy} className="flex items-center gap-2 rounded-full border border-zinc-700 bg-white text-black px-4 py-2.5 h-[42px] hover:bg-zinc-100 transition disabled:opacity-50">
+              <span className="text-[13px] font-semibold leading-none">{guncelBusy?"Tetikleniyor...":"Güncelle"}</span>
+            </button>
             <button onClick={scrollToPortfolio} className="h-[42px] rounded-full border border-violet-500/40 bg-violet-500/15 text-violet-200 px-4 text-[12px] font-medium hover:bg-violet-500/25">Portföy</button>
-            <button onClick={()=>{ localStorage.removeItem(Ku); localStorage.removeItem("omurga_excel_cache_v5_DleAA"); localStorage.removeItem("omurga_excel_cache_v4_TLfix"); localStorage.removeItem("omurga_excel_cache_v3_F"); showToast("Önbellek temizlendi, şimdi Güncelle ile dosya seç"); }} className="h-[32px] px-3 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-400 hover:text-zinc-200 ml-1">Hafızayı temizle</button>
+            <button onClick={()=>{ localStorage.removeItem(Ku); localStorage.removeItem("omurga_excel_cache_v5_DleAA"); localStorage.removeItem("omurga_excel_cache_v4_TLfix"); localStorage.removeItem("omurga_excel_cache_v3_F"); showToast("Önbellek temizlendi"); }} className="h-[32px] px-3 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-400 hover:text-zinc-200 ml-1">Hafızayı temizle</button>
+            <button onClick={()=>{ localStorage.removeItem("gh_pat"); showToast("Token silindi, bir sonraki işlemde yenisi istenecek"); }} className="h-[32px] px-3 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-400 hover:text-zinc-200">Token'ı sıfırla</button>
             <input ref={fileRef} type="file" accept=".xlsx,.xls,.xlsm,.xls" className="hidden" onChange={e=>{ let f=e.target.files?.[0]; if(f){ handleFile(f); e.target.value=''; }}}/>
           </div>
         </div>
