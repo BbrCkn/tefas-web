@@ -1,5 +1,13 @@
 {
- "KHA": {"adet": 2180, "alis_tarihi": "2026-08-28"},
- "IDI": {"adet": 5535, "alis_tarihi": "2026-08-28"},
- "BRG": {"adet": 9940}
+ "KHA": {
+  "adet": 2180,
+  "alis_tarihi": "2026-08-28"
+ },
+ "IDI": {
+  "adet": 5535,
+  "alis_tarihi": "2026-08-28"
+ },
+ "BRG": {
+  "adet": 1
+ }
 }
