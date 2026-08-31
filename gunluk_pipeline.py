@@ -38,6 +38,28 @@ def bugunun_tarihi_veya_son_is_gunu() -> str:
     return bugun.strftime("%Y-%m-%d")
 
 
+def yeni_fon_gecmisini_cek(kod: str, gun_sayisi: int = GUN_SAYISI):
+    """Yeni eklenen bir fon icin gecmis fiyat serisini TEFAS'tan ceker.
+    Donus: (fon_adi, fiyatlar_listesi_yeniden_eskiye) ya da (None, None)."""
+    bugun = datetime.date.today()
+    baslangic = bugun - datetime.timedelta(days=int(gun_sayisi * 1.5))  # hafta sonlari icin pay
+    tefas = Crawler()
+    df = tefas.fetch(baslangic.strftime("%Y-%m-%d"), bugun.strftime("%Y-%m-%d"),
+                      columns="info", kind="YAT", fund_code=kod)
+    kayitlar = json.loads(df.to_json(orient="records"))
+    if not kayitlar:
+        return None, None
+    # tarihe gore yeniden eskiye sirala
+    kayitlar.sort(key=lambda k: k.get("date", ""), reverse=True)
+    fiyatlar = [k.get("price", 0.0) for k in kayitlar][:gun_sayisi]
+    ad = kayitlar[0].get("fund_name")
+    if len(fiyatlar) < gun_sayisi:
+        # yetersiz gecmis (yeni kurulmus fon olabilir) -- ilk degerle doldur
+        doldurma = fiyatlar[-1] if fiyatlar else 0.0
+        fiyatlar = fiyatlar + [doldurma] * (gun_sayisi - len(fiyatlar))
+    return ad, fiyatlar
+
+
 def yukle(dosya):
     with open(KOK / dosya, encoding="utf-8") as f:
         return json.load(f)
@@ -56,6 +78,19 @@ def ay_yil_baslangici(tarih_str):
     """'YYYY-MM-DD' -> (ay_baslangici, yil_baslangici)ayni formatta."""
     yil, ay = tarih_str[:4], tarih_str[5:7]
     return f"{yil}-{ay}-01", f"{yil}-01-01"
+
+
+def is_gunu_ekle(tarih_str, gun_sayisi):
+    """tarih_str ('YYYY-MM-DD') uzerine gun_sayisi kadar IS GUNU (hafta
+    sonu haric) ekler. Valor hesaplamasi icin (resmi tatiller dahil
+    edilmiyor, yaklasik bir tahmindir)."""
+    tarih = datetime.date.fromisoformat(tarih_str)
+    kalan = int(gun_sayisi)
+    while kalan > 0:
+        tarih += datetime.timedelta(days=1)
+        if tarih.weekday() < 5:  # 0-4 = Pazartesi-Cuma
+            kalan -= 1
+    return tarih.strftime("%Y-%m-%d")
 
 
 def kaydet(veri, dosya):
@@ -99,6 +134,41 @@ def main():
         bekleyen_emirler = yukle("bekleyen_emirler.json")
     except FileNotFoundError:
         bekleyen_emirler = []
+    try:
+        bekleyen_valorler = yukle("bekleyen_valorler.json")
+    except FileNotFoundError:
+        bekleyen_valorler = []
+    try:
+        eklenecek_fonlar = yukle("eklenecek_fonlar.json")
+    except FileNotFoundError:
+        eklenecek_fonlar = []
+
+    # --- yeni eklenen fonlarin 1 yillik gecmisini cek ---
+    if eklenecek_fonlar:
+        print(f"{len(eklenecek_fonlar)} yeni fon icin gecmis veri cekiliyor...")
+        kalan_eklenecek = []
+        for istek in eklenecek_fonlar:
+            kod = istek.get("kod")
+            valor = istek.get("valor")
+            if kod in fon_listesi:
+                print(f"  {kod} zaten listede, atlandi.")
+                continue
+            try:
+                ad, fiyatlar = yeni_fon_gecmisini_cek(kod)
+            except (TefasRateLimitError, TefasAPIError) as e:
+                print(f"  HATA: {kod} icin veri cekilemedi ({e}), tekrar denenecek.")
+                kalan_eklenecek.append(istek)
+                continue
+            if not ad:
+                print(f"  UYARI: {kod} icin TEFAS'ta veri bulunamadi, kod hatali olabilir.")
+                continue
+            fon_listesi[kod] = {"ad": ad, "valor": valor}
+            fiyat_gecmisi["fiyatlar"][kod] = fiyatlar
+            print(f"  {kod} ({ad}) eklendi, {len(fiyatlar)} gunluk gecmisle.")
+        eklenecek_fonlar = kalan_eklenecek
+        kaydet(eklenecek_fonlar, "eklenecek_fonlar.json")
+        kaydet(fon_listesi, "fon_listesi.json")
+        kaydet(fiyat_gecmisi, "price_history.json")
 
     tarih_tahmin = bugunun_tarihi_veya_son_is_gunu()
     print(f"Tahmini tarih: {tarih_tahmin} (TEFAS'in kendi tarihiyle dogrulanacak)")
@@ -183,19 +253,32 @@ def main():
                 mevcut = portfoy.get(kod)
                 mevcut_adet = mevcut.get("adet", 0) if isinstance(mevcut, dict) else (mevcut or 0)
                 kalan_adet = mevcut_adet - satilacak_adet
+                satis_tutari = round(satilacak_adet * fiyat_bugun_kod, 2)
+                valor_gun = fon_listesi.get(kod, {}).get("valor") or 0
+                hesaba_gecis = is_gunu_ekle(tarih, valor_gun)
+                bekleyen_valorler.append({
+                    "kod": kod, "tutar": satis_tutari,
+                    "satis_tarihi": tarih, "hesaba_gecis_tarihi": hesaba_gecis,
+                })
                 if kalan_adet <= 0:
                     if kod in portfoy:
                         del portfoy[kod]
                     print(f"  SAT: {kod} pozisyonu tamamen kapatildi "
-                          f"({satilacak_adet} adet satildi, {mevcut_adet} adet vardi)")
+                          f"({satilacak_adet} adet satildi, {mevcut_adet} adet vardi, "
+                          f"{satis_tutari} TL {hesaba_gecis} tarihinde hesaba gecer)")
                 else:
                     alis_tarihi_eski = mevcut.get("alis_tarihi") if isinstance(mevcut, dict) else None
                     portfoy[kod] = {"adet": kalan_adet, "alis_tarihi": alis_tarihi_eski}
                     print(f"  SAT: {kod} kismi satis, {satilacak_adet} adet satildi, "
-                          f"{kalan_adet} adet kaldi (alis tarihi korunuyor)")
+                          f"{kalan_adet} adet kaldi (alis tarihi korunuyor), "
+                          f"{satis_tutari} TL {hesaba_gecis} tarihinde hesaba gecer)")
         bekleyen_emirler = kalan_emirler  # sadece ertelenenler kalir
         kaydet(bekleyen_emirler, "bekleyen_emirler.json")
         kaydet(portfoy, "portfoy.json")
+
+    # --- suresi gecmis (hesaba gecmis) valor hatirlaticilarini temizle ---
+    bekleyen_valorler = [v for v in bekleyen_valorler if v["hesaba_gecis_tarihi"] > tarih]
+    kaydet(bekleyen_valorler, "bekleyen_valorler.json")
 
     kodlar = list(fon_listesi.keys())
     fiyat_full = np.array([fiyat_gecmisi["fiyatlar"][k] for k in kodlar])
@@ -304,6 +387,7 @@ def main():
         "timestamp": int(datetime.datetime.now().timestamp() * 1000),
         "tableDate": tarih,
         "isGunuSayilari": {"aylik": ay_sayisi, "yillik": yil_sayisi},
+        "bekleyenValorler": bekleyen_valorler,
     }
 
     kaydet(fiyat_gecmisi, "price_history.json")
