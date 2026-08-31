@@ -44,6 +44,7 @@ function App(){
   const [lastUpdate,setLastUpdate]=React.useState(null);
   const [tableDate,setTableDate]=React.useState(null);
   const [isGunuSayilari,setIsGunuSayilari]=React.useState(null);
+  const [bekleyenValorler,setBekleyenValorler]=React.useState([]);
   const [showOrderForm,setShowOrderForm]=React.useState(false);
   const [orderKod,setOrderKod]=React.useState("");
   const [orderTip,setOrderTip]=React.useState("AL");
@@ -260,6 +261,7 @@ function App(){
           if(o.timestamp) setLastUpdate(o.timestamp);
           if(o.tableDate!=null) setTableDate(o.tableDate);
           if(o.isGunuSayilari) setIsGunuSayilari(o.isGunuSayilari);
+          if(o.bekleyenValorler) setBekleyenValorler(o.bekleyenValorler);
           try{ localStorage.setItem(Ku, JSON.stringify(o)); }catch(e){}
           showToast(`${o.funds.length} fon yuklendi (otomatik)`);
         } else {
@@ -435,6 +437,15 @@ function App(){
               </h2>
               <button onClick={()=>setShowOrderForm(true)} className="h-[38px] rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 px-4 text-[12px] font-semibold hover:bg-emerald-500/25">ALIM/SATIM</button>
             </div>
+            {bekleyenValorler && bekleyenValorler.length>0 && (
+              <div className="flex flex-col gap-0.5">
+                {bekleyenValorler.map((v,i)=>(
+                  <div key={i} className="text-[13px] text-zinc-400 tracking-wide">
+                    ⏳ {v.kod}: <span className="mono text-zinc-200 font-medium">{lp(v.tutar)} ₺</span> — {new Date(v.hesaba_gecis_tarihi).toLocaleDateString('tr-TR',{day:'numeric',month:'long'})} tarihinde hesabınıza geçecek
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
               <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
                 <div className="text-[10px] uppercase tracking-wider text-zinc-500">Günlük</div>
