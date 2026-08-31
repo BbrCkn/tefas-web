@@ -195,32 +195,42 @@ def main():
         print(f"UYARI: {len(eksik)} fon icin bugun fiyat gelmedi (islem "
               f"gormemis olabilir): {eksik[:10]}{'...' if len(eksik)>10 else ''}")
 
-    # --- END sentetik endeksi (Endeks.bas / EndeksHesapla ile ayni mantik) ---
-    # END'in "fiyati" gercek bir TEFAS fiyati degil; tum evrenin (END, BBR
-    # haric) esit-agirlikli ortalama gunluk getirisiyle zincirlenerek
-    # hesaplanan sentetik bir gosterge. Sadece gercekten yeni bir gun
-    # varsa hesaplanir (ayni gun icin tekrar tekrar zincirlenmesin diye).
-    if yeni_gun_var_mi:
-        haric = {"END", "BBR"}
-        getiriler = []
-        for kod in fon_listesi:
-            if kod in haric:
-                continue
-            dun_fiyat = fiyat_gecmisi["fiyatlar"].get(kod, [0.0])[0]
-            bugun_fiyat_kod = bugun_fiyat.get(kod)
-            if dun_fiyat and bugun_fiyat_kod:
-                getiriler.append((bugun_fiyat_kod - dun_fiyat) / dun_fiyat * 100)
-        if getiriler:
-            ort_getiri = sum(getiriler) / len(getiriler)
-            end_dun = fiyat_gecmisi["fiyatlar"].get("END", [0.0])[0]
-            if not end_dun or end_dun <= 0:
-                end_dun = 100.0  # ilk calistirma tabani
-            bugun_fiyat["END"] = end_dun * (1 + ort_getiri / 100)
-            print(f"END guncellendi: ortalama getiri %{ort_getiri:.4f}, "
-                  f"yeni deger {bugun_fiyat['END']:.4f}")
+    # "onceki_gun_indeksi": END hesaplarken ve genel getiri karsilastirmalarinda
+    # "dunku fiyat" olarak hangi sutuna bakacagimizi belirler.
+    # - Yeni bir gun ise: index 0 henuz DUNKU fiyati tutuyor (bugunku fiyati
+    #   az sonra basa ekleyecegiz), yani onceki gun = index 0.
+    # - Ayni gunun tekrar calistirilmasiysa (sabah birkac kez guncelleme --
+    #   Excel'deki eski calisma seklinizin ayni): index 0 zaten BUGUNUN
+    #   (kismi/eksik) fiyatini tutuyor, gercek onceki gun index 1'de.
+    onceki_gun_indeksi = 0 if yeni_gun_var_mi else 1
 
-    # --- fiyat gecmisini SADECE gercekten yeni bir gun varsa guncelle ---
+    # --- END sentetik endeksi (Endeks.bas / EndeksHesapla ile ayni mantik) ---
+    # Her calistirmada yeniden hesaplanir (sabah birkac kez guncellemede de
+    # dahil) -- boylece eksik fonlar sonradan gelince END de dogru guncellenir.
+    haric = {"END", "BBR"}
+    getiriler = []
+    for kod in fon_listesi:
+        if kod in haric:
+            continue
+        onceki_seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0])
+        dun_fiyat = onceki_seri[onceki_gun_indeksi] if len(onceki_seri) > onceki_gun_indeksi else 0.0
+        bugun_fiyat_kod = bugun_fiyat.get(kod)
+        if dun_fiyat and bugun_fiyat_kod:
+            getiriler.append((bugun_fiyat_kod - dun_fiyat) / dun_fiyat * 100)
+    if getiriler:
+        ort_getiri = sum(getiriler) / len(getiriler)
+        end_onceki_seri = fiyat_gecmisi["fiyatlar"].get("END", [0.0])
+        end_dun = end_onceki_seri[onceki_gun_indeksi] if len(end_onceki_seri) > onceki_gun_indeksi else 0.0
+        if not end_dun or end_dun <= 0:
+            end_dun = 100.0  # ilk calistirma tabani
+        bugun_fiyat["END"] = end_dun * (1 + ort_getiri / 100)
+        print(f"END guncellendi: ortalama getiri %{ort_getiri:.4f} ({len(getiriler)} fon), "
+              f"yeni deger {bugun_fiyat['END']:.4f}")
+
+    # --- fiyat gecmisi guncellemesi ---
     if yeni_gun_var_mi:
+        # gercekten yeni bir gun: pencereyi kaydir, bugunun (o an elde
+        # olan) fiyatlarini basa ekle
         fiyat_gecmisi["tarihler"].insert(0, tarih)
         fiyat_gecmisi["tarihler"] = fiyat_gecmisi["tarihler"][:GUN_SAYISI]
         for kod in fon_listesi:
@@ -228,8 +238,22 @@ def main():
             yeni_fiyat = bugun_fiyat.get(kod, eski_seri[0] if eski_seri else 0.0)
             eski_seri = [yeni_fiyat] + eski_seri
             fiyat_gecmisi["fiyatlar"][kod] = eski_seri[:GUN_SAYISI]
+        print(f"Pencere kaydirildi, yeni gun eklendi ({len(bugun_fiyat)} fon fiyati ile).")
     else:
-        print("Pencere kaydirilmadi -- ayni gun icin sadece skorlar yeniden hesaplanacak.")
+        # ayni gunun tekrar calistirilmasi: pencereyi KAYDIRMA, sadece
+        # bugunun (index 0) sutununu -- yeni gelen fiyatlarla -- guncelle.
+        # Boylece sabah eksik olan bir fon, sonraki calistirmada
+        # tamamlanabiliyor (Excel'deki "tum fiyatlar gelene kadar
+        # tekrar tekrar guncelle" aliskanliginizin karsiligi).
+        guncellenen_sayisi = 0
+        for kod, yeni_fiyat in bugun_fiyat.items():
+            seri = fiyat_gecmisi["fiyatlar"].get(kod)
+            if seri:
+                if seri[0] != yeni_fiyat:
+                    guncellenen_sayisi += 1
+                seri[0] = yeni_fiyat
+        print(f"Pencere kaydirilmadi -- bugunun sutunu {guncellenen_sayisi} fonda "
+              f"tazelendi, skorlar yeniden hesaplanacak.")
 
     # --- bekleyen AL/SAT emirlerini isle (Rutin'in 212/213 mantiginin karsiligi) ---
     if bekleyen_emirler:
@@ -388,6 +412,7 @@ def main():
         "tableDate": tarih,
         "isGunuSayilari": {"aylik": ay_sayisi, "yillik": yil_sayisi},
         "bekleyenValorler": bekleyen_valorler,
+        "eksikFonlar": eksik,
     }
 
     kaydet(fiyat_gecmisi, "price_history.json")
