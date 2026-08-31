@@ -398,10 +398,51 @@ def main():
 
 
     portfolio = [f for f in dashboard_funds if f["guncel"] and f["guncel"] > 0]
+    toplam_guncel_deger = round(sum(f["guncel"] for f in portfolio), 2)
+
+    # --- Aylik/yillik TOPLAM kar-zarar: portfoy degeri bazli (PPF dahil) ---
+    # Fon bazli ayKarZarar/yilKarZarar (maliyet tarihine dayali) hala her
+    # fon satirinda gosteriliyor, ama TOPLAM icin farkli/daha saglam bir
+    # yontem kullaniyoruz: donem basindaki TOPLAM portfoy degeriyle bugunku
+    # TOPLAM portfoy degeri arasindaki fark. Bu, PPF fonlarini da (BRG gibi)
+    # otomatik olarak dahil eder -- ayri bir maliyet tarihine ihtiyac yok.
+    try:
+        portfoy_baz = yukle("portfoy_baz.json")
+    except FileNotFoundError:
+        portfoy_baz = {}
+    try:
+        hedef = yukle("kar_zarar_hedef.json")
+    except FileNotFoundError:
+        hedef = {}
+
+    ay_baslangic, yil_baslangic = ay_yil_baslangici(tarih)
+
+    if hedef.get("ay_kz") is not None or hedef.get("yil_kz") is not None:
+        # Tek seferlik manuel duzeltme: kullanicinin dogru bildigi (ornegin
+        # 2030.xlsm'den) degerlerle bugunku toplami hizala.
+        if hedef.get("ay_kz") is not None:
+            portfoy_baz["ay_baslangic_deger"] = round(toplam_guncel_deger - hedef["ay_kz"], 2)
+            portfoy_baz["ay_baslangic_tarih"] = ay_baslangic
+            print(f"Aylik kar/zarar manuel duzeltildi: hedef={hedef['ay_kz']}")
+        if hedef.get("yil_kz") is not None:
+            portfoy_baz["yil_baslangic_deger"] = round(toplam_guncel_deger - hedef["yil_kz"], 2)
+            portfoy_baz["yil_baslangic_tarih"] = yil_baslangic
+            print(f"Yillik kar/zarar manuel duzeltildi: hedef={hedef['yil_kz']}")
+        kaydet({}, "kar_zarar_hedef.json")  # tek seferlik -- tuketildi
+    else:
+        if portfoy_baz.get("ay_baslangic_tarih") != ay_baslangic:
+            portfoy_baz["ay_baslangic_deger"] = toplam_guncel_deger
+            portfoy_baz["ay_baslangic_tarih"] = ay_baslangic
+        if portfoy_baz.get("yil_baslangic_tarih") != yil_baslangic:
+            portfoy_baz["yil_baslangic_deger"] = toplam_guncel_deger
+            portfoy_baz["yil_baslangic_tarih"] = yil_baslangic
+
+    kaydet(portfoy_baz, "portfoy_baz.json")
+
     totals = {
         "daily": round(sum(f["gunlukTL"] for f in portfolio), 2),
-        "monthly": round(sum(f["ayKarZarar"] for f in portfolio if f["ayKarZarar"] is not None), 2),
-        "yearly": round(sum(f["yilKarZarar"] for f in portfolio if f["yilKarZarar"] is not None), 2),
+        "monthly": round(toplam_guncel_deger - portfoy_baz.get("ay_baslangic_deger", toplam_guncel_deger), 2),
+        "yearly": round(toplam_guncel_deger - portfoy_baz.get("yil_baslangic_deger", toplam_guncel_deger), 2),
     }
 
     data_json = {
