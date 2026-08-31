@@ -44,7 +44,15 @@ function App(){
   const [lastUpdate,setLastUpdate]=React.useState(null);
   const [tableDate,setTableDate]=React.useState(null);
   const [isGunuSayilari,setIsGunuSayilari]=React.useState(null);
+  const [bekleyenValorler,setBekleyenValorler]=React.useState([]);
+  const [eksikFonlar,setEksikFonlar]=React.useState([]);
+  const [showEksikFonlar,setShowEksikFonlar]=React.useState(false);
   const [showOrderForm,setShowOrderForm]=React.useState(false);
+  const [showFonForm,setShowFonForm]=React.useState(false);
+  const [fonListTip,setFonListTip]=React.useState("EKLE");
+  const [fonListKod,setFonListKod]=React.useState("");
+  const [fonListValor,setFonListValor]=React.useState("");
+  const [fonListBusy,setFonListBusy]=React.useState(false);
   const [orderKod,setOrderKod]=React.useState("");
   const [orderTip,setOrderTip]=React.useState("AL");
   const [orderTutar,setOrderTutar]=React.useState("");
@@ -120,6 +128,39 @@ function App(){
       showToast("Hata: "+e.message);
     } finally {
       setOrderBusy(false);
+    }
+  }
+
+  async function fonListGonder(){
+    if(!fonListKod){ showToast("Fon kodu girin"); return; }
+    const kod = fonListKod.trim().toUpperCase();
+    if(kod==="BBR" || kod==="END"){
+      showToast(`${kod} sistem göstergesi — takip listesinden çıkarılamaz/eklenemez`);
+      return;
+    }
+    setFonListBusy(true);
+    try{
+      if(fonListTip==="EKLE"){
+        const fon = funds.find(f=>f.kod===kod);
+        if(fon){ showToast(`${kod} zaten takip listesinde`); setFonListBusy(false); return; }
+        const {data, sha} = await githubReadJson("eklenecek_fonlar.json");
+        data.push({kod, valor: fonListValor===""?null:Number(fonListValor)});
+        await githubWriteJson("eklenecek_fonlar.json", data, sha, `Yeni fon eklendi: ${kod}`);
+        showToast(`${kod} eklendi, bir sonraki güncellemede 1 yıllık geçmişiyle listeye girecek`);
+      } else {
+        const heldPos = portfolio.find(f=>f.kod===kod);
+        if(heldPos){ showToast(`${kod} şu an portföyünüzde tutuluyor, önce satmanız gerekiyor`); setFonListBusy(false); return; }
+        const {data, sha} = await githubReadJson("fon_listesi.json");
+        if(!(kod in data)){ showToast(`${kod} zaten takip listesinde değil`); setFonListBusy(false); return; }
+        delete data[kod];
+        await githubWriteJson("fon_listesi.json", data, sha, `Fon cikarildi: ${kod}`);
+        showToast(`${kod} takip listesinden çıkarıldı`);
+      }
+      setShowFonForm(false); setFonListKod(""); setFonListValor("");
+    } catch(e){
+      showToast("Hata: "+e.message);
+    } finally {
+      setFonListBusy(false);
     }
   }
   const [toast,setToast]=React.useState("");
@@ -260,6 +301,8 @@ function App(){
           if(o.timestamp) setLastUpdate(o.timestamp);
           if(o.tableDate!=null) setTableDate(o.tableDate);
           if(o.isGunuSayilari) setIsGunuSayilari(o.isGunuSayilari);
+          if(o.bekleyenValorler) setBekleyenValorler(o.bekleyenValorler);
+          if(o.eksikFonlar) setEksikFonlar(o.eksikFonlar);
           try{ localStorage.setItem(Ku, JSON.stringify(o)); }catch(e){}
           showToast(`${o.funds.length} fon yuklendi (otomatik)`);
         } else {
@@ -379,6 +422,38 @@ function App(){
           </div>
         </div>
       )}
+      {showFonForm && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={()=>!fonListBusy && setShowFonForm(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-5 w-full max-w-sm" onClick={e=>e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4">Fon Listesi</h3>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2 items-end">
+                <div className="w-20">
+                  <label className="text-[11px] text-zinc-400">Fon Kodu</label>
+                  <input value={fonListKod} onChange={e=>setFonListKod(e.target.value.toUpperCase())} placeholder="KOD" maxLength={3}
+                    className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-2 text-sm uppercase text-center" />
+                </div>
+                <button onClick={()=>setFonListTip("EKLE")} className={`flex-1 h-[38px] mt-[18px] rounded-lg text-sm font-semibold ${fonListTip==="EKLE"?"bg-emerald-500/25 border border-emerald-500/50 text-emerald-300":"bg-zinc-800 border border-zinc-700 text-zinc-400"}`}>Ekle</button>
+                <button onClick={()=>setFonListTip("CIKAR")} className={`flex-1 h-[38px] mt-[18px] rounded-lg text-sm font-semibold ${fonListTip==="CIKAR"?"bg-rose-500/25 border border-rose-500/50 text-rose-300":"bg-zinc-800 border border-zinc-700 text-zinc-400"}`}>Çıkar</button>
+              </div>
+              {fonListTip==="EKLE" ? (
+                <div>
+                  <label className="text-[11px] text-zinc-400">Valör (gün) — bilmiyorsanız boş bırakın</label>
+                  <input type="number" value={fonListValor} onChange={e=>setFonListValor(e.target.value)}
+                    className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mono" />
+                  <div className="text-[11px] text-zinc-500 mt-1">Fon adı ve 1 yıllık geçmişi bir sonraki güncellemede otomatik çekilir.</div>
+                </div>
+              ) : (
+                <div className="text-[12px] text-zinc-400">Fon takip listesinden çıkarılacak (bir sonraki güncellemede). Portföyünüzde tutuluyorsa önce satmanız gerekir.</div>
+              )}
+              <div className="flex gap-2 mt-2">
+                <button disabled={fonListBusy} onClick={()=>setShowFonForm(false)} className="flex-1 py-2 rounded-lg bg-zinc-800 text-sm text-zinc-300">İptal</button>
+                <button disabled={fonListBusy} onClick={fonListGonder} className="flex-1 py-2 rounded-lg bg-sky-500/80 text-sm font-semibold text-white">{fonListBusy?"Gönderiliyor...":"Gönder"}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <header className="sticky top-0 z-20 backdrop-blur-xl bg-[#08080a]/90 border-b border-zinc-800">
         <div className="mx-auto max-w-[1680px] px-5 py-4 flex flex-col lg:flex-row gap-4 justify-between">
           <div className="flex flex-col">
@@ -414,7 +489,25 @@ function App(){
             </div>
           </div>
         )}
-        <div className="flex-1 hidden lg:block"></div>
+        <div className="flex-1 hidden lg:flex items-center justify-end relative">
+          {eksikFonlar && eksikFonlar.length>0 && (
+            <>
+              <button onClick={()=>setShowEksikFonlar(v=>!v)} className="h-10 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 px-4 text-[12px] font-semibold hover:bg-amber-500/25">
+                ⚠ {eksikFonlar.length} fon eksik
+              </button>
+              {showEksikFonlar && (
+                <div className="absolute right-0 top-12 z-30 bg-zinc-900 border border-zinc-700 rounded-xl p-3 w-64 max-h-64 overflow-y-auto shadow-xl">
+                  <div className="text-[11px] text-zinc-500 mb-2">Bugün fiyatı henüz gelmemiş fonlar:</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {eksikFonlar.map(k=>(
+                      <span key={k} className="mono text-[11px] bg-zinc-800 rounded px-2 py-0.5 text-zinc-300">{k}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       <div className="mx-auto max-w-[1680px] px-5 pb-8">
@@ -433,8 +526,20 @@ function App(){
                 </span>
                 <span>Portföy</span>
               </h2>
-              <button onClick={()=>setShowOrderForm(true)} className="h-[38px] rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 px-4 text-[12px] font-semibold hover:bg-emerald-500/25">ALIM/SATIM</button>
+              <div className="flex gap-2">
+                <button onClick={()=>setShowFonForm(true)} className="h-[38px] rounded-full bg-sky-500/15 border border-sky-500/40 text-sky-300 px-4 text-[12px] font-semibold hover:bg-sky-500/25">FON LİSTESİ</button>
+                <button onClick={()=>setShowOrderForm(true)} className="h-[38px] rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 px-4 text-[12px] font-semibold hover:bg-emerald-500/25">ALIM/SATIM</button>
+              </div>
             </div>
+            {bekleyenValorler && bekleyenValorler.length>0 && (
+              <div className="flex flex-col gap-0.5">
+                {bekleyenValorler.map((v,i)=>(
+                  <div key={i} className="text-[13px] text-zinc-400 tracking-wide">
+                    ⏳ {v.kod}: <span className="mono text-zinc-200 font-medium">{lp(v.tutar)} ₺</span> — {new Date(v.hesaba_gecis_tarihi).toLocaleDateString('tr-TR',{day:'numeric',month:'long'})} tarihinde hesabınıza geçecek
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
               <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
                 <div className="text-[10px] uppercase tracking-wider text-zinc-500">Günlük</div>
