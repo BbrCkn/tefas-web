@@ -170,6 +170,44 @@ def main():
         kaydet(fon_listesi, "fon_listesi.json")
         kaydet(fiyat_gecmisi, "price_history.json")
 
+    # --- eksik/atlanmis bir gunu doldur (tek seferlik talimat dosyasi) ---
+    try:
+        eksik_gun = yukle("eksik_gun_doldur.json")
+    except FileNotFoundError:
+        eksik_gun = {}
+    if eksik_gun.get("tarih"):
+        hedef_tarih = eksik_gun["tarih"]
+        if hedef_tarih in fiyat_gecmisi["tarihler"]:
+            print(f"{hedef_tarih} zaten fiyat gecmisinde var, atlaniyor.")
+        else:
+            print(f"Eksik gun dolduruluyor: {hedef_tarih}")
+            eksik_fiyatlar, dogrulanan_tarih = bugunku_fiyatlari_cek(set(fon_listesi.keys()), hedef_tarih)
+            if dogrulanan_tarih != hedef_tarih:
+                print(f"  UYARI: TEFAS bu tarih icin '{dogrulanan_tarih}' dondurdu "
+                      f"(istenen: {hedef_tarih}) -- islem yapilmadi, tarihi kontrol edin.")
+            else:
+                # tarihler azalan (yeniden eskiye) sirali -- hedef_tarih'in
+                # gitmesi gereken indeksi bul (ilk index'in tarihi <
+                # hedef_tarih olan yer)
+                ekleme_idx = len(fiyat_gecmisi["tarihler"])
+                for i, t in enumerate(fiyat_gecmisi["tarihler"]):
+                    if t < hedef_tarih:
+                        ekleme_idx = i
+                        break
+                fiyat_gecmisi["tarihler"].insert(ekleme_idx, hedef_tarih)
+                fiyat_gecmisi["tarihler"] = fiyat_gecmisi["tarihler"][:GUN_SAYISI]
+                for kod in fon_listesi:
+                    seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0] * GUN_SAYISI)
+                    komsu = seri[ekleme_idx] if ekleme_idx < len(seri) else (
+                        seri[ekleme_idx - 1] if ekleme_idx > 0 and ekleme_idx - 1 < len(seri) else 0.0)
+                    doldurulacak = eksik_fiyatlar.get(kod, komsu)
+                    seri.insert(ekleme_idx, doldurulacak)
+                    fiyat_gecmisi["fiyatlar"][kod] = seri[:GUN_SAYISI]
+                kaydet(fiyat_gecmisi, "price_history.json")
+                print(f"  {hedef_tarih} eklendi ({len(eksik_fiyatlar)} fon icin gercek fiyatla), "
+                      f"indeks {ekleme_idx}.")
+        kaydet({}, "eksik_gun_doldur.json")  # tek seferlik -- tuketildi
+
     tarih_tahmin = bugunun_tarihi_veya_son_is_gunu()
     print(f"Tahmini tarih: {tarih_tahmin} (TEFAS'in kendi tarihiyle dogrulanacak)")
 
