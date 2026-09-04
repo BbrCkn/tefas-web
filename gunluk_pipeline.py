@@ -293,6 +293,38 @@ def main():
         print(f"Pencere kaydirilmadi -- bugunun sutunu {guncellenen_sayisi} fonda "
               f"tazelendi, skorlar yeniden hesaplanacak.")
 
+    # --- GUNLUK KAZANC BIRIKTIRICILERI (Ay/Yil sutunlari) ---
+    # KRITIK SIRALAMA: bu blok, bekleyen AL/SAT emirleri islenmeden ONCE
+    # calisir. Boylece bugun SAT edilecek bir fonun o gunku getirisi,
+    # portfoyden silinmeden once Aylik/Yillik biriktiriciye eklenmis olur.
+    # adet burada portfoy'un DUNDEN devreden hali (henuz bugunku emirler
+    # uygulanmadi) -- bugun AL edilen bir fon icin adet=0 cikar, yani o
+    # fonun bugunku kazanci otomatik 0 olur (ayrica ozel durum gerekmez).
+    try:
+        fon_kazanc = yukle("fon_kazanc.json")
+    except FileNotFoundError:
+        fon_kazanc = {}
+    bugun_ay_kk, bugun_yil_kk = tarih[:7], tarih[:4]
+    gunluk_kazanc = {}
+    for kod in fon_listesi:
+        pozisyon = portfoy.get(kod)
+        adet_dun = pozisyon.get("adet", 0) if isinstance(pozisyon, dict) else (pozisyon or 0)
+        seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0, 0.0])
+        f_bugun = seri[0] if len(seri) > 0 else 0.0
+        f_dun = seri[1] if len(seri) > 1 else f_bugun
+        kazanc = round(adet_dun * (f_bugun - f_dun), 2) if adet_dun else 0.0
+        gunluk_kazanc[kod] = kazanc
+
+        girdi = fon_kazanc.get(kod, {})
+        if girdi.get("ay") != bugun_ay_kk:
+            girdi = {**girdi, "ay": bugun_ay_kk, "ay_deger": 0.0}
+        if girdi.get("yil") != bugun_yil_kk:
+            girdi = {**girdi, "yil": bugun_yil_kk, "yil_deger": 0.0}
+        girdi["ay_deger"] = round(girdi.get("ay_deger", 0.0) + kazanc, 2)
+        girdi["yil_deger"] = round(girdi.get("yil_deger", 0.0) + kazanc, 2)
+        fon_kazanc[kod] = girdi
+    kaydet(fon_kazanc, "fon_kazanc.json")
+
     # --- bekleyen AL/SAT emirlerini isle (Rutin'in 212/213 mantiginin karsiligi) ---
     if bekleyen_emirler:
         print(f"{len(bekleyen_emirler)} bekleyen emir isleniyor...")
@@ -311,10 +343,11 @@ def main():
                 portfoy[kod] = {"adet": adet, "alis_tarihi": tarih}
                 print(f"  AL: {kod} {adet} adet ({tutar} TL / {fiyat_bugun_kod})")
             elif tip == "SAT":
-                satilacak_adet = emir.get("adet", 0)
+                # Non-PPF fonlar sadece BLOK satilir -- emirde adet
+                # gonderilse bile yok sayilir, mevcut pozisyonun tamami satilir.
                 mevcut = portfoy.get(kod)
                 mevcut_adet = mevcut.get("adet", 0) if isinstance(mevcut, dict) else (mevcut or 0)
-                kalan_adet = mevcut_adet - satilacak_adet
+                satilacak_adet = mevcut_adet
                 satis_tutari = round(satilacak_adet * fiyat_bugun_kod, 2)
                 valor_gun = fon_listesi.get(kod, {}).get("valor") or 0
                 hesaba_gecis = is_gunu_ekle(tarih, valor_gun)
@@ -322,18 +355,11 @@ def main():
                     "kod": kod, "tutar": satis_tutari,
                     "satis_tarihi": tarih, "hesaba_gecis_tarihi": hesaba_gecis,
                 })
-                if kalan_adet <= 0:
-                    if kod in portfoy:
-                        del portfoy[kod]
-                    print(f"  SAT: {kod} pozisyonu tamamen kapatildi "
-                          f"({satilacak_adet} adet satildi, {mevcut_adet} adet vardi, "
-                          f"{satis_tutari} TL {hesaba_gecis} tarihinde hesaba gecer)")
-                else:
-                    alis_tarihi_eski = mevcut.get("alis_tarihi") if isinstance(mevcut, dict) else None
-                    portfoy[kod] = {"adet": kalan_adet, "alis_tarihi": alis_tarihi_eski}
-                    print(f"  SAT: {kod} kismi satis, {satilacak_adet} adet satildi, "
-                          f"{kalan_adet} adet kaldi (alis tarihi korunuyor), "
-                          f"{satis_tutari} TL {hesaba_gecis} tarihinde hesaba gecer)")
+                if kod in portfoy:
+                    del portfoy[kod]
+                print(f"  SAT (blok): {kod} pozisyonu tamamen kapatildi "
+                      f"({satilacak_adet} adet, {satis_tutari} TL "
+                      f"{hesaba_gecis} tarihinde hesaba gecer)")
         bekleyen_emirler = kalan_emirler  # sadece ertelenenler kalir
         kaydet(bekleyen_emirler, "bekleyen_emirler.json")
         kaydet(portfoy, "portfoy.json")
@@ -383,9 +409,31 @@ def main():
     yil_sayisi = sum(1 for t in fiyat_gecmisi["tarihler"] if t and t[:4] == bugun_yil)
 
     sira = np.argsort(-Z)
+
+    # --- Tema catisma kurali: rank1 ve rank2 ayni temaysa dogrudan yer degistir ---
+    # Sıradaki ilk FARKLI temali fon rank2 olur; eski rank2 fonu, o fonun
+    # eski sirasina gecer (duz yer degistirme, aradakiler kaymaz).
+    tema_swap_oldu = False
+    if len(sira) >= 3:
+        def _tema_grubu(kod):
+            t = tema_sonuc.get(kod)
+            return t.split(".")[0] if t else None
+
+        top1_kod, top2_kod = kodlar[sira[0]], kodlar[sira[1]]
+        tema1 = _tema_grubu(top1_kod)
+        if tema1 is not None and tema1 == _tema_grubu(top2_kod):
+            for j in range(2, len(sira)):
+                aday_kod = kodlar[sira[j]]
+                if _tema_grubu(aday_kod) != tema1:
+                    sira = sira.copy()
+                    sira[1], sira[j] = sira[j], sira[1]
+                    tema_swap_oldu = True
+                    print(f"Tema catismasi: {top1_kod} ve {top2_kod} ayni temada ({tema1}). "
+                          f"{aday_kod} yeni rank2 oldu, {top2_kod} sira {j+1}'e tasindi.")
+                    break
+
     yeni_rank = {}
     dashboard_funds = []
-    ay_baslangic, yil_baslangic = ay_yil_baslangici(tarih)
     for sirano, idx in enumerate(sira, start=1):
         kod = kodlar[idx]
         yeni_rank[kod] = sirano
@@ -396,22 +444,24 @@ def main():
         fiyat_bugun = float(fiyat_full[idx, 0])
         fiyat_dun = float(fiyat_full[idx, 1]) if fiyat_full.shape[1] > 1 else fiyat_bugun
         guncel = round(adet * fiyat_bugun, 2)
-        gunluk_tl = round(adet * (fiyat_bugun - fiyat_dun), 2)
+        # Bugun ALINAN bir fon icin gosterilecek gunluk getiri her zaman 0
+        # (o gunku fiyat hareketini sahiplenmedi) -- diger tum gunlerde
+        # gunluk_kazanc[kod] (emirler islenmeden ONCE, dunden devreden adetle
+        # hesaplanmisti) kullanilir; SAT ile bugun kapanan pozisyonlar icin de
+        # bu deger zaten dogru hesaplanip biriktiriciye eklenmis durumda.
+        if alis_tarihi == tarih:
+            gunluk_tl = 0.0
+        else:
+            gunluk_tl = gunluk_kazanc.get(kod, round(adet * (fiyat_bugun - fiyat_dun), 2))
 
-        # Maliyet bazli kar/zarar: SADECE tek seferde (blok) alinan fonlar icin
-        # (alis_tarihi biliniyorsa). PPF gibi kismi alim-satim yapilan fonlarda
-        # (alis_tarihi yok) tek bir maliyet fiyati olmadigindan hesaplanamaz --
-        # yanlis sayi gostermektense hic gostermiyoruz (None).
-        ay_kar = yil_kar = None
-        if adet > 0 and alis_tarihi:
-            ay_baz = max(alis_tarihi, ay_baslangic)
-            yil_baz = max(alis_tarihi, yil_baslangic)
-            fiyat_ay_baz = tarihte_fiyat(fiyat_gecmisi["tarihler"], fiyat_gecmisi["fiyatlar"][kod], ay_baz)
-            fiyat_yil_baz = tarihte_fiyat(fiyat_gecmisi["tarihler"], fiyat_gecmisi["fiyatlar"][kod], yil_baz)
-            if fiyat_ay_baz:
-                ay_kar = round(adet * (fiyat_bugun - fiyat_ay_baz), 2)
-            if fiyat_yil_baz:
-                yil_kar = round(adet * (fiyat_bugun - fiyat_yil_baz), 2)
+        # Aylik/Yillik kar-zarar: artik kalici biriktiriciden okunuyor
+        # (fon_kazanc.json) -- gunluk kazancin fon bazinda ay/yil basinda
+        # sifirlanarak biriktirilmis hali. PPF/blok ayrimi ya da maliyet
+        # bazina ihtiyac yok; fon portfoyden cikmis olsa bile o ay/yil
+        # icindeki son degeri donmus halde gorunmeye devam eder.
+        kazanc_girdi = fon_kazanc.get(kod, {})
+        ay_kar = kazanc_girdi.get("ay_deger", 0.0)
+        yil_kar = kazanc_girdi.get("yil_deger", 0.0)
 
         dashboard_funds.append({
             "kod": kod,
@@ -427,60 +477,27 @@ def main():
             "ay6": round(float(donemsel["alti_aylik"][idx]), 4),
             "yil": round(float(donemsel["yillik"][idx]), 4),
             "tema": tema_sonuc.get(kod),
-            "guncel": guncel,        # elde tutulan fonun bugunku TL degeri (adet x fiyat)
-            "toplam": guncel,
-            "gunlukTL": gunluk_tl,   # bugunku TL bazli kar/zarar (maliyete ihtiyac duymaz)
-            "ayKarZarar": ay_kar,    # None ise: PPF/kismi alim -- hesaplanamiyor
-            "yilKarZarar": yil_kar,
+            "adet": adet,             # elde tutulan pay adedi
+            "guncel": guncel,         # elde tutulan fonun bugunku TL degeri (adet x fiyat)
+            "gunlukTL": gunluk_tl,    # bugunku TL bazli kar/zarar
+            "ayKarZarar": ay_kar,     # ay basindan beri biriken TL kazanc (fon_kazanc.json)
+            "yilKarZarar": yil_kar,   # yil basindan beri biriken TL kazanc (fon_kazanc.json)
         })
 
 
     portfolio = [f for f in dashboard_funds if f["guncel"] and f["guncel"] > 0]
     toplam_guncel_deger = round(sum(f["guncel"] for f in portfolio), 2)
 
-    # --- Aylik/yillik TOPLAM kar-zarar: portfoy degeri bazli (PPF dahil) ---
-    # Fon bazli ayKarZarar/yilKarZarar (maliyet tarihine dayali) hala her
-    # fon satirinda gosteriliyor, ama TOPLAM icin farkli/daha saglam bir
-    # yontem kullaniyoruz: donem basindaki TOPLAM portfoy degeriyle bugunku
-    # TOPLAM portfoy degeri arasindaki fark. Bu, PPF fonlarini da (BRG gibi)
-    # otomatik olarak dahil eder -- ayri bir maliyet tarihine ihtiyac yok.
-    try:
-        portfoy_baz = yukle("portfoy_baz.json")
-    except FileNotFoundError:
-        portfoy_baz = {}
-    try:
-        hedef = yukle("kar_zarar_hedef.json")
-    except FileNotFoundError:
-        hedef = {}
-
-    ay_baslangic, yil_baslangic = ay_yil_baslangici(tarih)
-
-    if hedef.get("ay_kz") is not None or hedef.get("yil_kz") is not None:
-        # Tek seferlik manuel duzeltme: kullanicinin dogru bildigi (ornegin
-        # 2030.xlsm'den) degerlerle bugunku toplami hizala.
-        if hedef.get("ay_kz") is not None:
-            portfoy_baz["ay_baslangic_deger"] = round(toplam_guncel_deger - hedef["ay_kz"], 2)
-            portfoy_baz["ay_baslangic_tarih"] = ay_baslangic
-            print(f"Aylik kar/zarar manuel duzeltildi: hedef={hedef['ay_kz']}")
-        if hedef.get("yil_kz") is not None:
-            portfoy_baz["yil_baslangic_deger"] = round(toplam_guncel_deger - hedef["yil_kz"], 2)
-            portfoy_baz["yil_baslangic_tarih"] = yil_baslangic
-            print(f"Yillik kar/zarar manuel duzeltildi: hedef={hedef['yil_kz']}")
-        kaydet({}, "kar_zarar_hedef.json")  # tek seferlik -- tuketildi
-    else:
-        if portfoy_baz.get("ay_baslangic_tarih") != ay_baslangic:
-            portfoy_baz["ay_baslangic_deger"] = toplam_guncel_deger
-            portfoy_baz["ay_baslangic_tarih"] = ay_baslangic
-        if portfoy_baz.get("yil_baslangic_tarih") != yil_baslangic:
-            portfoy_baz["yil_baslangic_deger"] = toplam_guncel_deger
-            portfoy_baz["yil_baslangic_tarih"] = yil_baslangic
-
-    kaydet(portfoy_baz, "portfoy_baz.json")
-
+    # --- TOPLAM Gunluk/Aylik/Yillik kar-zarar: fon_kazanc bazli ---
+    # Sutun basliklarindaki toplam, artik o sutundaki tum fonlarin (elde
+    # olsun olmasin) degerlerinin toplami. Bugun SAT ile kapanan bir
+    # pozisyonun kazanci gunluk_kazanc/fon_kazanc icinde zaten var, bu
+    # yuzden "portfolio" (sadece su an elde tutulanlar) uzerinden DEGIL,
+    # tum fon_listesi uzerinden toplaniyor.
     totals = {
-        "daily": round(sum(f["gunlukTL"] for f in portfolio), 2),
-        "monthly": round(toplam_guncel_deger - portfoy_baz.get("ay_baslangic_deger", toplam_guncel_deger), 2),
-        "yearly": round(toplam_guncel_deger - portfoy_baz.get("yil_baslangic_deger", toplam_guncel_deger), 2),
+        "daily": round(sum(gunluk_kazanc.values()), 2),
+        "monthly": round(sum(v.get("ay_deger", 0.0) for v in fon_kazanc.values()), 2),
+        "yearly": round(sum(v.get("yil_deger", 0.0) for v in fon_kazanc.values()), 2),
     }
 
     data_json = {
@@ -492,6 +509,7 @@ def main():
         "isGunuSayilari": {"aylik": ay_sayisi, "yillik": yil_sayisi},
         "bekleyenValorler": bekleyen_valorler,
         "eksikFonlar": eksik,
+        "temaSwapOldu": tema_swap_oldu,
     }
 
     kaydet(fiyat_gecmisi, "price_history.json")
