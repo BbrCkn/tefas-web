@@ -55,9 +55,15 @@ def donemsel_getiriler(fiyat_matrisi: np.ndarray) -> dict:
         "yillik": 254,
     }
     bugun = fiyat_matrisi[:, 0]
+    n_sutun = fiyat_matrisi.shape[1]
     sonuc = {}
     for ad, offset in pencereler.items():
-        eski = fiyat_matrisi[:, offset]
+        # Pencere, elimizdeki fiyat gecmisinden uzunsa (ornegin veri
+        # henuz 255 gune ulasmadi ya da gecmiste bozuk bir gun temizlendi)
+        # cakmak yerine en eski mevcut sutuna dus -- birkac gunluk pencere
+        # gecici olarak biraz kisa hesaplanir, sistem hic durmaz.
+        guvenli_offset = min(offset, n_sutun - 1)
+        eski = fiyat_matrisi[:, guvenli_offset]
         with np.errstate(divide="ignore", invalid="ignore"):
             deger = np.where(eski != 0, (bugun - eski) / eski * 100, 0.0)
         deger = np.where(deger == -100, 0.0, deger)

@@ -30,6 +30,14 @@ from puanlama_metrikleri import (
 KOK = Path(__file__).parent
 GUN_SAYISI = 255
 
+# --- FAZ 1 KAPSAM SINIRI ---
+# Babur'un talebiyle: once sadece fiyat cekme + skor + siralama + tema +
+# data.json (goruntu) kismi dogru calissin, o dogrulandiktan sonra emir
+# motoru (AL/SAT islemleri) tekrar acilacak. False iken bekleyen_emirler.json
+# HIC DOKUNULMADAN oldugu gibi kalir (ne islenir ne silinir) -- Faz 2'de
+# True yapildiginda kaldigi yerden islenmeye devam eder.
+EMIR_MOTORU_AKTIF = False
+
 
 def bugunun_tarihi_veya_son_is_gunu() -> str:
     bugun = datetime.date.today()
@@ -326,7 +334,11 @@ def main():
     kaydet(fon_kazanc, "fon_kazanc.json")
 
     # --- bekleyen AL/SAT emirlerini isle (Rutin'in 212/213 mantiginin karsiligi) ---
-    if bekleyen_emirler:
+    if not EMIR_MOTORU_AKTIF:
+        if bekleyen_emirler:
+            print(f"FAZ 1: emir motoru kapali, {len(bekleyen_emirler)} bekleyen emire "
+                  f"DOKUNULMADI (bekleyen_emirler.json degismedi).")
+    elif bekleyen_emirler:
         print(f"{len(bekleyen_emirler)} bekleyen emir isleniyor...")
         kalan_emirler = []
         for emir in bekleyen_emirler:
