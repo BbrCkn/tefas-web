@@ -106,6 +106,30 @@ def kaydet(veri, dosya):
         json.dump(veri, f, ensure_ascii=False, indent=1)
 
 
+def eksik_gunleri_bul(tarihler: list, en_fazla: int = 10) -> list:
+    """price_history.json'daki tarih dizisinde (en yeniden en eskiye dogru
+    sirali) hafta ici oldugu halde atlanmis gunleri tespit eder. Sadece
+    hafta sonlarini eler; resmi tatiller nedeniyle TEFAS'in zaten
+    yayinlamadigi gunler burada da 'eksik' olarak gorunebilir -- bu
+    yanlis alarm degil, sadece TEFAS o gun veri yayinlamadiysa gercekten
+    doldurulacak bir sey olmadigi anlamina gelir; kullanici gerekirse
+    gormezden gelebilir. En guncel en_fazla kaydi doner (cok eski
+    bosluklarla listeyi sismemek icin)."""
+    if len(tarihler) < 2:
+        return []
+    eksikler = []
+    for i in range(len(tarihler) - 1):
+        sonraki = datetime.date.fromisoformat(tarihler[i])   # daha yeni
+        onceki = datetime.date.fromisoformat(tarihler[i + 1])  # daha eski
+        gun = onceki + datetime.timedelta(days=1)
+        while gun < sonraki:
+            if gun.weekday() < 5:  # 0=Pzt ... 4=Cuma, hafta ici
+                eksikler.append(gun.isoformat())
+            gun += datetime.timedelta(days=1)
+    eksikler.sort(reverse=True)
+    return eksikler[:en_fazla]
+
+
 def bugunku_fiyatlari_cek(fon_kodlari: set, tarih: str):
     """TEFAS'tan o gune ait tum fon fiyatlarini ceker, sadece takip
     listemizdeki fonlari dondurur: (fiyatlar_dict, tefas_tarihi).
@@ -522,6 +546,7 @@ def main():
         "bekleyenValorler": bekleyen_valorler,
         "eksikFonlar": eksik,
         "temaSwapOldu": tema_swap_oldu,
+        "eksikGunler": eksik_gunleri_bul(fiyat_gecmisi["tarihler"]),
     }
 
     kaydet(fiyat_gecmisi, "price_history.json")
