@@ -4108,7 +4108,7 @@
   "monthly": -505.23,
   "yearly": 34738.67
  },
- "timestamp": 1788635063870,
+ "timestamp": 1788639033983,
  "tableDate": "2026-09-04",
  "isGunuSayilari": {
   "aylik": 4,
@@ -4116,5 +4116,17 @@
  },
  "bekleyenValorler": [],
  "eksikFonlar": [],
- "temaSwapOldu": false
+ "temaSwapOldu": false,
+ "eksikGunler": [
+  "2026-07-15",
+  "2026-05-29",
+  "2026-05-28",
+  "2026-05-27",
+  "2026-05-19",
+  "2026-05-01",
+  "2026-04-23",
+  "2026-03-20",
+  "2026-01-01",
+  "2025-10-29"
+ ]
 }
