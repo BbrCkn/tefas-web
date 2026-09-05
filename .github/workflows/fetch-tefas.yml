@@ -31,4 +31,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Otomatik gunluk guncelleme"
-          file_pattern: "docs/data.json price_history.json onceki_rank.json"
+          file_pattern: "docs/data.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json"
