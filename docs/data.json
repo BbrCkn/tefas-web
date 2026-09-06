@@ -57,8 +57,8 @@
    "adet": 2180,
    "guncel": 9843.2,
    "gunlukTL": -80.62,
-   "ayKarZarar": -649.14,
-   "yilKarZarar": -478.16
+   "ayKarZarar": -729.76,
+   "yilKarZarar": -558.78
   },
   {
    "kod": "DFI",
@@ -297,8 +297,8 @@
    "adet": 7999,
    "guncel": 41537.59,
    "gunlukTL": 38.13,
-   "ayKarZarar": 242.55,
-   "yilKarZarar": 11842.46
+   "ayKarZarar": 280.68,
+   "yilKarZarar": 11880.59
   },
   {
    "kod": "BBF",
@@ -4079,8 +4079,8 @@
    "adet": 2180,
    "guncel": 9843.2,
    "gunlukTL": -80.62,
-   "ayKarZarar": -649.14,
-   "yilKarZarar": -478.16
+   "ayKarZarar": -729.76,
+   "yilKarZarar": -558.78
   },
   {
    "kod": "BRG",
@@ -4099,16 +4099,16 @@
    "adet": 7999,
    "guncel": 41537.59,
    "gunlukTL": 38.13,
-   "ayKarZarar": 242.55,
-   "yilKarZarar": 11842.46
+   "ayKarZarar": 280.68,
+   "yilKarZarar": 11880.59
   }
  ],
  "totals": {
   "daily": -42.49,
-  "monthly": -675.19,
-  "yearly": 34568.71
+  "monthly": -717.68,
+  "yearly": 34526.22
  },
- "timestamp": 1788711356076,
+ "timestamp": 1788728648711,
  "tableDate": "2026-09-04",
  "isGunuSayilari": {
   "aylik": 4,
