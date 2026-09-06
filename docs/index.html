@@ -34,8 +34,22 @@ if(gercekYuklendiRef.current){
   try{
     if(ppf){
       const{data,sha}=await ghRead("portfoy.json");
-      if(emTip==="SAT"&&(!mv||mv<=0))delete data[kod];
-      else data[kod]={adet:mv};
+      if(emTip==="SAT"){
+        const mevcutPozisyon=data[kod];
+        const mevcutAdet=(mevcutPozisyon&&typeof mevcutPozisyon==="object")?(mevcutPozisyon.adet||0):(mevcutPozisyon||0);
+        if(!mv||mv<=0){
+          delete data[kod];
+        }else if(mv>mevcutAdet){
+          alert(`Satis miktari (${mv}) mevcut adetten (${mevcutAdet}) fazla olamaz. Islem yapilmadi.`);
+          return;
+        }else{
+          const kalanAdet=mevcutAdet-mv;
+          if(kalanAdet<=0)delete data[kod];
+          else data[kod]={adet:kalanAdet};
+        }
+      }else{
+        data[kod]={adet:mv};
+      }
       await ghWrite("portfoy.json",data,sha,`PPF guncelleme: ${kod}`);
       alert(kod+" icin PPF adedi aninda guncellendi");
     }else{
