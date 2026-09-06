@@ -27,6 +27,11 @@ from puanlama_metrikleri import (
     en_buyuk_gun_orani, puanlama_motoru, tema_olustur,
 )
 
+try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
 KOK = Path(__file__).parent
 GUN_SAYISI = 255
 
@@ -101,29 +106,107 @@ def is_gunu_ekle(tarih_str, gun_sayisi):
     return tarih.strftime("%Y-%m-%d")
 
 
+def eksik_gunu_excelden_doldur(fon_listesi: dict, fiyat_gecmisi: dict) -> None:
+    """Babur'un TEFAS'tan elle okuyup 'eksik_gun_manuel.xlsx' sablonuna
+    girdigi bir gunu price_history.json'a isler. Kod bilmedigi icin JSON
+    yerine Excel kullaniyor. Islem basariyla bitince (ya da tarih zaten
+    mevcutsa) sablondaki Tarih ve Fiyat hucreleri otomatik bosaltilir --
+    ayni dosya bir sonraki eksik gun icin tekrar kullanilabilir."""
+    yol = KOK / "eksik_gun_manuel.xlsx"
+    if not yol.is_file():
+        return
+    if openpyxl is None:
+        print("UYARI: openpyxl kurulu degil, eksik_gun_manuel.xlsx islenemedi.")
+        return
+
+    wb = openpyxl.load_workbook(yol)
+    ws = wb["Eksik Gun"] if "Eksik Gun" in wb.sheetnames else wb.active
+    hedef_tarih = str(ws["B9"].value or "").strip()
+    if not hedef_tarih:
+        return  # sablon bos, yapilacak bir sey yok
+
+    HDR_ROW = 11
+    try:
+        datetime.date.fromisoformat(hedef_tarih)
+        gecerli_tarih = True
+    except ValueError:
+        print(f"UYARI: eksik_gun_manuel.xlsx'teki tarih ('{hedef_tarih}') "
+              f"YYYY-AA-GG formatinda degil, islem yapilmadi ama sablon temizlendi.")
+        gecerli_tarih = False
+
+    if gecerli_tarih:
+        if hedef_tarih in fiyat_gecmisi["tarihler"]:
+            print(f"eksik_gun_manuel.xlsx: {hedef_tarih} zaten fiyat gecmisinde var, atlaniyor.")
+        else:
+            fiyatlar_girilen = {}
+            r = HDR_ROW + 1
+            while ws.cell(row=r, column=1).value:
+                kod = str(ws.cell(row=r, column=1).value).strip()
+                deger = ws.cell(row=r, column=3).value
+                if deger not in (None, "") and kod in fon_listesi:
+                    try:
+                        fiyatlar_girilen[kod] = float(deger)
+                    except (TypeError, ValueError):
+                        print(f"  UYARI: {kod} icin gecersiz fiyat ('{deger}'), atlandi.")
+                r += 1
+
+            # tarihler azalan (yeniden eskiye) sirali -- hedef_tarih'in
+            # gitmesi gereken indeksi bul (ayni mantik eksik_gun_doldur.json ile)
+            ekleme_idx = len(fiyat_gecmisi["tarihler"])
+            for i, t in enumerate(fiyat_gecmisi["tarihler"]):
+                if t < hedef_tarih:
+                    ekleme_idx = i
+                    break
+            fiyat_gecmisi["tarihler"].insert(ekleme_idx, hedef_tarih)
+            fiyat_gecmisi["tarihler"] = fiyat_gecmisi["tarihler"][:GUN_SAYISI]
+            for kod in fon_listesi:
+                seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0] * GUN_SAYISI)
+                komsu = seri[ekleme_idx] if ekleme_idx < len(seri) else (
+                    seri[ekleme_idx - 1] if ekleme_idx > 0 and ekleme_idx - 1 < len(seri) else 0.0)
+                doldurulacak = fiyatlar_girilen.get(kod, komsu)
+                seri.insert(ekleme_idx, doldurulacak)
+                fiyat_gecmisi["fiyatlar"][kod] = seri[:GUN_SAYISI]
+            kaydet(fiyat_gecmisi, "price_history.json")
+            eksik_sayisi = len(fon_listesi) - len(fiyatlar_girilen)
+            print(f"eksik_gun_manuel.xlsx: {hedef_tarih} eklendi -- {len(fiyatlar_girilen)} fon "
+                  f"Excel'den girilen gercek fiyatla, {eksik_sayisi} fon komsu gunun fiyatiyla "
+                  f"(indeks {ekleme_idx}).")
+
+    # sablonu temizle -- Tarih ve tum Fiyat hucreleri bosalsin, bir sonraki
+    # eksik gun icin ayni dosya tekrar kullanilabilsin
+    ws["B9"] = None
+    r = HDR_ROW + 1
+    while ws.cell(row=r, column=1).value:
+        ws.cell(row=r, column=3).value = None
+        r += 1
+    wb.save(yol)
+
+
 def kaydet(veri, dosya):
     with open(KOK / dosya, "w", encoding="utf-8") as f:
         json.dump(veri, f, ensure_ascii=False, indent=1)
 
 
-def eksik_gunleri_bul(tarihler: list, en_fazla: int = 10) -> list:
+def eksik_gunleri_bul(tarihler: list, yoksayilanlar: list = (), en_fazla: int = 10) -> list:
     """price_history.json'daki tarih dizisinde (en yeniden en eskiye dogru
     sirali) hafta ici oldugu halde atlanmis gunleri tespit eder. Sadece
     hafta sonlarini eler; resmi tatiller nedeniyle TEFAS'in zaten
     yayinlamadigi gunler burada da 'eksik' olarak gorunebilir -- bu
     yanlis alarm degil, sadece TEFAS o gun veri yayinlamadiysa gercekten
-    doldurulacak bir sey olmadigi anlamina gelir; kullanici gerekirse
-    gormezden gelebilir. En guncel en_fazla kaydi doner (cok eski
-    bosluklarla listeyi sismemek icin)."""
+    doldurulacak bir sey olmadigi anlamina gelir. Kullanici arayuzden
+    boyle bir gunu 'yoksay' dediginde tarih eksik_gun_yoksay.json'a
+    eklenir ve bundan sonra kalici olarak listeye hic girmez. En guncel
+    en_fazla kaydi doner (cok eski bosluklarla listeyi sismemek icin)."""
     if len(tarihler) < 2:
         return []
+    yoksay_set = set(yoksayilanlar)
     eksikler = []
     for i in range(len(tarihler) - 1):
         sonraki = datetime.date.fromisoformat(tarihler[i])   # daha yeni
         onceki = datetime.date.fromisoformat(tarihler[i + 1])  # daha eski
         gun = onceki + datetime.timedelta(days=1)
         while gun < sonraki:
-            if gun.weekday() < 5:  # 0=Pzt ... 4=Cuma, hafta ici
+            if gun.weekday() < 5 and gun.isoformat() not in yoksay_set:  # 0=Pzt ... 4=Cuma, hafta ici
                 eksikler.append(gun.isoformat())
             gun += datetime.timedelta(days=1)
     eksikler.sort(reverse=True)
@@ -174,6 +257,10 @@ def main():
         eklenecek_fonlar = yukle("eklenecek_fonlar.json")
     except FileNotFoundError:
         eklenecek_fonlar = []
+    try:
+        eksik_gun_yoksay = yukle("eksik_gun_yoksay.json")  # kullanicinin "bu gun tatil, eksik degil" dedigi tarihler
+    except FileNotFoundError:
+        eksik_gun_yoksay = []
 
     # --- yeni eklenen fonlarin 1 yillik gecmisini cek ---
     if eklenecek_fonlar:
@@ -239,6 +326,9 @@ def main():
                 print(f"  {hedef_tarih} eklendi ({len(eksik_fiyatlar)} fon icin gercek fiyatla), "
                       f"indeks {ekleme_idx}.")
         kaydet({}, "eksik_gun_doldur.json")  # tek seferlik -- tuketildi
+
+    # --- eksik/atlanmis bir gunu Excel sablonundan doldur (Babur kod bilmedigi icin) ---
+    eksik_gunu_excelden_doldur(fon_listesi, fiyat_gecmisi)
 
     tarih_tahmin = bugunun_tarihi_veya_son_is_gunu()
     print(f"Tahmini tarih: {tarih_tahmin} (TEFAS'in kendi tarihiyle dogrulanacak)")
@@ -546,7 +636,7 @@ def main():
         "bekleyenValorler": bekleyen_valorler,
         "eksikFonlar": eksik,
         "temaSwapOldu": tema_swap_oldu,
-        "eksikGunler": eksik_gunleri_bul(fiyat_gecmisi["tarihler"]),
+        "eksikGunler": eksik_gunleri_bul(fiyat_gecmisi["tarihler"], eksik_gun_yoksay),
     }
 
     kaydet(fiyat_gecmisi, "price_history.json")
