@@ -41,7 +41,7 @@ GUN_SAYISI = 255
 # motoru (AL/SAT islemleri) tekrar acilacak. False iken bekleyen_emirler.json
 # HIC DOKUNULMADAN oldugu gibi kalir (ne islenir ne silinir) -- Faz 2'de
 # True yapildiginda kaldigi yerden islenmeye devam eder.
-EMIR_MOTORU_AKTIF = False
+EMIR_MOTORU_AKTIF = True
 
 
 def bugunun_tarihi_veya_son_is_gunu() -> str:
