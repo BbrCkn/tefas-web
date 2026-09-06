@@ -57,8 +57,8 @@
    "adet": 2180,
    "guncel": 9843.2,
    "gunlukTL": -80.62,
-   "ayKarZarar": -487.9,
-   "yilKarZarar": -316.92
+   "ayKarZarar": -568.52,
+   "yilKarZarar": -397.54
   },
   {
    "kod": "DFI",
@@ -297,8 +297,8 @@
    "adet": 7999,
    "guncel": 41537.59,
    "gunlukTL": 38.13,
-   "ayKarZarar": 166.29,
-   "yilKarZarar": 11766.2
+   "ayKarZarar": 204.42,
+   "yilKarZarar": 11804.33
   },
   {
    "kod": "BBF",
@@ -4079,8 +4079,8 @@
    "adet": 2180,
    "guncel": 9843.2,
    "gunlukTL": -80.62,
-   "ayKarZarar": -487.9,
-   "yilKarZarar": -316.92
+   "ayKarZarar": -568.52,
+   "yilKarZarar": -397.54
   },
   {
    "kod": "BRG",
@@ -4099,16 +4099,16 @@
    "adet": 7999,
    "guncel": 41537.59,
    "gunlukTL": 38.13,
-   "ayKarZarar": 166.29,
-   "yilKarZarar": 11766.2
+   "ayKarZarar": 204.42,
+   "yilKarZarar": 11804.33
   }
  ],
  "totals": {
   "daily": -42.49,
-  "monthly": -590.21,
-  "yearly": 34653.69
+  "monthly": -632.7,
+  "yearly": 34611.2
  },
- "timestamp": 1788674019980,
+ "timestamp": 1788690342535,
  "tableDate": "2026-09-04",
  "isGunuSayilari": {
   "aylik": 4,
@@ -4117,16 +4117,5 @@
  "bekleyenValorler": [],
  "eksikFonlar": [],
  "temaSwapOldu": false,
- "eksikGunler": [
-  "2026-07-15",
-  "2026-05-29",
-  "2026-05-28",
-  "2026-05-27",
-  "2026-05-19",
-  "2026-05-01",
-  "2026-04-23",
-  "2026-03-20",
-  "2026-01-01",
-  "2025-10-29"
- ]
+ "eksikGunler": []
 }
