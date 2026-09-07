@@ -422,6 +422,18 @@ def main():
     # adet burada portfoy'un DUNDEN devreden hali (henuz bugunku emirler
     # uygulanmadi) -- bugun AL edilen bir fon icin adet=0 cikar, yani o
     # fonun bugunku kazanci otomatik 0 olur (ayrica ozel durum gerekmez).
+    #
+    # IDEMPOTENCY (2026-09-07 duzeltmesi): TEFAS'in veri tarihi (tarih)
+    # degismedigi surece (hafta sonu/ayni gun tekrar calistirma) bu blok
+    # gunde birden fazla kez calisabilir. Once bu, ayni gunun kazancini
+    # her calistirmada tekrar tekrar ay_deger/yil_deger'e EKLEYIP birikimi
+    # sismesine sebep oluyordu (KHA/BRG Eylul 2026 hatasi). Cozum: her fon
+    # icin en son hangi tarihte ne kadar kazanc uygulandigini
+    # ("son_uygulanan_tarih" / "son_uygulanan_kazanc") sakliyoruz; ayni
+    # tarih icin tekrar calisirsa once ONCEKI uygulamayi geri aliyoruz,
+    # sonra yeni (guncel fiyatla hesaplanan) kazanci ekliyoruz -- boylece
+    # bir TEFAS tarihi icin biriktiriciye net katki her zaman TEK SEFERLIK
+    # ve en guncel hesaplanan degerdir.
     try:
         fon_kazanc = yukle("fon_kazanc.json")
     except FileNotFoundError:
@@ -442,8 +454,15 @@ def main():
             girdi = {**girdi, "ay": bugun_ay_kk, "ay_deger": 0.0}
         if girdi.get("yil") != bugun_yil_kk:
             girdi = {**girdi, "yil": bugun_yil_kk, "yil_deger": 0.0}
-        girdi["ay_deger"] = round(girdi.get("ay_deger", 0.0) + kazanc, 2)
-        girdi["yil_deger"] = round(girdi.get("yil_deger", 0.0) + kazanc, 2)
+
+        # ayni TEFAS tarihi icin daha once bir kazanc uygulanmissa (bu
+        # gunun ikinci/ucuncu... calistirmasi), once o eski katkiyi geri al
+        onceki_katki = girdi.get("son_uygulanan_kazanc", 0.0) if girdi.get("son_uygulanan_tarih") == tarih else 0.0
+
+        girdi["ay_deger"] = round(girdi.get("ay_deger", 0.0) - onceki_katki + kazanc, 2)
+        girdi["yil_deger"] = round(girdi.get("yil_deger", 0.0) - onceki_katki + kazanc, 2)
+        girdi["son_uygulanan_tarih"] = tarih
+        girdi["son_uygulanan_kazanc"] = kazanc
         fon_kazanc[kod] = girdi
     kaydet(fon_kazanc, "fon_kazanc.json")
 

@@ -13,9 +13,11 @@
  },
  "KHA": {
   "ay": "2026-09",
-  "ay_deger": -840.8,
+  "ay_deger": -382.2,
   "yil": "2026",
-  "yil_deger": -669.82
+  "yil_deger": -211.2,
+  "son_uygulanan_tarih": "2026-09-07",
+  "son_uygulanan_kazanc": -55.52
  },
  "DFI": {
   "ay": "2026-09",
@@ -85,9 +87,11 @@
  },
  "BRG": {
   "ay": "2026-09",
-  "ay_deger": 486.96,
+  "ay_deger": 193.2,
   "yil": "2026",
-  "yil_deger": 12086.87
+  "yil_deger": 11793.1,
+  "son_uygulanan_tarih": "2026-09-07",
+  "son_uygulanan_kazanc": 103.14
  },
  "BBF": {
   "ay": "2026-09",
