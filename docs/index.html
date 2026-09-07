@@ -48,7 +48,8 @@ if(gercekYuklendiRef.current){
           else data[kod]={adet:kalanAdet};
         }
       }else{
-        data[kod]={adet:mv};
+        const mevcutAdetAl=(data[kod]&&typeof data[kod]==="object")?(data[kod].adet||0):(data[kod]||0);
+        data[kod]={adet:mevcutAdetAl+mv};
       }
       await ghWrite("portfoy.json",data,sha,`PPF guncelleme: ${kod}`);
       alert(kod+" icin PPF adedi aninda guncellendi");
