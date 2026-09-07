@@ -82,33 +82,46 @@ def main():
 
     servis = drive_servisi()
     mevcut = yedekleri_listele(servis, klasor_id)
-
-    # Ayni gune ait ONCEKI yedek varsa sil -- o gunun sadece EN SON
-    # calismasinin yedegi kalsin.
-    for f in mevcut:
-        if f["name"] == zip_adi:
-            servis.files().delete(fileId=f["id"]).execute()
-            print(f"Ayni gunun eski yedegi silindi: {f['name']}")
-
     medya = MediaFileUpload(zip_adi, mimetype="application/zip")
-    servis.files().create(
-        body={"name": zip_adi, "parents": [klasor_id]},
-        media_body=medya,
-        fields="id",
-    ).execute()
-    print(f"Yedek Drive'a yuklendi: {zip_adi}")
 
-    # Dinamik 10 gunluk pencere: daha eski yedekleri sil.
+    # Ayni gune ait bir yedek zaten varsa (bu gunun ikinci/ucuncu
+    # calismasi): dosyayi SILIP YENIDEN OLUSTURMAK yerine icerigini
+    # GUNCELLIYORUZ. Google Drive'da "Editor" yetkisiyle paylasilan bir
+    # klasorde, servis hesabi kendine ait olmayan (klasor sahibinin
+    # elle olusturdugu / farkli bir hesabin yukledigi) bir dosyayi tam
+    # olarak SILEMEYEBILIR (403 insufficientFilePermissions) -- ama
+    # icerigini guncelleyebilir, cunku bu bir "duzenleme" islemi.
+    ayni_gunun_dosyasi = next((f for f in mevcut if f["name"] == zip_adi), None)
+    if ayni_gunun_dosyasi:
+        servis.files().update(fileId=ayni_gunun_dosyasi["id"], media_body=medya).execute()
+        print(f"Ayni gunun yedegi guncellendi (icerik degistirildi): {zip_adi}")
+    else:
+        servis.files().create(
+            body={"name": zip_adi, "parents": [klasor_id]},
+            media_body=medya,
+            fields="id",
+        ).execute()
+        print(f"Yedek Drive'a yuklendi: {zip_adi}")
+
+    # Dinamik 10 gunluk pencere: daha eski yedekleri sil. Servis hesabi
+    # bu dosyalari kendisi olusturdugu icin normalde silebilir, ama yine
+    # de tek bir dosyadaki olasi bir izin sorunu tum calismayi
+    # kesmesin diye tek tek deniyoruz.
     sinir_tarih = datetime.now() - timedelta(days=TUTULACAK_GUN_SAYISI)
     for f in yedekleri_listele(servis, klasor_id):
+        if f["name"] == zip_adi:
+            continue
         tarih_str = f["name"].replace(YEDEK_ADI_ONEKI, "").replace(".zip", "")
         try:
             dosya_tarihi = datetime.strptime(tarih_str, "%Y-%m-%d")
         except ValueError:
             continue
         if dosya_tarihi < sinir_tarih:
-            servis.files().delete(fileId=f["id"]).execute()
-            print(f"10 gunden eski yedek silindi: {f['name']}")
+            try:
+                servis.files().delete(fileId=f["id"]).execute()
+                print(f"10 gunden eski yedek silindi: {f['name']}")
+            except Exception as e:
+                print(f"UYARI: eski yedek silinemedi ({f['name']}): {e}")
 
 
 if __name__ == "__main__":
