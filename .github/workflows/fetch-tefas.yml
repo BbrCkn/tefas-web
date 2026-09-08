@@ -29,8 +29,8 @@ jobs:
 
       - name: Google Drive'a yedek al
         env:
-          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
-          GDRIVE_FOLDER_ID: "1426ze8Syo4oYQkWK6KvzrTPfQ4kPLRzD"
+          GAS_WEBHOOK_URL: ${{ secrets.GAS_WEBHOOK_URL }}
+          GAS_SECRET_TOKEN: ${{ secrets.GAS_SECRET_TOKEN }}
         run: python drive_yedek.py
 
       - name: Degisen dosyalari GitHub'a geri yaz
