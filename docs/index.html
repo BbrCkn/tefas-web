@@ -27,46 +27,47 @@ if(!emKod.trim())return;
 const kod=emKod.trim().toUpperCase();
 if(kod==="BBR"||kod==="END"){alert(kod+" gercek bir fon degil, islem yapilamaz");return}
 let mv=parseFloat((emMiktar||"0").toString().replace(",","."));if(isNaN(mv))mv=0;
-if(gercekYuklendiRef.current){
-  const fon=r.find((f)=>f.code===kod);
-  if(!fon){alert("Fon listede bulunamadi: "+kod);return}
-  const ppf=fon.valor===0;
-  try{
-    if(ppf){
-      const{data,sha}=await ghRead("portfoy.json");
-      if(emTip==="SAT"){
-        const mevcutPozisyon=data[kod];
-        const mevcutAdet=(mevcutPozisyon&&typeof mevcutPozisyon==="object")?(mevcutPozisyon.adet||0):(mevcutPozisyon||0);
-        if(!mv||mv<=0){
-          delete data[kod];
-        }else if(mv>mevcutAdet){
-          alert(`Satis miktari (${mv}) mevcut adetten (${mevcutAdet}) fazla olamaz. Islem yapilmadi.`);
-          return;
-        }else{
-          const kalanAdet=mevcutAdet-mv;
-          if(kalanAdet<=0)delete data[kod];
-          else data[kod]={adet:kalanAdet};
-        }
+if(!gercekYuklendiRef.current){alert("Veri henuz yuklenmedi, birkac saniye bekleyip tekrar deneyin");return}
+const fon=r.find((f)=>f.code===kod);
+if(!fon){alert("Fon listede bulunamadi: "+kod);return}
+const ppf=fon.valor===0;
+try{
+  if(ppf){
+    const{data,sha}=await ghRead("portfoy.json");
+    if(emTip==="SAT"){
+      const mevcutPozisyon=data[kod];
+      const mevcutAdet=(mevcutPozisyon&&typeof mevcutPozisyon==="object")?(mevcutPozisyon.adet||0):(mevcutPozisyon||0);
+      if(!mv||mv<=0){
+        delete data[kod];
+      }else if(mv>mevcutAdet){
+        alert(`Satis miktari (${mv}) mevcut adetten (${mevcutAdet}) fazla olamaz. Islem yapilmadi.`);
+        return;
       }else{
-        const mevcutAdetAl=(data[kod]&&typeof data[kod]==="object")?(data[kod].adet||0):(data[kod]||0);
-        data[kod]={adet:mevcutAdetAl+mv};
+        const kalanAdet=mevcutAdet-mv;
+        if(kalanAdet<=0)delete data[kod];
+        else data[kod]={adet:kalanAdet};
       }
-      await ghWrite("portfoy.json",data,sha,`PPF guncelleme: ${kod}`);
-      alert(kod+" icin PPF adedi aninda guncellendi");
     }else{
-      const{data,sha}=await ghRead("bekleyen_emirler.json");
-      const emir={kod,tip:emTip,talep_tarihi:new Date().toISOString().slice(0,10)};
-      if(emTip==="AL")emir.tutar=mv;
-      data.push(emir);
-      await ghWrite("bekleyen_emirler.json",data,sha,`Emir kuyruguna eklendi: ${emTip} ${kod}`);
-      alert(kod+" emri kaydedildi, bir sonraki guncellemede islenecek");
+      const mevcutAdetAl=(data[kod]&&typeof data[kod]==="object")?(data[kod].adet||0):(data[kod]||0);
+      data[kod]={adet:mevcutAdetAl+mv};
     }
-  }catch(e){alert("Hata: "+e.message);return}
-}
+    await ghWrite("portfoy.json",data,sha,`PPF guncelleme: ${kod}`);
+    alert(kod+" icin PPF adedi aninda guncellendi");
+    setEmKod("");setEmMiktar("");
+    return;
+  }else{
+    const{data,sha}=await ghRead("bekleyen_emirler.json");
+    const emir={kod,tip:emTip,talep_tarihi:new Date().toISOString().slice(0,10)};
+    if(emTip==="AL")emir.tutar=mv;
+    data.push(emir);
+    await ghWrite("bekleyen_emirler.json",data,sha,`Emir kuyruguna eklendi: ${emTip} ${kod}`);
+    alert(kod+" emri kaydedildi, bir sonraki guncellemede islenecek");
+  }
+}catch(e){alert("Hata: "+e.message);return}
 const yeni={id:Date.now(),kod,tip:emTip,miktar:mv,tarih:new Date().toLocaleDateString("tr-TR")};
 const guncel=[...emirler,yeni];setEmirler(guncel);
 try{localStorage.setItem("fon2030_emirler_v1",JSON.stringify(guncel))}catch{}
-setEmKod("");setEmMiktar("")}function emirSil(id){const guncel=emirler.filter(x=>x.id!==id);setEmirler(guncel);try{localStorage.setItem("fon2030_emirler_v1",JSON.stringify(guncel))}catch{}}const[fonDegisiklikleri,setFonDegisiklikleri]=E.useState(()=>{try{const b=localStorage.getItem("fon2030_fondegisiklik_v1");return b?JSON.parse(b):[]}catch{return[]}});const[fdCikacak,setFdCikacak]=E.useState("");const[fdGelecek,setFdGelecek]=E.useState("");async function fdEkle(){
+setEmKod("");setEmMiktar("")}function emirSil(id){const guncel=emirler.filter(x=>x.id!==id);setEmirler(guncel);try{localStorage.setItem("fon2030_emirler_v1",JSON.stringify(guncel))}catch{}}async function bekleyenKontrolEt(mevcut){if(!gercekYuklendiRef.current||!mevcut.length||!localStorage.getItem("gh_pat"))return;try{const{data}=await ghRead("bekleyen_emirler.json");const aktif=new Set(data.map((em)=>em.kod+"|"+em.tip));const guncel=mevcut.filter((em)=>aktif.has(em.kod+"|"+em.tip));if(guncel.length!==mevcut.length){setEmirler(guncel);try{localStorage.setItem("fon2030_emirler_v1",JSON.stringify(guncel))}catch{}}}catch(e){}}E.useEffect(()=>{if(gercekVeri)bekleyenKontrolEt(emirler)},[gercekVeri]);const[fonDegisiklikleri,setFonDegisiklikleri]=E.useState(()=>{try{const b=localStorage.getItem("fon2030_fondegisiklik_v1");return b?JSON.parse(b):[]}catch{return[]}});const[fdCikacak,setFdCikacak]=E.useState("");const[fdGelecek,setFdGelecek]=E.useState("");async function fdEkle(){
 const cik=fdCikacak.trim().toUpperCase(),gel=fdGelecek.trim().toUpperCase();
 if(!cik&&!gel)return;
 if([cik,gel].includes("BBR")||[cik,gel].includes("END")){alert("BBR/END sistem gostergesi, eklenip cikarilamaz");return}
