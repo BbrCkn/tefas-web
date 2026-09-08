@@ -48,11 +48,11 @@ def donemsel_getiriler(fiyat_matrisi: np.ndarray) -> dict:
     """
     pencereler = {
         "gunluk": 1,
-        "haftalik": 4,
-        "aylik": 20,
-        "uc_aylik": 62,
-        "alti_aylik": 127,
-        "yillik": 254,
+        "haftalik": 5,
+        "aylik": 21,
+        "uc_aylik": 63,
+        "alti_aylik": 128,
+        "yillik": 255,
     }
     bugun = fiyat_matrisi[:, 0]
     n_sutun = fiyat_matrisi.shape[1]
