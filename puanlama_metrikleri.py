@@ -48,7 +48,7 @@ def donemsel_getiriler(fiyat_matrisi: np.ndarray) -> dict:
     """
     pencereler = {
         "gunluk": 1,
-        "haftalik": 5,
+        "haftalik": 4,
         "aylik": 21,
         "uc_aylik": 63,
         "alti_aylik": 128,
