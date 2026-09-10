@@ -802,5 +802,13 @@
  "GVA": {
   "ad": "GARANTİ PORTFÖY ELEKTRİKLİ VE OTONOM ARAÇLAR DEĞİŞKEN FON",
   "valor": 3
+ },
+ "AES": {
+  "ad": "AK PORTFÖY PETROL YABANCI BYF FON SEPETİ FONU",
+  "valor": null
+ },
+ "DDF": {
+  "ad": "DENİZ PORTFÖY DİNAMO HİSSE SENEDİ SERBEST (TL) FON (HİSSE SENEDİ YOĞUN FON)",
+  "valor": null
  }
 }
