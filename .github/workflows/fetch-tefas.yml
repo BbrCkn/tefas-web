@@ -28,12 +28,14 @@ jobs:
         run: python gunluk_pipeline.py
 
       - name: Google Drive'a yedek al
+        continue-on-error: true
         env:
           GAS_WEBHOOK_URL: ${{ secrets.GAS_WEBHOOK_URL }}
           GAS_SECRET_TOKEN: ${{ secrets.GAS_SECRET_TOKEN }}
         run: python drive_yedek.py
 
       - name: Degisen dosyalari GitHub'a geri yaz
+        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Otomatik gunluk guncelleme"
