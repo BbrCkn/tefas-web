@@ -2,5 +2,9 @@
  {
   "kod": "AES",
   "valor": null
+ },
+ {
+  "kod": "DDF",
+  "valor": null
  }
 ]
