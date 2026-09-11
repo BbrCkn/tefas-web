@@ -10,12 +10,5 @@
   "uc_aylik": 1.7945280000000006,
   "alti_aylik": 3.5032000000000005,
   "yillik": 2.49
- },
- "risk_metrik_oranlari": {
-  "sharpe": 0.2,
-  "mdd": 0.2,
-  "consistency": 0.24,
-  "otokorelasyon": 0.2,
-  "ebg": 0.16
  }
 }
