@@ -1,0 +1,42 @@
+name: TEFAS Gunluk Pipeline
+
+on:
+  workflow_dispatch:   # "Run workflow" butonuyla elle tetikleme
+  schedule:
+    - cron: '30 8 * * 1-5'   # Hafta ici, TR saatiyle ~11:30 (UTC 08:30)
+
+concurrency:
+  group: tefas-gunluk-pipeline
+  cancel-in-progress: false
+
+jobs:
+  gunluk-calistir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu indir
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Kutuphaneleri kur
+        run: pip install -r requirements.txt
+
+      - name: Gunluk pipeline'i calistir
+        run: python gunluk_pipeline.py
+
+      - name: Google Drive'a yedek al
+        continue-on-error: true
+        env:
+          GAS_WEBHOOK_URL: ${{ secrets.GAS_WEBHOOK_URL }}
+          GAS_SECRET_TOKEN: ${{ secrets.GAS_SECRET_TOKEN }}
+        run: python drive_yedek.py
+
+      - name: Degisen dosyalari GitHub'a geri yaz
+        if: always()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Otomatik gunluk guncelleme"
+          file_pattern: "docs/data.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json eksik_gun_manuel.xlsx sabitler.json"

@@ -21,6 +21,7 @@ import datetime
 from pathlib import Path
 
 import numpy as np
+import requests
 from pytefas import Crawler, TefasAPIError, TefasRateLimitError
 
 from puanlama_metrikleri import (
@@ -42,6 +43,65 @@ GUN_SAYISI = 255
 # HIC DOKUNULMADAN oldugu gibi kalir (ne islenir ne silinir) -- Faz 2'de
 # True yapildiginda kaldigi yerden islenmeye devam eder.
 EMIR_MOTORU_AKTIF = True
+
+SERENITY_PARAMETERS_URL = (
+    "https://firebasestorage.googleapis.com/v0/b/serenity-go.firebasestorage.app/"
+    "o/public%2Fparameters.json?alt=media"
+)
+
+
+def serenity_katsayilarini_guncelle(sabitler: dict) -> dict:
+    """
+    Cenker'in Serenity sisteminin gunluk (hafta ici ~11:18 TR'de yenilenen),
+    auth gerektirmeyen public API'sinden donemsel katsayilari + Sortino
+    periyodu/agirligini ceker ve sabitler.json'a yazar.
+
+    SIRALAMA: main() icinde fiyat cekme/skor hesaplamadan ONCE cagrilir --
+    once katsayilar guncellensin, skor hesabi ONDAN SONRA o katsayilarla
+    yapilsin diye.
+
+    Basarisiz olursa (network hatasi, timeout, bozuk/eksik JSON, mantiksiz
+    deger) sabitler'e HIC DOKUNMAZ ve oldugu gibi geri doner -- boylece o
+    gunku pipeline calismasi otomatik olarak EN SON BASARILI senkronun
+    degerleriyle devam eder (ayri bir cache dosyasina gerek yok, sabitler.json
+    zaten her basarili senkronda guncellenip commit'lendigi icin kendisi
+    "son bilinen iyi deger" gorevini goruyor).
+    """
+    try:
+        yanit = requests.get(SERENITY_PARAMETERS_URL, timeout=10)
+        yanit.raise_for_status()
+        veri = yanit.json()
+        w = veri["weights"]
+        yeni_dk = {
+            "gunluk": float(w["1D"]),
+            "haftalik": float(w["1W"]),
+            "aylik": float(w["1M"]),
+            "uc_aylik": float(w["3M"]),
+            "alti_aylik": float(w["6M"]),
+            "yillik": float(w["1Y"]),
+        }
+        yeni_periyod = int(round(float(w["Sortino Period"])))
+        yeni_sortino_agirlik = float(w["Sortino Weight"])
+        if yeni_periyod <= 1 or any(v < 0 for v in yeni_dk.values()) or yeni_sortino_agirlik < 0:
+            raise ValueError(f"Serenity'den gelen degerler mantiksiz: {w}")
+    except Exception as e:
+        print(f"[Serenity UYARI] Katsayilar cekilemedi, sabitler.json'daki "
+              f"mevcut (bir onceki basarili senkrondan kalma) degerlerle "
+              f"devam ediliyor: {e}")
+        return sabitler
+
+    sabitler = {
+        **sabitler,
+        "donemsel_katsayilar": yeni_dk,
+        "periyod": yeni_periyod,
+        "sortino_agirlik": yeni_sortino_agirlik,
+        "serenity_generated_at": veri.get("generated_at"),
+    }
+    kaydet(sabitler, "sabitler.json")
+    print(f"[Serenity] Katsayilar guncellendi (generated_at={veri.get('generated_at')}): "
+          f"donemsel={yeni_dk}, periyod={yeni_periyod}, "
+          f"sortino_agirlik={yeni_sortino_agirlik}")
+    return sabitler
 
 
 def bugunun_tarihi_veya_son_is_gunu() -> str:
@@ -236,6 +296,7 @@ def bugunku_fiyatlari_cek(fon_kodlari: set, tarih: str):
 def main():
     fon_listesi = yukle("fon_listesi.json")
     sabitler = yukle("sabitler.json")
+    sabitler = serenity_katsayilarini_guncelle(sabitler)
     fiyat_gecmisi = yukle("price_history.json")
     try:
         onceki_rank = yukle("onceki_rank.json")
@@ -539,13 +600,17 @@ def main():
 
     # Risk metrikleri (Sharpe/MDD/Consistency/Otokorelasyon/EnBuyukGunOrani)
     # TAMAMEN KALDIRILDI, yerine tek metrik olarak Sortino geldi (2026-09-12).
-    # Eskiden bu 5 metrik TOPLAMDA topk6*1.0 (oran sozlugu 1'e tamamlaniyordu)
-    # agirlik alip donemsel getirilerle esit toplam agirlikta yarisiyordu;
-    # ayni "donemsel = risk metrikleri" 50/50 dengesini korumak icin Sortino'ya
-    # da dogrudan topk6 katsayisi verildi (Excel'deki C217 mantigiyla ayni).
+    # Sortino'nun katsayisi artik tercihen dogrudan Serenity'nin kendi
+    # "Sortino Weight" alanindan geliyor (serenity_katsayilarini_guncelle
+    # basariyla calistiysa sabitler["sortino_agirlik"] dolu olur) -- bu,
+    # Serenity'nin o gunku optimizasyonunda Sortino'ya ne kadar agirlik
+    # verdigini birebir yansitir. Henuz hic senkron olmamissa (ilk calisma,
+    # ya da eski bir sabitler.json) topk6'ya (donemsel katsayilarin toplami,
+    # eski "donemsel = risk metrikleri" 50/50 esdegeri) geri duser.
     topk6 = sum(dk.values())
+    sortino_katsayi = sabitler.get("sortino_agirlik", topk6)
     Z += puanlama_motoru(sortino(fiyat_np1, sabitler["risksiz_backtest"], n), yon=1,
-                          katsayi=topk6, k=k_sigmoid, winsor=True)
+                          katsayi=sortino_katsayi, k=k_sigmoid, winsor=True)
 
     print("Tema kumeleme calisiyor...")
     valorler = np.array([fon_listesi[k].get("valor") for k in kodlar], dtype=object)
@@ -656,6 +721,7 @@ def main():
         "totals": totals,
         "timestamp": int(datetime.datetime.now().timestamp() * 1000),
         "tableDate": tarih,
+        "serenityGeneratedAt": sabitler.get("serenity_generated_at"),
         "isGunuSayilari": {"aylik": ay_sayisi, "yillik": yil_sayisi},
         "bekleyenValorler": bekleyen_valorler,
         "eksikFonlar": eksik,
