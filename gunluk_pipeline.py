@@ -443,6 +443,15 @@ def main():
     for kod in fon_listesi:
         pozisyon = portfoy.get(kod)
         adet_dun = pozisyon.get("adet", 0) if isinstance(pozisyon, dict) else (pozisyon or 0)
+        # Bugun ALINMIS bir pozisyon icin (alis_tarihi==tarih), pipeline
+        # bu gun icinde ikinci/ucuncu kez calistirilirse portfoy.json
+        # artik bugunku alimi icerir ve sanki dun de elde tutuluyormus
+        # gibi tam gunluk fiyat farki hesaplanip ay_deger/yil_deger'e
+        # sizardi (2026-09-11: DFI'da +126 TL fazladan aylik/yillik
+        # kazanc, gunlukte gorunmuyor -- alt tarafta 597. satirdaki ayni
+        # kontrolle simetrik hale getirildi).
+        if isinstance(pozisyon, dict) and pozisyon.get("alis_tarihi") == tarih:
+            adet_dun = 0
         seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0, 0.0])
         f_bugun = seri[0] if len(seri) > 0 else 0.0
         f_dun = seri[1] if len(seri) > 1 else f_bugun
