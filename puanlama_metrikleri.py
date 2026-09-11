@@ -263,6 +263,52 @@ def tema_olustur(fiyat_91: np.ndarray, kodlar: list, valorler: np.ndarray) -> li
     return sonuc
 
 
+def sortino(fiyat_matrisi_np1: np.ndarray, risksiz_yillik: float,
+            pencere: int) -> np.ndarray:
+    """
+    Sortino Ratio - VBA'daki KG5:KG207 Sortino sub'inin Python karsiligi
+    (2030.xlsm'de MDD+Consistency+Otokorelasyon+EnBuyukGunOrani+Sharpe'nin
+    YERINE gecen tek risk metrigi).
+
+    fiyat_matrisi_np1: (fon_sayisi, pencere+1) -- AK sutunundan itibaren,
+        pencere+1 sutun (log getiri serisi icin bir gun fazlasi gerekir).
+    risksiz_yillik: yillik risksiz getiri orani (ondalik, orn. 0.42).
+    pencere: gun sayisi (VBA'daki R216C9 -- Serenity entegrasyonundan sonra
+        bu deger sabit degil, arayuzdeki "Periyot" kutusundan / Serenity'nin
+        "Sortino Period" alanindan gelecek).
+
+    Formul (peer-review sonrasi DUZELTILMIS hali, bkz. proje notlari):
+        gunluk_rf = risksiz_yillik / 252   (MAR - eskiden hatali bilesik
+            donusum kullaniliyordu, artik duz gunluk oran)
+        ort_getiri = pencere icindeki log getirilerin ortalamasi
+        pay = ort_getiri - gunluk_rf
+        downside = sadece negatif log getiriler
+        payda = sqrt(ortalama(downside**2)), 0.0001 taban (sifira bolme
+            koruması)
+        sonuc = pay / payda  (hata durumunda 0 -- eskiden yanlislikla 99
+            donuyordu, "yuksek=iyi" sirlamada hata satirlarini tepeye
+            atiyordu)
+
+    NOT: Bu port, VBA sub'inin son (duzeltilmis) haliyle formul duzeyinde
+    birebir eslesmesi icin yazildi ama gercek VBA kodu yaninda tutulup
+    ayni fiyat serisiyle karsilastirilmadan (bu dosyanin docstring'indeki
+    parite hedefi) canliya alinmamali.
+    """
+    getiri = _log_getiri_serisi(fiyat_matrisi_np1[:, :pencere + 1])  # (fon, pencere)
+    n_fon = getiri.shape[0]
+    gunluk_rf = risksiz_yillik / 252
+    ort_getiri = getiri.mean(axis=1)
+    pay = ort_getiri - gunluk_rf
+
+    downside = np.where(getiri < 0, getiri, 0.0)
+    payda = np.sqrt((downside ** 2).mean(axis=1))
+    payda = np.maximum(payda, 0.0001)
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        sonuc = np.where(np.isfinite(pay / payda), pay / payda, 0.0)
+    return sonuc
+
+
 def sharpe(fiyat_matrisi_np1: np.ndarray, risksiz_yillik: float) -> np.ndarray:
     """
     KL formulunun karsiligi:
