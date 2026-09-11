@@ -5,8 +5,9 @@ Her gun otomatik calisacak ana betik. Sirasiyla:
 1. TEFAS'tan bugunun fiyatlarini ceker
 2. Fiyat gecmisini gunceller (yeni gunu ekler, en eskiyi atar -- 255 gunluk
    pencere korunur)
-3. Donemsel getiri + Sharpe + MDD + Consistency + Otokorelasyon +
-   EnBuyukGunOrani hesaplayip Z skorunu uretir
+3. Donemsel getiri + Sortino hesaplayip Z skorunu uretir (2026-09-12'den
+   itibaren: Sharpe/MDD/Consistency/Otokorelasyon/EnBuyukGunOrani kaldirildi,
+   yerine tek risk metrigi olarak Sortino geldi)
 4. Tema kumelemeyi (TemaOlustur) calistirir
 5. Sirala, dunku sirayi kaydet, docs/data.json'i yazar (dashboard'un
    okudugu dosya)
@@ -23,8 +24,7 @@ import numpy as np
 from pytefas import Crawler, TefasAPIError, TefasRateLimitError
 
 from puanlama_metrikleri import (
-    donemsel_getiriler, sharpe, mdd, consistency, otokorelasyon,
-    en_buyuk_gun_orani, puanlama_motoru, tema_olustur,
+    donemsel_getiriler, sortino, puanlama_motoru, tema_olustur,
 )
 
 try:
@@ -526,7 +526,6 @@ def main():
     fiyat_full = np.array([fiyat_gecmisi["fiyatlar"][k] for k in kodlar])
     n = sabitler["periyod"]
     fiyat_np1 = fiyat_full[:, : n + 1]
-    fiyat_n = fiyat_full[:, :n]
 
     print("Skorlar hesaplaniyor...")
     k_sigmoid = sabitler["k"]
@@ -538,18 +537,15 @@ def main():
     for ad, kat_anahtar in donem_map.items():
         Z += puanlama_motoru(donemsel[ad], yon=1, katsayi=dk[kat_anahtar], k=k_sigmoid, winsor=True)
 
+    # Risk metrikleri (Sharpe/MDD/Consistency/Otokorelasyon/EnBuyukGunOrani)
+    # TAMAMEN KALDIRILDI, yerine tek metrik olarak Sortino geldi (2026-09-12).
+    # Eskiden bu 5 metrik TOPLAMDA topk6*1.0 (oran sozlugu 1'e tamamlaniyordu)
+    # agirlik alip donemsel getirilerle esit toplam agirlikta yarisiyordu;
+    # ayni "donemsel = risk metrikleri" 50/50 dengesini korumak icin Sortino'ya
+    # da dogrudan topk6 katsayisi verildi (Excel'deki C217 mantigiyla ayni).
     topk6 = sum(dk.values())
-    oran = sabitler["risk_metrik_oranlari"]
-    Z += puanlama_motoru(sharpe(fiyat_np1, sabitler["risksiz_yillik"]), yon=1,
-                          katsayi=topk6 * oran["sharpe"], k=k_sigmoid, winsor=True)
-    Z += puanlama_motoru(mdd(fiyat_n), yon=-1,
-                          katsayi=topk6 * oran["mdd"], k=k_sigmoid, winsor=False)
-    Z += puanlama_motoru(consistency(fiyat_np1), yon=1,
-                          katsayi=topk6 * oran["consistency"], k=k_sigmoid, winsor=True)
-    Z += puanlama_motoru(otokorelasyon(fiyat_np1), yon=-1,
-                          katsayi=topk6 * oran["otokorelasyon"], k=k_sigmoid, winsor=True)
-    Z += puanlama_motoru(en_buyuk_gun_orani(fiyat_np1), yon=-1,
-                          katsayi=topk6 * oran["ebg"], k=k_sigmoid, winsor=False)
+    Z += puanlama_motoru(sortino(fiyat_np1, sabitler["risksiz_backtest"], n), yon=1,
+                          katsayi=topk6, k=k_sigmoid, winsor=True)
 
     print("Tema kumeleme calisiyor...")
     valorler = np.array([fon_listesi[k].get("valor") for k in kodlar], dtype=object)
