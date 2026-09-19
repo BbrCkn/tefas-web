@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "kod": "BRF",
+    "valor": 2
+  },
+  {
+    "kod": "CKL",
+    "valor": 2
+  },
+  {
+    "kod": "DPI",
+    "valor": 2
+  },
+  {
+    "kod": "FBZ",
+    "valor": 3
+  },
+  {
+    "kod": "FSH",
+    "valor": 3
+  },
+  {
+    "kod": "GBZ",
+    "valor": 3
+  },
+  {
+    "kod": "GMA",
+    "valor": 2
+  },
+  {
+    "kod": "GUH",
+    "valor": 3
+  },
+  {
+    "kod": "GZG",
+    "valor": 3
+  },
+  {
+    "kod": "GZL",
+    "valor": 3
+  },
+  {
+    "kod": "HOA",
+    "valor": 2
+  },
+  {
+    "kod": "IJP",
+    "valor": 3
+  },
+  {
+    "kod": "IUH",
+    "valor": 3
+  },
+  {
+    "kod": "IZB",
+    "valor": 2
+  },
+  {
+    "kod": "KDE",
+    "valor": 2
+  },
+  {
+    "kod": "KME",
+    "valor": 1
+  },
+  {
+    "kod": "KTS",
+    "valor": 2
+  },
+  {
+    "kod": "KUD",
+    "valor": 2
+  },
+  {
+    "kod": "NOI",
+    "valor": 2
+  },
+  {
+    "kod": "PTF",
+    "valor": 1
+  },
+  {
+    "kod": "SSK",
+    "valor": 2
+  },
+  {
+    "kod": "TEJ",
+    "valor": 3
+  },
+  {
+    "kod": "TFF",
+    "valor": 4
+  },
+  {
+    "kod": "UNT",
+    "valor": 1
+  },
+  {
+    "kod": "YCY",
+    "valor": 2
+  }
+]
