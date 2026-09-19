@@ -25,6 +25,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Gunluk pipeline'i calistir
+        env:
+          PYTHONUNBUFFERED: "1"   # ciktiyi tamponlamadan aninda akit -- uzun surebilecek
+                                   # adimlarda (ornegin yeni fon gecmisi cekme) canli log
+                                   # takibi icin gerekli
         run: python gunluk_pipeline.py
 
       - name: Google Drive'a yedek al
