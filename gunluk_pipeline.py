@@ -68,7 +68,19 @@ def serenity_katsayilarini_guncelle(sabitler: dict) -> dict:
     "son bilinen iyi deger" gorevini goruyor).
     """
     try:
-        yanit = requests.get(SERENITY_PARAMETERS_URL, timeout=10)
+        # Cache-busting: Firebase Storage/CDN katmaninda bu sabit URL'nin
+        # eski icerigi cache'lemis olma ihtimaline karsi her istekte
+        # degisen bir sorgu parametresi ekleniyor (2026-09-19: generated_at
+        # gunlerdir 2026-09-09'da donuk kaliyordu, fetch'in kendisi hata
+        # vermeden basariyla calisiyordu -- ya CDN cache ya da Cenker
+        # tarafinda public/parameters.json'un fiilen guncellenmemesi
+        # ihtimali var; bu sadece ilkini bertaraf etmeye yonelik).
+        cache_buster = f"&_cb={int(datetime.datetime.now().timestamp())}"
+        yanit = requests.get(
+            SERENITY_PARAMETERS_URL + cache_buster,
+            headers={"Cache-Control": "no-cache", "Pragma": "no-cache"},
+            timeout=10,
+        )
         yanit.raise_for_status()
         veri = yanit.json()
         w = veri["weights"]
@@ -703,16 +715,22 @@ def main():
     portfolio = [f for f in dashboard_funds if f["guncel"] and f["guncel"] > 0]
     toplam_guncel_deger = round(sum(f["guncel"] for f in portfolio), 2)
 
-    # --- TOPLAM Gunluk/Aylik/Yillik kar-zarar: fon_kazanc bazli ---
-    # Sutun basliklarindaki toplam, artik o sutundaki tum fonlarin (elde
-    # olsun olmasin) degerlerinin toplami. Bugun SAT ile kapanan bir
-    # pozisyonun kazanci gunluk_kazanc/fon_kazanc icinde zaten var, bu
-    # yuzden "portfolio" (sadece su an elde tutulanlar) uzerinden DEGIL,
-    # tum fon_listesi uzerinden toplaniyor.
+    # --- TOPLAM Gunluk/Aylik/Yillik kar-zarar: fon_listesi bazli ---
+    # (2026-09-19: Babur'un netlestirmesiyle) DFI gibi tamamen listeden
+    # cikarilan/kapatilan fonlarin eski kar-zarari toplamdan dusmeli
+    # ("sanki hic alinip satilmamis gibi"), AMA hala fon_listesi'nde takip
+    # edilen (o an elde tutuluyor olsun olmasin -- ornegin RBR, AES gibi
+    # gecmiste alinip satilmis ama listede kalan) fonlarin eski gerceklesen
+    # kar-zarari toplama DAHIL olmaya devam eder -- Excel'deki OZET
+    # satirinin (butun fon satirlarinin TOPLAM sutunu toplami) mantigiyla
+    # birebir ayni: sadece "portfolio" (o an elde tutulan) uzerinden DEGIL,
+    # fon_listesi'nde olan TUM fonlar uzerinden toplaniyor. Bir fon
+    # fon_listesi'nden tamamen cikarildiginda (DFI gibi) bu dongude hic
+    # yer almaz, katkisi otomatik olarak duser.
     totals = {
         "daily": round(sum(gunluk_kazanc.values()), 2),
-        "monthly": round(sum(v.get("ay_deger", 0.0) for v in fon_kazanc.values()), 2),
-        "yearly": round(sum(v.get("yil_deger", 0.0) for v in fon_kazanc.values()), 2),
+        "monthly": round(sum(v.get("ay_deger", 0.0) for k, v in fon_kazanc.items() if k in fon_listesi), 2),
+        "yearly": round(sum(v.get("yil_deger", 0.0) for k, v in fon_kazanc.items() if k in fon_listesi), 2),
     }
 
     data_json = {
