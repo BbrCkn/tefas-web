@@ -917,8 +917,8 @@
    "adet": 15672,
    "guncel": 82882.0,
    "gunlukTL": 96.02,
-   "ayKarZarar": 1490.73,
-   "yilKarZarar": 13090.63
+   "ayKarZarar": 1546.89,
+   "yilKarZarar": 13146.8
   },
   {
    "kod": "YBS",
@@ -4079,8 +4079,8 @@
    "adet": 15672,
    "guncel": 82882.0,
    "gunlukTL": 96.02,
-   "ayKarZarar": 1490.73,
-   "yilKarZarar": 13090.63
+   "ayKarZarar": 1546.89,
+   "yilKarZarar": 13146.8
   },
   {
    "kod": "YVD",
@@ -4105,10 +4105,10 @@
  ],
  "totals": {
   "daily": 159.15,
-  "monthly": 1576.53,
-  "yearly": 31451.95
+  "monthly": 1632.69,
+  "yearly": 31508.12
  },
- "timestamp": 1790152901758,
+ "timestamp": 1790157755231,
  "tableDate": "2026-09-23",
  "serenityGeneratedAt": "2026-09-21T12:17:24",
  "isGunuSayilari": {
