@@ -1,9 +1,15 @@
 """
 fetch_gecmis_veri.py -- TEK SEFERLIK script.
-price_history.json'daki en eski tarihten GERIYE dogru, her fon icin
-ayri ayri (yeni_fon_gecmisini_cek ile ayni yontem: Crawler().fetch ile
-genis tarih araligi + fund_code) veri ceker ve price_history.json'un
-SONUNA (daha eski tarihler) ekler.
+price_history.json'daki en eski tarihten GERIYE dogru, TUM fonlar icin
+TEK bir Crawler().fetch cagrisiyla (fund_code VERILMEDEN -- pytefas
+otomatik rate-limit + chunking yapiyor, TUM fonlar ayni sure surer)
+veri ceker ve price_history.json'un SONUNA (daha eski tarihler) ekler.
+
+ONEMLI (duzeltme): ilk versiyon fon basina ayri istek atiyordu (203 x
+~14 chunk = ~2800 istek, TEFAS'in dakika 6 istek siniriyla ~8 saat
+surerdi). Duzeltilmis versiyon TEK istekte tum fonlari cekiyor --
+pytefas dokumantasyonuna gore 1 yillik veri TUM fonlar icin ~3 dakikada
+donuyor (chunk sayisi tarih araligina bagli, fon sayisina degil).
 
 Kullanim: GitHub Actions'ta workflow_dispatch ile bir kez calistirilir.
 Repo KOKUNE konur (gunluk_pipeline.py ile ayni klasor).
@@ -15,20 +21,16 @@ alinabilir durumda olmali (GitHub zaten commit gecmisi tutuyor).
 """
 
 import json
-import time
 import datetime
 from pathlib import Path
 
-from pytefas import Crawler, TefasAPIError, TefasRateLimitError
+from pytefas import Crawler
 
 KOK = Path(__file__).parent
 
 # Kac gun geriye gidilecek (takvim gunu, hafta sonlari dahil -- TEFAS
 # zaten hafta sonu veri dondurmuyor, guvenli pay icin genis tutuldu)
 HEDEF_TAKVIM_GUNU = 400
-
-BEKLEME_SANIYE = 1.5          # her fon cagrisi arasi (rate-limit onlemi)
-MAX_DENEME = 3                 # TefasRateLimitError'da tekrar deneme sayisi
 
 
 def yukle(dosya):
@@ -45,29 +47,26 @@ def _ts():
     return datetime.datetime.now().strftime("%H:%M:%S")
 
 
-def fon_gecmisini_cek(kod: str, baslangic: str, bitis: str):
-    """Tek fon icin [baslangic, bitis] araliginda (dahil) TEFAS'tan fiyat
-    ceker. Donus: {tarih(YYYY-MM-DD): fiyat} sozlugu (bos olabilir)."""
+def tum_fonlarin_gecmisini_cek(baslangic: str, bitis: str):
+    """TUM fonlar icin [baslangic, bitis] araliginda (dahil) TEK cagriyla
+    TEFAS'tan fiyat ceker (fund_code verilmez -- pytefas otomatik
+    chunking + rate-limit yapar, tum fonlar ayni surede doner).
+    Donus: {fon_kodu: {tarih(YYYY-MM-DD): fiyat}} sozlugu."""
+    print(f"[{_ts()}] TEFAS'tan {baslangic} -> {bitis} araligi TUM fonlar icin "
+          f"cekiliyor (pytefas otomatik chunk/rate-limit yapiyor, bir yil "
+          f"icin ~birkac dakika surmesi bekleniyor)...")
     tefas = Crawler()
-    for deneme in range(1, MAX_DENEME + 1):
-        try:
-            df = tefas.fetch(baslangic, bitis, columns="info", kind="YAT", fund_code=kod)
-            break
-        except TefasRateLimitError:
-            bekleme = 10 * deneme
-            print(f"  [{kod}] Rate limit, {bekleme}sn bekleniyor (deneme {deneme}/{MAX_DENEME})...")
-            time.sleep(bekleme)
-    else:
-        print(f"  [{kod}] UYARI: {MAX_DENEME} denemede de basarisiz, atlandi.")
-        return {}
-
+    df = tefas.fetch(baslangic, bitis, columns="info", kind="YAT")
     kayitlar = json.loads(df.to_json(orient="records"))
+    print(f"[{_ts()}] {len(kayitlar)} kayit alindi, isleniyor...")
+
     sonuc = {}
     for k in kayitlar:
+        kod = k.get("fund_code")
         tarih = str(k.get("date", ""))[:10]
         fiyat = k.get("price")
-        if tarih and fiyat is not None:
-            sonuc[tarih] = float(fiyat)
+        if kod and tarih and fiyat is not None:
+            sonuc.setdefault(kod, {})[tarih] = float(fiyat)
     return sonuc
 
 
@@ -82,16 +81,13 @@ def main():
                        - datetime.timedelta(days=HEDEF_TAKVIM_GUNU)).strftime("%Y-%m-%d")
 
     print(f"[{_ts()}] Mevcut en eski tarih: {en_eski_tarih}")
-    print(f"[{_ts()}] Hedef aralik: {hedef_baslangic} -> {hedef_bitis} "
-          f"({len(fon_listesi)} fon icin tek tek cekilecek)")
+    print(f"[{_ts()}] Hedef aralik: {hedef_baslangic} -> {hedef_bitis}")
 
-    tum_fon_verisi = {}   # {kod: {tarih: fiyat}}
-    for i, kod in enumerate(fon_listesi, start=1):
-        print(f"[{_ts()}] ({i}/{len(fon_listesi)}) {kod} cekiliyor...")
-        veri = fon_gecmisini_cek(kod, hedef_baslangic, hedef_bitis)
-        tum_fon_verisi[kod] = veri
-        print(f"  -> {len(veri)} gun bulundu.")
-        time.sleep(BEKLEME_SANIYE)
+    tum_fon_verisi = tum_fonlarin_gecmisini_cek(hedef_baslangic, hedef_bitis)
+    bulunamayan = [kod for kod in fon_listesi if kod not in tum_fon_verisi]
+    if bulunamayan:
+        print(f"[{_ts()}] UYARI: {len(bulunamayan)} fon icin hic veri bulunamadi: "
+              f"{bulunamayan[:15]}{' ...' if len(bulunamayan) > 15 else ''}")
 
     # --- birlesik (tum fonlarda gorulen) tarih listesi, yeniden eskiye ---
     tum_tarihler = set()
