@@ -24,7 +24,7 @@ jobs:
 
       - name: Testi calistir
         working-directory: de_walkforward_test
-        run: python3 -u de_walkforward_standalone.py
+        run: run: python3 -u de_walkforward_standalone.py --train 150 --test 45 --n-windows 5 --window-step 20
 
       - name: Sonuclari artifact olarak yukle
         if: always()
