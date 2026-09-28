@@ -22,6 +22,7 @@ Kullanım:
 import argparse
 import json
 import os
+import pickle
 import sys
 import time
 
@@ -355,7 +356,23 @@ def fit_windows(usable, train, test, min_test):
     return tr2, min_test, f"TRAIN {train} -> {tr2}, TEST {test} -> {min_test} küçültüldü (kullanılabilir gün: {usable})"
 
 
+class _Tee:
+    def __init__(self, *fs):
+        self.fs = fs
+
+    def write(self, x):
+        for f in self.fs:
+            f.write(x)
+
+    def flush(self):
+        for f in self.fs:
+            f.flush()
+
+
 def main():
+    here = os.path.dirname(os.path.abspath(__file__))
+    logf = open(os.path.join(here, "de_wf_full_log.txt"), "w", encoding="utf-8")
+    sys.stdout = _Tee(sys.__stdout__, logf)
     ap = argparse.ArgumentParser()
     ap.add_argument("--prices", default="price_history.json")
     ap.add_argument("--valor", default="fon_listesi.json")
@@ -376,7 +393,7 @@ def main():
     ap.add_argument("--baseline-p", type=int, default=2)
     ap.add_argument("--baseline-x", type=int, default=9)
     ap.add_argument("--exclude", default="BBR,END,BRG,YVD")
-    ap.add_argument("--out", default="sonuclar")
+    ap.add_argument("--out", default=None, help="varsayilan: script klasoru")
     ap.add_argument("--no-wf", action="store_true")
     ap.add_argument("--inspect", action="store_true")
     ap.add_argument("--synthetic", action="store_true")
@@ -400,6 +417,8 @@ def main():
     T, N = px.shape
     print(f"Veri: {T} gün x {N} fon, {px.index[0].date()} -> {px.index[-1].date()}", flush=True)
 
+    if a.out is None:
+        a.out = here
     excl = {c.strip() for c in a.exclude.split(",") if c.strip()}
     tradable = np.array([c not in excl for c in px.columns])
     t_min = max(LOOKBACKS + [a.sortino_gun])
@@ -440,6 +459,8 @@ def main():
             print(f"  DE günlük walk-forward test: %{w_ret*100:.2f}  (işlem {w_tr})", flush=True)
             row.update(de_wf_test=w_ret, de_wf_mean_params=[float(x) for x in hist.mean(axis=0)])
         results.append(row)
+        with open(os.path.join(a.out, "de_wf_full_checkpoint.pkl"), "wb") as f:
+            pickle.dump(results, f)
 
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "sonuc.json"), "w", encoding="utf-8") as f:
