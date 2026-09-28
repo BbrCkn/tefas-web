@@ -64,18 +64,50 @@ def log(msg):
 
 
 def load_universe():
+    """
+    Fon gecmisleri farkli uzunlukta olabilir (yeni listelenen fonlar daha kisa).
+    Once TRAIN_GUN+TEST_GUN+LOOKBACK icin gereken minimum uzunlugu (`ihtiyac`)
+    karsilayan fonlari sec, sonra HEPSINI bu grubun en kisasina (>= ihtiyac)
+    kirp -- boylece tek bir yeni fon yuzunden tum analiz penceresi kucul mez.
+    """
+    LOOKBACK_ICIN = 253
+    ihtiyac = LOOKBACK_ICIN + TRAIN_GUN + TEST_GUN
+
     with open(PRICE_HISTORY_JSON, encoding="utf-8") as f:
         data = json.load(f)
     fiyatlar = data["fiyatlar"]
-    kodlar, rows = [], []
+
+    tum_arrs = {}
     for k, v in fiyatlar.items():
         if k in EXCLUDE_FONLAR:
             continue
         arr = np.array(v, dtype=float)
-        if len(arr) < 253 or (arr <= 0).any():
+        if (arr <= 0).any():
             continue
-        kodlar.append(k)
-        rows.append(arr)
+        tum_arrs[k] = arr
+
+    yeterli = {k: a for k, a in tum_arrs.items() if len(a) >= ihtiyac}
+
+    if not yeterli:
+        # Istenen TEST_GUN+TRAIN_GUN icin yeterli derinlikte fon yok --
+        # elimizdeki en iyi ortak uzunluga geriliyoruz (TEST_GUN otomatik kisalacak).
+        min_kabul = LOOKBACK_ICIN + TRAIN_GUN + 1  # en az 1 test gunu
+        yeterli = {k: a for k, a in tum_arrs.items() if len(a) >= min_kabul}
+        if not yeterli:
+            raise RuntimeError(
+                f"Hicbir fonda LOOKBACK+TRAIN icin yeterli gecmis yok "
+                f"(gereken >= {min_kabul} gun). price_history.json'u kontrol et."
+            )
+        print(f"UYARI: istenen TEST_GUN={TEST_GUN} icin yeterli derinlikte fon yok, "
+              f"daha kisa bir ortak uzunluga geriliyoruz.", flush=True)
+
+    ortak_len = min(len(a) for a in yeterli.values())
+    kodlar = list(yeterli.keys())
+    rows = [yeterli[k][:ortak_len] for k in kodlar]
+
+    print(f"Bilgi: {len(kodlar)} fon secildi (digerleri yetersiz gecmis nedeniyle "
+          f"disarida birakildi), ortak uzunluk = {ortak_len} gun.", flush=True)
+
     P_newest_first = np.array(rows)   # (n_fon, n_gun), index0 = en yeni
     C = P_newest_first[:, ::-1].copy()  # kronolojik: t=0 en eski
     return kodlar, C
