@@ -70,6 +70,14 @@ def _fail(obj):
         v = obj[0]
     else:
         v = None
+    if isinstance(obj, dict) and "fiyatlar" in obj:
+        fy = obj["fiyatlar"]
+        print("  fiyatlar tipi:", type(fy).__name__, flush=True)
+        if isinstance(fy, dict):
+            k0 = next(iter(fy), None)
+            print("  fiyatlar ilk anahtar:", k0, "->", str(fy[k0])[:200], flush=True)
+        elif isinstance(fy, list) and fy:
+            print("  fiyatlar ilk oge:", str(fy[0])[:200], flush=True)
     print("  ilk oge tipi:", type(v).__name__, flush=True)
     print("  ilk oge ornek:", str(v)[:500], flush=True)
     if isinstance(v, dict):
@@ -90,6 +98,23 @@ def load_prices(path):
 
 
 def _load_prices(obj):
+    if isinstance(obj, dict) and "tarihler" in obj and "fiyatlar" in obj:
+        dates = pd.to_datetime(pd.Series(obj["tarihler"]), errors="coerce")
+        fy = obj["fiyatlar"]
+        if not isinstance(fy, dict):
+            raise ValueError("fiyatlar dict degil: " + type(fy).__name__)
+        cols = {}
+        for c, v in fy.items():
+            if isinstance(v, dict):
+                cols[c] = pd.Series({pd.to_datetime(k): x for k, x in v.items()})
+            else:
+                v = list(v)[:len(dates)]
+                cols[c] = pd.Series(v + [None] * (len(dates) - len(v)), index=dates.values)
+        df = pd.DataFrame(cols)
+        df = df[~df.index.isna()]
+        df = df[~df.index.duplicated(keep="first")].sort_index()
+        df = df.apply(pd.to_numeric, errors="coerce").ffill()
+        return df.loc[:, df.notna().sum() > 30]
     for _ in range(3):  # {"data": {...}} gibi tek anahtarlı sarmalayıcıları aç
         if isinstance(obj, dict) and len(obj) == 1:
             obj = next(iter(obj.values()))
