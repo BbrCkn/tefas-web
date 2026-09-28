@@ -22,9 +22,11 @@ Kullanım:
 import argparse
 import json
 import os
+import multiprocessing as mp
 import pickle
 import sys
 import time
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -145,6 +147,18 @@ def _load_prices(obj):
     return df
 
 
+def find_file(name, here):
+    if os.path.exists(name):
+        return name
+    roots = [os.getcwd(), here, os.path.dirname(here), os.path.dirname(os.path.dirname(here))]
+    for r in dict.fromkeys(roots):
+        for dp, dn, fn in os.walk(r):
+            dn[:] = [d for d in dn if d not in (".git", "node_modules", "__pycache__")]
+            if name in fn:
+                return os.path.join(dp, name)
+    return name
+
+
 def load_valor(path, codes):
     val = {}
     try:
@@ -184,7 +198,7 @@ def synthetic(n_days=529, n_funds=60, seed=0):
 
 # ----------------------------------------------------------------- skor bileşenleri
 def _wsz(x, k):
-    ok = ~np.isnan(x)
+    ok = np.isfinite(x)
     out = np.zeros_like(x)
     if ok.sum() < 5:
         return out
@@ -293,10 +307,13 @@ def _theta_to_arrays(theta):
     return w, int(round(theta[7])), int(round(theta[8]))
 
 
-def _objective(theta):
+def _init_worker(C, R, valor, tradable):
+    _G.update(C=C, R=R, valor=valor, tradable=tradable)
+
+
+def _objective_se(s0, e0, theta):
     g = _G
     w, Pn, Xn = _theta_to_arrays(theta)
-    s0, e0 = g["start"], g["end"]
     S = np.zeros((g["C"].shape[0], g["C"].shape[1]))
     S[s0:e0] = g["C"][s0:e0] @ w
     Pa = np.full(S.shape[0], Pn)
@@ -306,13 +323,15 @@ def _objective(theta):
 
 
 def optimize(C, R, valor, tradable, start, end, a):
-    _G.update(C=C, R=R, valor=valor, tradable=tradable, start=start, end=end)
+    func = partial(_objective_se, start, end)
+    pool = a._pool
     bounds = [(0.05, 6.0)] * 7 + [(2, 4), (2, 12)]
     integ = np.array([False] * 7 + [True, True])
     res = differential_evolution(
-        _objective, bounds, integrality=integ, popsize=a.popsize, maxiter=a.maxiter,
-        tol=0.01, seed=a.seed, polish=False, workers=a.workers,
-        updating="deferred" if a.workers != 1 else "immediate", init="latinhypercube")
+        func, bounds, integrality=integ, popsize=a.popsize, maxiter=a.maxiter,
+        tol=0.01, seed=a.seed, polish=False,
+        workers=pool.map if pool is not None else 1,
+        updating="deferred" if pool is not None else "immediate", init="latinhypercube")
     return res.x, -res.fun
 
 
@@ -412,7 +431,12 @@ def main():
         px = synthetic()
         valor = np.random.default_rng(1).integers(0, 5, px.shape[1])
     else:
+        a.prices = find_file(a.prices, here)
+        a.valor = find_file(a.valor, here)
+        print(f"Fiyat dosyasi: {a.prices}\nValor dosyasi: {a.valor}", flush=True)
         px = load_prices(a.prices)
+        px = px.where(px > 0).ffill()
+        px = px.loc[:, px.notna().sum() > 30]
         valor = load_valor(a.valor, list(px.columns))
     T, N = px.shape
     print(f"Veri: {T} gün x {N} fon, {px.index[0].date()} -> {px.index[-1].date()}", flush=True)
@@ -430,6 +454,10 @@ def main():
 
     print("Bileşenler hesaplanıyor...", flush=True)
     C, R = build_components(px, a.k, a.sortino_gun, a.rf)
+    nw = (os.cpu_count() or 1) if a.workers == -1 else a.workers
+    _init_worker(C, R, valor, tradable)
+    a._pool = mp.Pool(nw, initializer=_init_worker, initargs=(C, R, valor, tradable)) if nw > 1 else None
+    print(f"İşçi süreç sayısı: {nw}", flush=True)
     base_theta = BASE_COEFS + [a.baseline_sortino, a.baseline_p, a.baseline_x]
 
     results = []
