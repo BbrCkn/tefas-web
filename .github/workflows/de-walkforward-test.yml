@@ -20,7 +20,7 @@ jobs:
           python-version: "3.11"
 
       - name: Bagimliliklari yukle
-        run: pip install numpy scipy
+        run: pip install numpy scipy pandas
 
       - name: Testi calistir
         working-directory: de_walkforward_test
