@@ -59,9 +59,37 @@ def _records_to_df(recs):
     return df.pivot_table(index="date", columns="code", values="price", aggfunc="last")
 
 
+def _fail(obj):
+    print("[HATA] price_history.json yapisi taninmadi. Asagidaki satirlari gonderin:", flush=True)
+    print("  ust seviye tip:", type(obj).__name__, "uzunluk:", len(obj) if hasattr(obj, "__len__") else "-", flush=True)
+    if isinstance(obj, dict):
+        ks = list(obj.keys())[:5]
+        print("  ilk anahtarlar:", ks, flush=True)
+        v = obj[ks[0]] if ks else None
+    elif isinstance(obj, list) and obj:
+        v = obj[0]
+    else:
+        v = None
+    print("  ilk oge tipi:", type(v).__name__, flush=True)
+    print("  ilk oge ornek:", str(v)[:500], flush=True)
+    if isinstance(v, dict):
+        print("  ilk oge anahtarlari:", list(v.keys())[:10], flush=True)
+    raise SystemExit(1)
+
+
 def load_prices(path):
     with open(path, encoding="utf-8") as f:
-        obj = json.load(f)
+        _obj = json.load(f)
+    try:
+        return _load_prices(_obj)
+    except SystemExit:
+        raise
+    except Exception as e:
+        print("[HATA] ayristirma hatasi:", repr(e)[:300], flush=True)
+        _fail(_obj)
+
+
+def _load_prices(obj):
     for _ in range(3):  # {"data": {...}} gibi tek anahtarlı sarmalayıcıları aç
         if isinstance(obj, dict) and len(obj) == 1:
             obj = next(iter(obj.values()))
@@ -82,9 +110,9 @@ def load_prices(path):
                 parts[c] = pd.Series({pd.to_datetime(r[kd]): r[kp] for r in v})
             df = pd.DataFrame(parts)
         else:
-            raise ValueError("price_history.json yapısı tanınmadı (--inspect ile bakın)")
+            _fail(obj)
     else:
-        raise ValueError("price_history.json yapısı tanınmadı (--inspect ile bakın)")
+        _fail(obj)
     df = df[~df.index.isna()].sort_index()
     df = df.apply(pd.to_numeric, errors="coerce").ffill()
     df = df.loc[:, df.notna().sum() > 30]
