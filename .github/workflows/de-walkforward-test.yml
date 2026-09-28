@@ -1,32 +1,21 @@
-name: DE Walk-Forward Dogrulama (bir kerelik test)
-
-# Sadece elle tetiklenir (Actions sekmesinden "Run workflow" ile) --
-# gunluk pipeline'a hic dahil degil, otomatik calismaz.
+name: DE Walk-Forward Test
 on:
   workflow_dispatch:
-
 jobs:
-  de-walkforward:
+  run:
     runs-on: ubuntu-latest
-    timeout-minutes: 340   # ~5.5 saat guvenlik payi (script tahmini ~2-2.5 saat)
-
+    timeout-minutes: 360
     steps:
-      - name: Repoyu cek
-        uses: actions/checkout@v4
-
-      - name: Python kur
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Bagimliliklari yukle
+      - name: Paketleri kur
         run: pip install numpy scipy pandas
-
       - name: Testi calistir
         working-directory: de_walkforward_test
-        run: run: python3 -u de_walkforward_standalone.py --train 150 --test 45 --n-windows 5 --window-step 20
-
-      - name: Sonuclari artifact olarak yukle
+        run: python3 -u de_walkforward_standalone.py --train 150 --test 45 --n-windows 5 --window-step 20
+      - name: Sonuclari yukle
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -34,4 +23,3 @@ jobs:
           path: |
             de_walkforward_test/de_wf_full_log.txt
             de_walkforward_test/de_wf_full_checkpoint.pkl
-          retention-days: 14
