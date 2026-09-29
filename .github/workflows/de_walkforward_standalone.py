@@ -18,12 +18,17 @@ Kullanım:
   python de_walkforward_standalone.py --inspect
   python de_walkforward_standalone.py --train 252 --test 252
   python de_walkforward_standalone.py --synthetic --popsize 6 --maxiter 8 --reopt-every 10   # duman testi
+  python de_walkforward_standalone.py --sim-n 300 --sim-band 0.30 --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138
+      # DE yok: baseline etrafinda rastgele katsayi setleri, ayni pencerelerde sadece simulasyon (hassasiyet olcumu)
 """
 import argparse
 import json
 import os
+import multiprocessing as mp
+import pickle
 import sys
 import time
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -59,9 +64,62 @@ def _records_to_df(recs):
     return df.pivot_table(index="date", columns="code", values="price", aggfunc="last")
 
 
+def _fail(obj):
+    print("[HATA] price_history.json yapisi taninmadi. Asagidaki satirlari gonderin:", flush=True)
+    print("  ust seviye tip:", type(obj).__name__, "uzunluk:", len(obj) if hasattr(obj, "__len__") else "-", flush=True)
+    if isinstance(obj, dict):
+        ks = list(obj.keys())[:5]
+        print("  ilk anahtarlar:", ks, flush=True)
+        v = obj[ks[0]] if ks else None
+    elif isinstance(obj, list) and obj:
+        v = obj[0]
+    else:
+        v = None
+    if isinstance(obj, dict) and "fiyatlar" in obj:
+        fy = obj["fiyatlar"]
+        print("  fiyatlar tipi:", type(fy).__name__, flush=True)
+        if isinstance(fy, dict):
+            k0 = next(iter(fy), None)
+            print("  fiyatlar ilk anahtar:", k0, "->", str(fy[k0])[:200], flush=True)
+        elif isinstance(fy, list) and fy:
+            print("  fiyatlar ilk oge:", str(fy[0])[:200], flush=True)
+    print("  ilk oge tipi:", type(v).__name__, flush=True)
+    print("  ilk oge ornek:", str(v)[:500], flush=True)
+    if isinstance(v, dict):
+        print("  ilk oge anahtarlari:", list(v.keys())[:10], flush=True)
+    raise SystemExit(1)
+
+
 def load_prices(path):
     with open(path, encoding="utf-8") as f:
-        obj = json.load(f)
+        _obj = json.load(f)
+    try:
+        return _load_prices(_obj)
+    except SystemExit:
+        raise
+    except Exception as e:
+        print("[HATA] ayristirma hatasi:", repr(e)[:300], flush=True)
+        _fail(_obj)
+
+
+def _load_prices(obj):
+    if isinstance(obj, dict) and "tarihler" in obj and "fiyatlar" in obj:
+        dates = pd.to_datetime(pd.Series(obj["tarihler"]), errors="coerce")
+        fy = obj["fiyatlar"]
+        if not isinstance(fy, dict):
+            raise ValueError("fiyatlar dict degil: " + type(fy).__name__)
+        cols = {}
+        for c, v in fy.items():
+            if isinstance(v, dict):
+                cols[c] = pd.Series({pd.to_datetime(k): x for k, x in v.items()})
+            else:
+                v = list(v)[:len(dates)]
+                cols[c] = pd.Series(v + [None] * (len(dates) - len(v)), index=dates.values)
+        df = pd.DataFrame(cols)
+        df = df[~df.index.isna()]
+        df = df[~df.index.duplicated(keep="first")].sort_index()
+        df = df.apply(pd.to_numeric, errors="coerce").ffill()
+        return df.loc[:, df.notna().sum() > 30]
     for _ in range(3):  # {"data": {...}} gibi tek anahtarlı sarmalayıcıları aç
         if isinstance(obj, dict) and len(obj) == 1:
             obj = next(iter(obj.values()))
@@ -82,13 +140,25 @@ def load_prices(path):
                 parts[c] = pd.Series({pd.to_datetime(r[kd]): r[kp] for r in v})
             df = pd.DataFrame(parts)
         else:
-            raise ValueError("price_history.json yapısı tanınmadı (--inspect ile bakın)")
+            _fail(obj)
     else:
-        raise ValueError("price_history.json yapısı tanınmadı (--inspect ile bakın)")
+        _fail(obj)
     df = df[~df.index.isna()].sort_index()
     df = df.apply(pd.to_numeric, errors="coerce").ffill()
     df = df.loc[:, df.notna().sum() > 30]
     return df
+
+
+def find_file(name, here):
+    if os.path.exists(name):
+        return name
+    roots = [os.getcwd(), here, os.path.dirname(here), os.path.dirname(os.path.dirname(here))]
+    for r in dict.fromkeys(roots):
+        for dp, dn, fn in os.walk(r):
+            dn[:] = [d for d in dn if d not in (".git", "node_modules", "__pycache__")]
+            if name in fn:
+                return os.path.join(dp, name)
+    return name
 
 
 def load_valor(path, codes):
@@ -130,7 +200,7 @@ def synthetic(n_days=529, n_funds=60, seed=0):
 
 # ----------------------------------------------------------------- skor bileşenleri
 def _wsz(x, k):
-    ok = ~np.isnan(x)
+    ok = np.isfinite(x)
     out = np.zeros_like(x)
     if ok.sum() < 5:
         return out
@@ -239,10 +309,13 @@ def _theta_to_arrays(theta):
     return w, int(round(theta[7])), int(round(theta[8]))
 
 
-def _objective(theta):
+def _init_worker(C, R, valor, tradable):
+    _G.update(C=C, R=R, valor=valor, tradable=tradable)
+
+
+def _objective_se(s0, e0, theta):
     g = _G
     w, Pn, Xn = _theta_to_arrays(theta)
-    s0, e0 = g["start"], g["end"]
     S = np.zeros((g["C"].shape[0], g["C"].shape[1]))
     S[s0:e0] = g["C"][s0:e0] @ w
     Pa = np.full(S.shape[0], Pn)
@@ -252,13 +325,15 @@ def _objective(theta):
 
 
 def optimize(C, R, valor, tradable, start, end, a):
-    _G.update(C=C, R=R, valor=valor, tradable=tradable, start=start, end=end)
+    func = partial(_objective_se, start, end)
+    pool = a._pool
     bounds = [(0.05, 6.0)] * 7 + [(2, 4), (2, 12)]
     integ = np.array([False] * 7 + [True, True])
     res = differential_evolution(
-        _objective, bounds, integrality=integ, popsize=a.popsize, maxiter=a.maxiter,
-        tol=0.01, seed=a.seed, polish=False, workers=a.workers,
-        updating="deferred" if a.workers != 1 else "immediate", init="latinhypercube")
+        func, bounds, integrality=integ, popsize=a.popsize, maxiter=a.maxiter,
+        tol=0.01, seed=a.seed, polish=False,
+        workers=pool.map if pool is not None else 1,
+        updating="deferred" if pool is not None else "immediate", init="latinhypercube")
     return res.x, -res.fun
 
 
@@ -302,7 +377,103 @@ def fit_windows(usable, train, test, min_test):
     return tr2, min_test, f"TRAIN {train} -> {tr2}, TEST {test} -> {min_test} küçültüldü (kullanılabilir gün: {usable})"
 
 
+class _Tee:
+    def __init__(self, *fs):
+        self.fs = fs
+
+    def write(self, x):
+        for f in self.fs:
+            f.write(x)
+
+    def flush(self):
+        for f in self.fs:
+            f.flush()
+
+
+# ----------------------------------------------------------------- baseline etrafında hassasiyet simülasyonu
+def _sim_task(task):
+    s0, e0, theta = task
+    return -_objective_se(s0, e0, theta)
+
+
+def _pct_rank(dist, x):
+    """x'in dağılımdaki yüzdelik konumu (0-100): dağılımın x'ten küçük olan payı (eşitler yarım sayılır)."""
+    dist = np.asarray(dist)
+    return 100.0 * ((dist < x).sum() + 0.5 * (dist == x).sum()) / len(dist)
+
+
+def run_sim(a, windows, px, base_theta, base2, C, R, valor, tradable, T):
+    """windows: [(ts, t0, t1)]. Optimizasyon yok; her set için baseline katsayıları x U(1-band, 1+band).
+    Aynı setler tüm pencerelerde kullanılır (tohum sabit), fark yalnız katsayılardan gelir."""
+    rng = np.random.default_rng(a.sim_seed)
+    base = np.array(base_theta, dtype=float)
+    sets = np.tile(base, (a.sim_n, 1))
+    sets[:, :6] = base[:6] * rng.uniform(1 - a.sim_band, 1 + a.sim_band, (a.sim_n, 6))
+    if a.sim_vary_sortino:
+        sets[:, 6] = base[6] * rng.uniform(1 - a.sim_band, 1 + a.sim_band, a.sim_n)
+    nw = len(windows)
+    tasks = []
+    for (ts, t0, t1) in windows:
+        for th in sets:
+            tasks.append((t0, t1, th))   # test
+        for th in sets:
+            tasks.append((ts, t0, th))   # train
+    print(f"\nSimülasyon: {a.sim_n} set x {nw} pencere x (train+test) = {len(tasks)} koşu, band ±%{a.sim_band*100:.0f}"
+          f"{', sortino ağırlığı da oynatıldı' if a.sim_vary_sortino else ''}", flush=True)
+    t = time.time()
+    if a._pool is not None:
+        out = a._pool.map(_sim_task, tasks, chunksize=max(1, len(tasks) // (8 * (os.cpu_count() or 1))))
+    else:
+        out = [_sim_task(x) for x in tasks]
+    print(f"Simülasyon bitti: {time.time()-t:.0f} sn", flush=True)
+    out = np.array(out).reshape(nw, 2, a.sim_n) * 100.0  # [pencere, test/train, set] (%)
+    test, train = out[:, 0, :], out[:, 1, :]
+
+    ref = {}
+    for name, th in (("baseline", base_theta), ("cenker", base2)):
+        te = np.array([run_fixed(C, R, valor, tradable, t0, t1, th)[0] for (_, t0, t1) in windows]) * 100.0
+        tr = np.array([run_fixed(C, R, valor, tradable, ts, t0, th)[0] for (ts, t0, _) in windows]) * 100.0
+        ref[name] = (te, tr)
+
+    def block(title, mat, ref_idx):
+        lines = [title]
+        avg = mat.mean(axis=0)
+        q = np.percentile(avg, [5, 50, 95])
+        lines.append(f"  set ortalaması (pencereler üstü): ort {avg.mean():.2f}  std {avg.std(ddof=1):.2f}  "
+                     f"%5 {q[0]:.2f}  %50 {q[1]:.2f}  %95 {q[2]:.2f}  min {avg.min():.2f}  max {avg.max():.2f}")
+        for name in ("baseline", "cenker"):
+            v = ref[name][ref_idx].mean()
+            lines.append(f"  {name}: ort {v:.2f}  dağılımdaki yüzdelik {_pct_rank(avg, v):.0f}")
+        lines.append("  pencere | ort | std | %5 | %50 | %95 | baseline (yüzdelik) | cenker (yüzdelik)")
+        for w in range(nw):
+            m = mat[w]
+            qq = np.percentile(m, [5, 50, 95])
+            b, c = ref["baseline"][ref_idx][w], ref["cenker"][ref_idx][w]
+            lines.append(f"  {w+1} | {m.mean():.2f} | {m.std(ddof=1):.2f} | {qq[0]:.2f} | {qq[1]:.2f} | {qq[2]:.2f} | "
+                         f"{b:.2f} (%{_pct_rank(m, b):.0f}) | {c:.2f} (%{_pct_rank(m, c):.0f})")
+        return lines
+
+    lines = block("TEST getirisi % (out-of-sample)", test, 0) + [""] + block("TRAIN getirisi % (aynı setler, referans)", train, 1)
+    # baseline'ın train'de mi yoksa test'te mi 'seçilmiş' göründüğü tek bakışta
+    lines += ["", "Not: yüzdelik = setlerin kaçta kaçı bu değerin ALTINDA kaldı. Test'te yüksek (>%80) ise ince ayar "
+              "bir şey katıyor; ~%50 ise baseline sıradan bir nokta; std küçükse etrafında dolaşmak güvenli."]
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "sim_ozet.txt"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    with open(os.path.join(a.out, "sim_sonuc.json"), "w", encoding="utf-8") as f:
+        json.dump(dict(band=a.sim_band, n=a.sim_n, seed=a.sim_seed, vary_sortino=a.sim_vary_sortino,
+                       base_theta=[float(x) for x in base_theta], base2=base2,
+                       sets=sets.tolist(), test_pct=test.tolist(), train_pct=train.tolist(),
+                       baseline_test=ref["baseline"][0].tolist(), cenker_test=ref["cenker"][0].tolist(),
+                       baseline_train=ref["baseline"][1].tolist(), cenker_train=ref["cenker"][1].tolist()),
+                  f, ensure_ascii=False)
+    print("\n" + "\n".join(lines), flush=True)
+
+
 def main():
+    here = os.path.dirname(os.path.abspath(__file__))
+    logf = open(os.path.join(here, "de_wf_full_log.txt"), "w", encoding="utf-8")
+    sys.stdout = _Tee(sys.__stdout__, logf)
     ap = argparse.ArgumentParser()
     ap.add_argument("--prices", default="price_history.json")
     ap.add_argument("--valor", default="fon_listesi.json")
@@ -322,9 +493,15 @@ def main():
     ap.add_argument("--baseline-sortino", type=float, default=1.5)
     ap.add_argument("--baseline-p", type=int, default=2)
     ap.add_argument("--baseline-x", type=int, default=9)
+    ap.add_argument("--baseline2", default="3.2,6.3,19.9,28.7,14.8,24.6,2.5,2,10",
+                    help="ikinci baseline (Cenker Serenity): 6 donemsel, sortino agirligi, P, top_x")
     ap.add_argument("--exclude", default="BBR,END,BRG,YVD")
-    ap.add_argument("--out", default="sonuclar")
+    ap.add_argument("--out", default=None, help="varsayilan: script klasoru")
     ap.add_argument("--no-wf", action="store_true")
+    ap.add_argument("--sim-n", type=int, default=0, help=">0 ise DE/walk-forward yerine baseline etrafinda N rastgele set simule et")
+    ap.add_argument("--sim-band", type=float, default=0.30, help="katsayi sapma bandi (0.30 = x U(0.7,1.3))")
+    ap.add_argument("--sim-seed", type=int, default=7)
+    ap.add_argument("--sim-vary-sortino", action="store_true", help="sortino agirligini da ayni bantta oynat")
     ap.add_argument("--inspect", action="store_true")
     ap.add_argument("--synthetic", action="store_true")
     a = ap.parse_args()
@@ -342,11 +519,18 @@ def main():
         px = synthetic()
         valor = np.random.default_rng(1).integers(0, 5, px.shape[1])
     else:
+        a.prices = find_file(a.prices, here)
+        a.valor = find_file(a.valor, here)
+        print(f"Fiyat dosyasi: {a.prices}\nValor dosyasi: {a.valor}", flush=True)
         px = load_prices(a.prices)
+        px = px.where(px > 0).ffill()
+        px = px.loc[:, px.notna().sum() > 30]
         valor = load_valor(a.valor, list(px.columns))
     T, N = px.shape
     print(f"Veri: {T} gün x {N} fon, {px.index[0].date()} -> {px.index[-1].date()}", flush=True)
 
+    if a.out is None:
+        a.out = here
     excl = {c.strip() for c in a.exclude.split(",") if c.strip()}
     tradable = np.array([c not in excl for c in px.columns])
     t_min = max(LOOKBACKS + [a.sortino_gun])
@@ -358,7 +542,29 @@ def main():
 
     print("Bileşenler hesaplanıyor...", flush=True)
     C, R = build_components(px, a.k, a.sortino_gun, a.rf)
+    nw = (os.cpu_count() or 1) if a.workers == -1 else a.workers
+    _init_worker(C, R, valor, tradable)
+    a._pool = mp.Pool(nw, initializer=_init_worker, initargs=(C, R, valor, tradable)) if nw > 1 else None
+    print(f"İşçi süreç sayısı: {nw}", flush=True)
     base_theta = BASE_COEFS + [a.baseline_sortino, a.baseline_p, a.baseline_x]
+    base2 = [float(x) for x in a.baseline2.split(",")]
+
+    if a.sim_n > 0:
+        windows = []
+        for wi in range(a.n_windows):
+            t1 = T - wi * a.window_step
+            t0 = t1 - test
+            ts = t0 - train
+            if ts < t_min:
+                print(f"[bilgi] pencere {wi+1} için yeterli veri yok, duruldu", flush=True)
+                break
+            windows.append((ts, t0, t1))
+            print(f"Pencere {wi+1}: train [{px.index[ts].date()}..{px.index[t0-1].date()}] "
+                  f"test [{px.index[t0].date()}..{px.index[t1-1].date()}]", flush=True)
+        run_sim(a, windows, px, base_theta, base2, C, R, valor, tradable, T)
+        if a._pool is not None:
+            a._pool.close()
+        return
 
     results = []
     for wi in range(a.n_windows):
@@ -372,6 +578,9 @@ def main():
               f"test [{px.index[t0].date()}..{px.index[t1-1].date()}] ===", flush=True)
         b_ret, b_tr = run_fixed(C, R, valor, tradable, t0, t1, base_theta)
         b_train, _ = run_fixed(C, R, valor, tradable, ts, t0, base_theta)
+        b2_ret, _ = run_fixed(C, R, valor, tradable, t0, t1, base2)
+        b2_train, _ = run_fixed(C, R, valor, tradable, ts, t0, base2)
+        print(f"  baseline2 (Cenker): train %{b2_train*100:.2f}  test %{b2_ret*100:.2f}", flush=True)
         t = time.time()
         th, tr_ret = optimize(C, R, valor, tradable, ts, t0, a)
         s_ret, s_tr = run_fixed(C, R, valor, tradable, t0, t1, th)
@@ -380,21 +589,23 @@ def main():
         print("  DE statik katsayılar:", dict(zip(COEF_NAMES + ["sortino", "P", "top_x"],
                                                 [round(float(x), 2) for x in th[:7]] + [int(round(th[7])), int(round(th[8]))])), flush=True)
         row = dict(pencere=wi + 1, train_gun=train, test_gun=test,
-                   baseline_train=b_train, baseline_test=b_ret, de_static_train=tr_ret, de_static_test=s_ret,
+                   baseline_train=b_train, baseline_test=b_ret, baseline2_train=b2_train, baseline2_test=b2_ret, de_static_train=tr_ret, de_static_test=s_ret,
                    de_static_params=[float(x) for x in th])
         if not a.no_wf:
             w_ret, w_tr, hist = run_walkforward(C, R, valor, tradable, t0, t1, train, a)
             print(f"  DE günlük walk-forward test: %{w_ret*100:.2f}  (işlem {w_tr})", flush=True)
             row.update(de_wf_test=w_ret, de_wf_mean_params=[float(x) for x in hist.mean(axis=0)])
         results.append(row)
+        with open(os.path.join(a.out, "de_wf_full_checkpoint.pkl"), "wb") as f:
+            pickle.dump(results, f)
 
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "sonuc.json"), "w", encoding="utf-8") as f:
         json.dump(dict(train_istenen=a.train, test_istenen=a.test, train=train, test=test,
                        uyari=warn, sonuclar=results), f, ensure_ascii=False, indent=2)
-    lines = ["pencere | baseline | DE statik | DE walk-forward (test getirisi %)"]
+    lines = ["pencere | baseline (senin) | baseline2 (Cenker) | DE statik | DE walk-forward (test getirisi %)"]
     for r in results:
-        lines.append(f"{r['pencere']} | {r['baseline_test']*100:.2f} | {r['de_static_test']*100:.2f} | "
+        lines.append(f"{r['pencere']} | {r['baseline_test']*100:.2f} | {r['baseline2_test']*100:.2f} | {r['de_static_test']*100:.2f} | "
                      f"{r.get('de_wf_test', float('nan'))*100:.2f}")
     with open(os.path.join(a.out, "ozet.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
