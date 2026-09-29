@@ -705,11 +705,11 @@
  },
  "AES": {
   "ad": "AK PORTFÖY PETROL YABANCI BYF FON SEPETİ FONU",
-  "valor": null
+  "valor": 3
  },
  "DDF": {
   "ad": "DENİZ PORTFÖY DİNAMO HİSSE SENEDİ SERBEST (TL) FON (HİSSE SENEDİ YOĞUN FON)",
-  "valor": null
+  "valor": 2
  },
  "BRF": {
   "ad": "DENİZ PORTFÖY BİRİNCİ FON SEPETİ FONU",
