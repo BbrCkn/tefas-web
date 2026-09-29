@@ -18,6 +18,8 @@ Kullanım:
   python de_walkforward_standalone.py --inspect
   python de_walkforward_standalone.py --train 252 --test 252
   python de_walkforward_standalone.py --synthetic --popsize 6 --maxiter 8 --reopt-every 10   # duman testi
+  python de_walkforward_standalone.py --sim-n 300 --sim-band 0.30 --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138
+      # DE yok: baseline etrafinda rastgele katsayi setleri, ayni pencerelerde sadece simulasyon (hassasiyet olcumu)
 """
 import argparse
 import json
@@ -388,6 +390,86 @@ class _Tee:
             f.flush()
 
 
+# ----------------------------------------------------------------- baseline etrafında hassasiyet simülasyonu
+def _sim_task(task):
+    s0, e0, theta = task
+    return -_objective_se(s0, e0, theta)
+
+
+def _pct_rank(dist, x):
+    """x'in dağılımdaki yüzdelik konumu (0-100): dağılımın x'ten küçük olan payı (eşitler yarım sayılır)."""
+    dist = np.asarray(dist)
+    return 100.0 * ((dist < x).sum() + 0.5 * (dist == x).sum()) / len(dist)
+
+
+def run_sim(a, windows, px, base_theta, base2, C, R, valor, tradable, T):
+    """windows: [(ts, t0, t1)]. Optimizasyon yok; her set için baseline katsayıları x U(1-band, 1+band).
+    Aynı setler tüm pencerelerde kullanılır (tohum sabit), fark yalnız katsayılardan gelir."""
+    rng = np.random.default_rng(a.sim_seed)
+    base = np.array(base_theta, dtype=float)
+    sets = np.tile(base, (a.sim_n, 1))
+    sets[:, :6] = base[:6] * rng.uniform(1 - a.sim_band, 1 + a.sim_band, (a.sim_n, 6))
+    if a.sim_vary_sortino:
+        sets[:, 6] = base[6] * rng.uniform(1 - a.sim_band, 1 + a.sim_band, a.sim_n)
+    nw = len(windows)
+    tasks = []
+    for (ts, t0, t1) in windows:
+        for th in sets:
+            tasks.append((t0, t1, th))   # test
+        for th in sets:
+            tasks.append((ts, t0, th))   # train
+    print(f"\nSimülasyon: {a.sim_n} set x {nw} pencere x (train+test) = {len(tasks)} koşu, band ±%{a.sim_band*100:.0f}"
+          f"{', sortino ağırlığı da oynatıldı' if a.sim_vary_sortino else ''}", flush=True)
+    t = time.time()
+    if a._pool is not None:
+        out = a._pool.map(_sim_task, tasks, chunksize=max(1, len(tasks) // (8 * (os.cpu_count() or 1))))
+    else:
+        out = [_sim_task(x) for x in tasks]
+    print(f"Simülasyon bitti: {time.time()-t:.0f} sn", flush=True)
+    out = np.array(out).reshape(nw, 2, a.sim_n) * 100.0  # [pencere, test/train, set] (%)
+    test, train = out[:, 0, :], out[:, 1, :]
+
+    ref = {}
+    for name, th in (("baseline", base_theta), ("cenker", base2)):
+        te = np.array([run_fixed(C, R, valor, tradable, t0, t1, th)[0] for (_, t0, t1) in windows]) * 100.0
+        tr = np.array([run_fixed(C, R, valor, tradable, ts, t0, th)[0] for (ts, t0, _) in windows]) * 100.0
+        ref[name] = (te, tr)
+
+    def block(title, mat, ref_idx):
+        lines = [title]
+        avg = mat.mean(axis=0)
+        q = np.percentile(avg, [5, 50, 95])
+        lines.append(f"  set ortalaması (pencereler üstü): ort {avg.mean():.2f}  std {avg.std(ddof=1):.2f}  "
+                     f"%5 {q[0]:.2f}  %50 {q[1]:.2f}  %95 {q[2]:.2f}  min {avg.min():.2f}  max {avg.max():.2f}")
+        for name in ("baseline", "cenker"):
+            v = ref[name][ref_idx].mean()
+            lines.append(f"  {name}: ort {v:.2f}  dağılımdaki yüzdelik {_pct_rank(avg, v):.0f}")
+        lines.append("  pencere | ort | std | %5 | %50 | %95 | baseline (yüzdelik) | cenker (yüzdelik)")
+        for w in range(nw):
+            m = mat[w]
+            qq = np.percentile(m, [5, 50, 95])
+            b, c = ref["baseline"][ref_idx][w], ref["cenker"][ref_idx][w]
+            lines.append(f"  {w+1} | {m.mean():.2f} | {m.std(ddof=1):.2f} | {qq[0]:.2f} | {qq[1]:.2f} | {qq[2]:.2f} | "
+                         f"{b:.2f} (%{_pct_rank(m, b):.0f}) | {c:.2f} (%{_pct_rank(m, c):.0f})")
+        return lines
+
+    lines = block("TEST getirisi % (out-of-sample)", test, 0) + [""] + block("TRAIN getirisi % (aynı setler, referans)", train, 1)
+    # baseline'ın train'de mi yoksa test'te mi 'seçilmiş' göründüğü tek bakışta
+    lines += ["", "Not: yüzdelik = setlerin kaçta kaçı bu değerin ALTINDA kaldı. Test'te yüksek (>%80) ise ince ayar "
+              "bir şey katıyor; ~%50 ise baseline sıradan bir nokta; std küçükse etrafında dolaşmak güvenli."]
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "sim_ozet.txt"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    with open(os.path.join(a.out, "sim_sonuc.json"), "w", encoding="utf-8") as f:
+        json.dump(dict(band=a.sim_band, n=a.sim_n, seed=a.sim_seed, vary_sortino=a.sim_vary_sortino,
+                       base_theta=[float(x) for x in base_theta], base2=base2,
+                       sets=sets.tolist(), test_pct=test.tolist(), train_pct=train.tolist(),
+                       baseline_test=ref["baseline"][0].tolist(), cenker_test=ref["cenker"][0].tolist(),
+                       baseline_train=ref["baseline"][1].tolist(), cenker_train=ref["cenker"][1].tolist()),
+                  f, ensure_ascii=False)
+    print("\n" + "\n".join(lines), flush=True)
+
+
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
     logf = open(os.path.join(here, "de_wf_full_log.txt"), "w", encoding="utf-8")
@@ -416,6 +498,10 @@ def main():
     ap.add_argument("--exclude", default="BBR,END,BRG,YVD")
     ap.add_argument("--out", default=None, help="varsayilan: script klasoru")
     ap.add_argument("--no-wf", action="store_true")
+    ap.add_argument("--sim-n", type=int, default=0, help=">0 ise DE/walk-forward yerine baseline etrafinda N rastgele set simule et")
+    ap.add_argument("--sim-band", type=float, default=0.30, help="katsayi sapma bandi (0.30 = x U(0.7,1.3))")
+    ap.add_argument("--sim-seed", type=int, default=7)
+    ap.add_argument("--sim-vary-sortino", action="store_true", help="sortino agirligini da ayni bantta oynat")
     ap.add_argument("--inspect", action="store_true")
     ap.add_argument("--synthetic", action="store_true")
     a = ap.parse_args()
@@ -462,6 +548,23 @@ def main():
     print(f"İşçi süreç sayısı: {nw}", flush=True)
     base_theta = BASE_COEFS + [a.baseline_sortino, a.baseline_p, a.baseline_x]
     base2 = [float(x) for x in a.baseline2.split(",")]
+
+    if a.sim_n > 0:
+        windows = []
+        for wi in range(a.n_windows):
+            t1 = T - wi * a.window_step
+            t0 = t1 - test
+            ts = t0 - train
+            if ts < t_min:
+                print(f"[bilgi] pencere {wi+1} için yeterli veri yok, duruldu", flush=True)
+                break
+            windows.append((ts, t0, t1))
+            print(f"Pencere {wi+1}: train [{px.index[ts].date()}..{px.index[t0-1].date()}] "
+                  f"test [{px.index[t0].date()}..{px.index[t1-1].date()}]", flush=True)
+        run_sim(a, windows, px, base_theta, base2, C, R, valor, tradable, T)
+        if a._pool is not None:
+            a._pool.close()
+        return
 
     results = []
     for wi in range(a.n_windows):
