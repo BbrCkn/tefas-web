@@ -411,6 +411,8 @@ def main():
     ap.add_argument("--baseline-sortino", type=float, default=1.5)
     ap.add_argument("--baseline-p", type=int, default=2)
     ap.add_argument("--baseline-x", type=int, default=9)
+    ap.add_argument("--baseline2", default="3.2,6.3,19.9,28.7,14.8,24.6,2.5,2,10",
+                    help="ikinci baseline (Cenker Serenity): 6 donemsel, sortino agirligi, P, top_x")
     ap.add_argument("--exclude", default="BBR,END,BRG,YVD")
     ap.add_argument("--out", default=None, help="varsayilan: script klasoru")
     ap.add_argument("--no-wf", action="store_true")
@@ -459,6 +461,7 @@ def main():
     a._pool = mp.Pool(nw, initializer=_init_worker, initargs=(C, R, valor, tradable)) if nw > 1 else None
     print(f"İşçi süreç sayısı: {nw}", flush=True)
     base_theta = BASE_COEFS + [a.baseline_sortino, a.baseline_p, a.baseline_x]
+    base2 = [float(x) for x in a.baseline2.split(",")]
 
     results = []
     for wi in range(a.n_windows):
@@ -472,6 +475,9 @@ def main():
               f"test [{px.index[t0].date()}..{px.index[t1-1].date()}] ===", flush=True)
         b_ret, b_tr = run_fixed(C, R, valor, tradable, t0, t1, base_theta)
         b_train, _ = run_fixed(C, R, valor, tradable, ts, t0, base_theta)
+        b2_ret, _ = run_fixed(C, R, valor, tradable, t0, t1, base2)
+        b2_train, _ = run_fixed(C, R, valor, tradable, ts, t0, base2)
+        print(f"  baseline2 (Cenker): train %{b2_train*100:.2f}  test %{b2_ret*100:.2f}", flush=True)
         t = time.time()
         th, tr_ret = optimize(C, R, valor, tradable, ts, t0, a)
         s_ret, s_tr = run_fixed(C, R, valor, tradable, t0, t1, th)
@@ -480,7 +486,7 @@ def main():
         print("  DE statik katsayılar:", dict(zip(COEF_NAMES + ["sortino", "P", "top_x"],
                                                 [round(float(x), 2) for x in th[:7]] + [int(round(th[7])), int(round(th[8]))])), flush=True)
         row = dict(pencere=wi + 1, train_gun=train, test_gun=test,
-                   baseline_train=b_train, baseline_test=b_ret, de_static_train=tr_ret, de_static_test=s_ret,
+                   baseline_train=b_train, baseline_test=b_ret, baseline2_train=b2_train, baseline2_test=b2_ret, de_static_train=tr_ret, de_static_test=s_ret,
                    de_static_params=[float(x) for x in th])
         if not a.no_wf:
             w_ret, w_tr, hist = run_walkforward(C, R, valor, tradable, t0, t1, train, a)
@@ -494,9 +500,9 @@ def main():
     with open(os.path.join(a.out, "sonuc.json"), "w", encoding="utf-8") as f:
         json.dump(dict(train_istenen=a.train, test_istenen=a.test, train=train, test=test,
                        uyari=warn, sonuclar=results), f, ensure_ascii=False, indent=2)
-    lines = ["pencere | baseline | DE statik | DE walk-forward (test getirisi %)"]
+    lines = ["pencere | baseline (senin) | baseline2 (Cenker) | DE statik | DE walk-forward (test getirisi %)"]
     for r in results:
-        lines.append(f"{r['pencere']} | {r['baseline_test']*100:.2f} | {r['de_static_test']*100:.2f} | "
+        lines.append(f"{r['pencere']} | {r['baseline_test']*100:.2f} | {r['baseline2_test']*100:.2f} | {r['de_static_test']*100:.2f} | "
                      f"{r.get('de_wf_test', float('nan'))*100:.2f}")
     with open(os.path.join(a.out, "ozet.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
