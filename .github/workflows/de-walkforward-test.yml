@@ -20,6 +20,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: de-walkforward-sonuclar
-          path: |
+         path: |
             de_walkforward_test/de_wf_full_log.txt
             de_walkforward_test/de_wf_full_checkpoint.pkl
+            de_walkforward_test/sim_ozet.txt
+            de_walkforward_test/sim_sonuc.json
+    
