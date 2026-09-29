@@ -246,7 +246,7 @@ def build_components(px, k, sortino_gun, rf_annual):
 
 
 # ----------------------------------------------------------------- simülasyon
-def simulate(S, R, valor, tradable, start, end, P_arr, X_arr):
+def simulate(S, R, valor, tradable, start, end, P_arr, X_arr, log=None):
     """Gerçekçi tek-portföy simülasyonu. S: (T,N) skor. Dönüş: (getiri, işlem sayısı)."""
     N = S.shape[1]
     pos = {}        # fon -> [değer, giriş_günü]
@@ -261,11 +261,14 @@ def simulate(S, R, valor, tradable, start, end, P_arr, X_arr):
             if pv[1] < d:
                 pv[0] *= 1.0 + R[d, f]
         for f in sell_at.pop(d, []):
-            chunks.append((d + int(valor[f]) + 1, pos.pop(f)[0]))
+            pv_ = pos.pop(f)
+            if log is not None:
+                log.append((f, pv_[1], d, pv_[0] / pv_[2] - 1.0, ""))
+            chunks.append((d + int(valor[f]) + 1, pv_[0]))
             sell_pending.discard(f)
             trades += 1
         for f, amt in buy_at.pop(d, []):
-            pos[f] = [amt, d]
+            pos[f] = [amt, d, amt]
             trades += 1
         if chunks:
             keep = []
@@ -305,6 +308,9 @@ def simulate(S, R, valor, tradable, start, end, P_arr, X_arr):
                 for f in picks:
                     buy_at.setdefault(d + 1, []).append((f, amt))
                 idle = 0.0
+    if log is not None:
+        for f, pv_ in pos.items():
+            log.append((f, pv_[1], end, pv_[0] / pv_[2] - 1.0, "açık"))
     wealth = idle + sum(a for _, a in chunks) + sum(v[0] for v in pos.values()) \
         + sum(a for v in buy_at.values() for _, a in v)
     return wealth - 1.0, trades
@@ -507,7 +513,7 @@ def _bench_task(task):
     return ret, tr
 
 
-def run_bench(a, windows, base_theta, base2, C, R, valor, tradable, T):
+def run_bench(a, windows, base_theta, base2, C, R, valor, tradable, T, px=None):
     nw = len(windows)
     Pn, Xn = int(base_theta[7]), int(base_theta[8])
     rhos = [float(x) for x in a.bench_rho.split(",")]
@@ -554,11 +560,13 @@ def run_bench(a, windows, base_theta, base2, C, R, valor, tradable, T):
 
     L = [f"BENCHMARK (aynı omurga: valör/T+1, P={Pn}, top_x={Xn}; {nw} pencere; sortino {a.sortino_gun} gün; sortino modu {a.sortino_modu})", ""]
     L.append(f"Rastgele null'lar (skor = rastgele; rho = günden güne kalıcılık; {a.bench_n} tohum)")
-    L.append("  rho | işlem/pencere | TEST ort | std | %5 | %50 | %95 | TRAIN ort")
+    L.append("  rho | işlem/pencere | TEST ort | std | %5 | %50 | %95 | TRAIN ort | aşırı (ort>%200, ort/std dışı bırakıldı)")
     for k, rho in enumerate(rhos):
         q = np.percentile(r_test[k], [5, 50, 95])
-        L.append(f"  {rho:.2f} | {Rt[k, ..., 0].mean():.1f} | {r_test[k].mean():.2f} | {r_test[k].std(ddof=1):.2f} | "
-                 f"{q[0]:.2f} | {q[1]:.2f} | {q[2]:.2f} | {r_train[k].mean():.2f}")
+        ok_te, ok_tr = r_test[k] < 200, r_train[k] < 200
+        nx = int((~ok_te).sum()), int((~ok_tr).sum())
+        L.append(f"  {rho:.2f} | {Rt[k, ..., 0].mean():.1f} | {r_test[k][ok_te].mean():.2f} | {r_test[k][ok_te].std(ddof=1):.2f} | "
+                 f"{q[0]:.2f} | {q[1]:.2f} | {q[2]:.2f} | {r_train[k][ok_tr].mean():.2f} | test {nx[0]}, train {nx[1]}")
     L.append("")
     L.append("Puanlayıcılar: TEST % (pencere ortalaması) | işlem/pencere | TRAIN % | pencereler (test) | TEST yüzdeliği: " +
              " ".join(f"rho{r:.2f}" for r in rhos))
@@ -585,6 +593,21 @@ def run_bench(a, windows, base_theta, base2, C, R, valor, tradable, T):
              "Tek metrikle aynı seviyedeyse karmaşıklığın getirisi yok. Null'ların içindeyse getiri büyük ölçüde rejimden. "
              "rho=0 (her gün yeni rastgele) aşırı devir yapar, adil olmayan zayıf bir null'dır; rho=1 al-tut rastgele fonlardır; "
              "işlem sayısı baseline'a yakın rho en anlamlı karşılaştırmadır.")
+    if a.bench_detay and px is not None:
+        DL = ["Test pencerelerinde alınan pozisyonlar: fon | giriş | çıkış | pozisyon getirisi %  (çıkış 'açık' = pencere sonunda hâlâ elde)"]
+        for (nm, w, P_, X_) in det:
+            for wi, (ts, t0, t1) in enumerate(windows):
+                log = []
+                S_ = np.zeros((T, len(px.columns)))
+                S_[t0:t1] = C[t0:t1] @ np.array(w, dtype=float)
+                rr, _ = simulate(S_, R, valor, tradable, t0, t1, np.full(T, P_), np.full(T, X_), log=log)
+                DL.append(f"[{nm}] pencere {wi+1}: test %{rr*100:.2f}")
+                for (f_, e_, x_, g_, op_) in sorted(log, key=lambda z: z[1]):
+                    flag = "  <-- >%30" if abs(g_) > 0.30 else ""
+                    DL.append(f"    {px.columns[f_]} | {px.index[e_].date()} | {px.index[min(x_, T-1)].date()} {op_} | %{g_*100:.1f}{flag}")
+        os.makedirs(a.out, exist_ok=True)
+        with open(os.path.join(a.out, "bench_islemler.txt"), "w", encoding="utf-8") as f:
+            f.write("\n".join(DL) + "\n")
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "bench_ozet.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(L) + "\n")
@@ -633,6 +656,9 @@ def main():
     ap.add_argument("--bench-n", type=int, default=0, help=">0 ise null/benchmark modu: rastgele skor tohum sayisi")
     ap.add_argument("--bench-rho", default="0,0.95,1", help="rastgele skorlarin gunluk kalicilik degerleri (virgulle)")
     ap.add_argument("--bench-seed", type=int, default=1000)
+    ap.add_argument("--bench-detay", action="store_true", help="benchmark'ta her puanlayicinin test pencerelerindeki pozisyonlarini bench_islemler.txt'ye yaz")
+    ap.add_argument("--veri-kontrol", action="store_true", help="fiyat verisinde asiri gunluk hareketleri listele ve cik")
+    ap.add_argument("--veri-esik", type=float, default=0.30, help="veri kontrolunde gunluk |getiri| esigi (0.30 = %30)")
     ap.add_argument("--inspect", action="store_true")
     ap.add_argument("--synthetic", action="store_true")
     a = ap.parse_args()
@@ -661,6 +687,19 @@ def main():
         valor = load_valor(a.valor, list(px.columns))
     T, N = px.shape
     print(f"Veri: {T} gün x {N} fon, {px.index[0].date()} -> {px.index[-1].date()}", flush=True)
+
+    if a.veri_kontrol:
+        rr_ = px / px.shift(1) - 1.0
+        st = rr_.stack()
+        big = st[st.abs() > a.veri_esik]
+        print(f"\nVeri kontrolü: |günlük getiri| > %{a.veri_esik*100:.0f} olan {len(big)} gözlem ({big.index.get_level_values(1).nunique()} fon)", flush=True)
+        for (dt, cd), v in big.reindex(big.abs().sort_values(ascending=False).index).head(40).items():
+            i_ = px.index.get_loc(dt)
+            print(f"  {cd} | {dt.date()} | fiyat {px[cd].iloc[i_-1]:.6g} -> {px[cd].iloc[i_]:.6g} | %{v*100:.1f}", flush=True)
+        print("  en düşük fiyatlı 10 fon (min fiyat):", flush=True)
+        for cd, v in px.min().sort_values().head(10).items():
+            print(f"    {cd} | {v:.6g}", flush=True)
+        return
 
     if a.out is None:
         a.out = here
@@ -695,7 +734,7 @@ def main():
             print(f"Pencere {wi+1}: train [{px.index[ts].date()}..{px.index[t0-1].date()}] "
                   f"test [{px.index[t0].date()}..{px.index[t1-1].date()}]", flush=True)
         if a.bench_n > 0:
-            run_bench(a, windows, base_theta, base2, C, R, valor, tradable, T)
+            run_bench(a, windows, base_theta, base2, C, R, valor, tradable, T, px)
         else:
             run_sim(a, windows, px, base_theta, base2, C, R, valor, tradable, T)
         if a._pool is not None:
