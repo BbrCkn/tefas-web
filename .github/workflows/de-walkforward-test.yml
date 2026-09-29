@@ -11,7 +11,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Paketleri kur
-        : pip install numpy scipy pandas
+        run: pip install numpy scipy pandas
       - name: Testi calistir
         working-directory: de_walkforward_test
         run: python3 -u de_walkforward_standalone_v3.py --bench-n 500 --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138
@@ -22,6 +22,6 @@ jobs:
           name: de-walkforward-sonuclar
           path: |
             de_walkforward_test/de_wf_full_log.txt
-            de_walkforward_test/sim_ozet.txt
-            de_walkforward_test/sim_sonuc.json
+            de_walkforward_test/bench_ozet.txt
+            de_walkforward_test/bench_sonuc.json
           if-no-files-found: warn
