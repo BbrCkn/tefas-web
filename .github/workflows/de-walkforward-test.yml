@@ -12,16 +12,21 @@ jobs:
           python-version: "3.11"
       - name: Paketleri kur
         run: pip install numpy scipy pandas
+      - name: Veri kontrol
+        working-directory: de_walkforward_test
+        run: python3 -u de_walkforward_standalone_v3.py --veri-kontrol --veri-esik 0.30 | tee veri_kontrol.txt
       - name: Testi calistir
         working-directory: de_walkforward_test
-        run: python3 -u de_walkforward_standalone_v3.py --bench-n 500 --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138
+        run: python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138
       - name: Sonuclari yukle
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: de-walkforward-sonuclar
           path: |
+            de_walkforward_test/veri_kontrol.txt
             de_walkforward_test/de_wf_full_log.txt
             de_walkforward_test/bench_ozet.txt
             de_walkforward_test/bench_sonuc.json
+            de_walkforward_test/bench_islemler.txt
           if-no-files-found: warn
