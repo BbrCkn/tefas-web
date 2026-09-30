@@ -44,6 +44,12 @@ GUN_SAYISI = 255
 # True yapildiginda kaldigi yerden islenmeye devam eder.
 EMIR_MOTORU_AKTIF = True
 
+# Serenity (Cenker) katsayi senkronu. False iken sabitler.json'daki degerler
+# (donemsel_katsayilar vb.) HIC DEGISMEZ, pipeline bunlarla
+# calisir. Nedeni: Serenity katsayilari DE ciktisi ve walk-forward testte baseline'i
+# gecemedi (2026-10-01). Tekrar acmak icin True yap.
+SERENITY_SENKRON_AKTIF = False
+
 SERENITY_PARAMETERS_URL = (
     "https://firebasestorage.googleapis.com/v0/b/serenity-go.firebasestorage.app/"
     "o/public%2Fparameters.json?alt=media"
@@ -308,7 +314,10 @@ def bugunku_fiyatlari_cek(fon_kodlari: set, tarih: str):
 def main():
     fon_listesi = yukle("fon_listesi.json")
     sabitler = yukle("sabitler.json")
-    sabitler = serenity_katsayilarini_guncelle(sabitler)
+    if SERENITY_SENKRON_AKTIF:
+        sabitler = serenity_katsayilarini_guncelle(sabitler)
+    else:
+        print("[Serenity] Senkron KAPALI, sabitler.json oldugu gibi kullaniliyor.")
     fiyat_gecmisi = yukle("price_history.json")
     try:
         onceki_rank = yukle("onceki_rank.json")
@@ -597,8 +606,6 @@ def main():
 
     kodlar = list(fon_listesi.keys())
     fiyat_full = np.array([fiyat_gecmisi["fiyatlar"][k] for k in kodlar])
-    n = sabitler["periyod"]
-    fiyat_np1 = fiyat_full[:, : n + 1]
 
     print("Skorlar hesaplaniyor...")
     k_sigmoid = sabitler["k"]
@@ -610,19 +617,9 @@ def main():
     for ad, kat_anahtar in donem_map.items():
         Z += puanlama_motoru(donemsel[ad], yon=1, katsayi=dk[kat_anahtar], k=k_sigmoid, winsor=True)
 
-    # Risk metrikleri (Sharpe/MDD/Consistency/Otokorelasyon/EnBuyukGunOrani)
-    # TAMAMEN KALDIRILDI, yerine tek metrik olarak Sortino geldi (2026-09-12).
-    # Sortino'nun katsayisi artik tercihen dogrudan Serenity'nin kendi
-    # "Sortino Weight" alanindan geliyor (serenity_katsayilarini_guncelle
-    # basariyla calistiysa sabitler["sortino_agirlik"] dolu olur) -- bu,
-    # Serenity'nin o gunku optimizasyonunda Sortino'ya ne kadar agirlik
-    # verdigini birebir yansitir. Henuz hic senkron olmamissa (ilk calisma,
-    # ya da eski bir sabitler.json) topk6'ya (donemsel katsayilarin toplami,
-    # eski "donemsel = risk metrikleri" 50/50 esdegeri) geri duser.
-    topk6 = sum(dk.values())
-    sortino_katsayi = sabitler.get("sortino_agirlik", topk6)
-    Z += puanlama_motoru(sortino(fiyat_np1, sabitler["risksiz_backtest"], n), yon=1,
-                          katsayi=sortino_katsayi, k=k_sigmoid, winsor=True)
+    # Skor SADECE 6 donemsel getiri metriginden olusur (2026-10-01). Sortino ve
+    # periyod kaldirildi: risk metrikleri + Sortino + Serenity katsayilari walk-forward
+    # testte baseline'i gecemedi. Katsayilar sabitler.json'daki donemsel_katsayilar.
 
     print("Tema kumeleme calisiyor...")
     valorler = np.array([fon_listesi[k].get("valor") for k in kodlar], dtype=object)
