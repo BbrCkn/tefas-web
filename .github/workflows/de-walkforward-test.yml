@@ -1,6 +1,16 @@
 name: DE Walk-Forward Test
 on:
   workflow_dispatch:
+    inputs:
+      grup:
+        description: "Hangi test grubu calissin?"
+        type: choice
+        default: sim
+        options:
+          - sim        # F: baseline etrafinda rastgele katsayi setleri
+          - de_seed    # G: DE, 5 ortusen pencere, 3 farkli seed
+          - eski       # A-E: onceki benchmark ve DE kosulari
+          - hepsi
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -15,48 +25,70 @@ jobs:
       - name: Veri kontrol
         working-directory: de_walkforward_test
         run: python3 -u de_walkforward_standalone_v3.py --veri-kontrol --veri-esik 0.30 | tee veri_kontrol.txt
-      # A koşusu: önceki koşuyla aynı parametreler (150/45, 5 pencere, adım 20), tek fark --prices price_history_temiz.json.
-      # Önceki (temizlemesiz) sonuçla doğrudan karşılaştırılabilir.
+
+      # ---------------- ESKI KOSULAR (A-E): grup = eski veya hepsi ----------------
       - name: Testi calistir (A - ayni parametreler, temizlenmis fiyat dosyasi)
+        if: ${{ inputs.grup == 'eski' || inputs.grup == 'hepsi' }}
         working-directory: de_walkforward_test
         run: |
           python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138 --prices price_history_temiz.json
           mkdir -p sonuc_A_temizli_5pencere
           cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_A_temizli_5pencere/
-      # B koşusu: örtüşmeyen test pencereleri (adım = test uzunluğu = 45), 3 bağımsız test dönemi.
-      # A başarısız olsa bile çalışır. Pencereler sığmazsa script kendi uyarı/küçültme mekanizmasını kullanır.
       - name: Testi calistir (B - ortusmeyen pencereler, temizlenmis fiyat dosyasi)
-        if: always()
+        if: ${{ always() && (inputs.grup == 'eski' || inputs.grup == 'hepsi') }}
         working-directory: de_walkforward_test
         run: |
           python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json
           mkdir -p sonuc_B_ortusmeyen_3pencere
           cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_B_ortusmeyen_3pencere/
-      # C/D koşuları: baseline Sortino ağırlığı 2,5 (tabloda görünen değer), satış eşiği 9. A/B ile aynı pencereler.
       - name: Testi calistir (C - A pencereleri, baseline sortino 2.5)
-        if: always()
+        if: ${{ always() && (inputs.grup == 'eski' || inputs.grup == 'hepsi') }}
         working-directory: de_walkforward_test
         run: |
           python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9
           mkdir -p sonuc_C_A_sortino25
           cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_C_A_sortino25/
       - name: Testi calistir (D - B pencereleri, baseline sortino 2.5)
-        if: always()
+        if: ${{ always() && (inputs.grup == 'eski' || inputs.grup == 'hepsi') }}
         working-directory: de_walkforward_test
         run: |
           python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9
           mkdir -p sonuc_D_B_sortino25
           cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_D_B_sortino25/
-      # E koşusu: DE walk-forward + statik DE, temiz fiyat dosyası, örtüşmeyen 3 pencere, baseline Sortino 2,5 / eşik 9.
-      # Süre bilinmiyor; adım zaman aşımı 300 dk, böylece sonuç yükleme adımı yine çalışır.
       - name: Testi calistir (E - DE walk-forward, B pencereleri, baseline sortino 2.5)
-        if: always()
-        timeout-minutes: 300
+        if: ${{ always() && (inputs.grup == 'eski' || inputs.grup == 'hepsi') }}
+        timeout-minutes: 120
         working-directory: de_walkforward_test
         run: |
           mkdir -p sonuc_E_DE_B_sortino25
           python3 -u de_walkforward_standalone_v3.py --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9 2>&1 | tee sonuc_E_DE_B_sortino25/konsol.txt
           cp de_wf_full_log.txt sonuc_E_DE_B_sortino25/ 2>/dev/null || true
+
+      # ---------------- F: baseline etrafinda rastgele katsayi setleri ----------------
+      # Ortusmeyen 3 pencere, baseline Sortino 2,5 / esik 9, +-%30 bant, 300 rastgele set. DE walk-forward kapali (--no-wf).
+      - name: Testi calistir (F - baseline etrafinda rastgele katsayilar)
+        if: ${{ always() && (inputs.grup == 'sim' || inputs.grup == 'hepsi') }}
+        timeout-minutes: 120
+        working-directory: de_walkforward_test
+        run: |
+          mkdir -p sonuc_F_sim_B
+          python3 -u de_walkforward_standalone_v3.py --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9 --no-wf --sim-n 300 --sim-band 0.30 2>&1 | tee sonuc_F_sim_B/konsol.txt
+          cp de_wf_full_log.txt sonuc_F_sim_B/ 2>/dev/null || true
+
+      # ---------------- G: DE, 5 ortusen pencere, 3 farkli seed ----------------
+      # Her seed ayri klasore yazilir. Bir seed hata verse digerleri calisir.
+      - name: Testi calistir (G - DE 5 ortusen pencere, seed 1/2/3)
+        if: ${{ always() && (inputs.grup == 'de_seed' || inputs.grup == 'hepsi') }}
+        timeout-minutes: 240
+        working-directory: de_walkforward_test
+        run: |
+          for s in 1 2 3; do
+            d=sonuc_G_DE_5pencere_seed$s
+            mkdir -p $d
+            python3 -u de_walkforward_standalone_v3.py --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9 --seed $s 2>&1 | grep -v "\[wf\]" | tee $d/konsol.txt || true
+            cp de_wf_full_log.txt $d/ 2>/dev/null || true
+          done
+
       - name: Sonuclari yukle
         if: always()
         uses: actions/upload-artifact@v4
@@ -69,4 +101,8 @@ jobs:
             de_walkforward_test/sonuc_C_A_sortino25/
             de_walkforward_test/sonuc_D_B_sortino25/
             de_walkforward_test/sonuc_E_DE_B_sortino25/
+            de_walkforward_test/sonuc_F_sim_B/
+            de_walkforward_test/sonuc_G_DE_5pencere_seed1/
+            de_walkforward_test/sonuc_G_DE_5pencere_seed2/
+            de_walkforward_test/sonuc_G_DE_5pencere_seed3/
           if-no-files-found: warn
