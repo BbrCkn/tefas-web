@@ -24,6 +24,19 @@ jobs:
           pip install -r requirements.txt 2>/dev/null || true
           pip install pandas numpy scipy
 
+      - name: Dosya isimlerini duzelt (Buyuk->kucuk)
+        working-directory: de_walkforward_test
+        run: |
+          ls -lh *.py
+          for f in *.py; do
+            nf=$(echo "$f" | tr '[:upper:]' '[:lower:]' | tr '-' '_' )
+            if [ "$f" != "$nf" ]; then
+              echo "Rename $f -> $nf"
+              mv -f "$f" "$nf"
+            fi
+          done
+          ls -lh *.py
+
       - name: Olcek duzelt (temiz veri garantisi)
         working-directory: de_walkforward_test
         run: |
@@ -35,7 +48,7 @@ jobs:
             print("yok")
             exit(0)
           d=json.loads(p.read_text(encoding='utf-8'))
-          th=d['tarihler']; f=d['fiyatlar']; c=0
+          f=d['fiyatlar']; c=0
           for kod,seri in f.items():
             for i in range(len(seri)-1,0,-1):
               eski=seri[i]; yeni=seri[i-1]
@@ -56,27 +69,21 @@ jobs:
       - name: DE Train-Test kos
         working-directory: de_walkforward_test
         run: |
-          ls -lh
-          python de_train_test_walkforward.py || python -u de_train_test_walkforward.py
+          python de_train_test_walkforward.py
 
       - name: Sonuclari listele
         if: always()
         run: |
           ls -lh de_walkforward_test/results/ || echo "results yok"
-          echo "--- de_train_test_walkforward.csv ---"
           cat de_walkforward_test/results/de_train_test_walkforward.csv 2>&1 || echo "csv yok"
-          echo "--- log varsa ---"
-          ls -lh de_walkforward_test/*.log 2>&1 | head -n 20 || true
 
-      - name: Commit (hatasiz)
+      - name: Commit
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # dosya yoksa hata verme
           git add -f de_walkforward_test/results/ 2>/dev/null || true
+          git add -f de_walkforward_test/*.py 2>/dev/null || true
           git add -f de_walkforward_test/price_history_6y.json 2>/dev/null || true
-          git add -f de_walkforward_test/de_train_test_walkforward.py 2>/dev/null || true
-          git add -f de_walkforward_test/*.log 2>/dev/null || true
           git status
-          git diff --staged --quiet && echo "commit yok" || (git commit -m "DE train-test overfit kaniti $(date -u +%Y-%m-%dT%H:%M:%SZ)" && git push)
+          git diff --staged --quiet && echo "commit yok" || (git commit -m "DE overfit kaniti fix case $(date -u +%Y-%m-%dT%H:%M:%SZ)" && git push)
