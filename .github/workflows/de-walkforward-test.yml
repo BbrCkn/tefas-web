@@ -32,6 +32,21 @@ jobs:
           python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json
           mkdir -p sonuc_B_ortusmeyen_3pencere
           cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_B_ortusmeyen_3pencere/
+      # C/D koşuları: baseline Sortino ağırlığı 2,5 (tabloda görünen değer), satış eşiği 9. A/B ile aynı pencereler.
+      - name: Testi calistir (C - A pencereleri, baseline sortino 2.5)
+        if: always()
+        working-directory: de_walkforward_test
+        run: |
+          python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9
+          mkdir -p sonuc_C_A_sortino25
+          cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_C_A_sortino25/
+      - name: Testi calistir (D - B pencereleri, baseline sortino 2.5)
+        if: always()
+        working-directory: de_walkforward_test
+        run: |
+          python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9
+          mkdir -p sonuc_D_B_sortino25
+          cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_D_B_sortino25/
       - name: Sonuclari yukle
         if: always()
         uses: actions/upload-artifact@v4
@@ -41,4 +56,6 @@ jobs:
             de_walkforward_test/veri_kontrol.txt
             de_walkforward_test/sonuc_A_temizli_5pencere/
             de_walkforward_test/sonuc_B_ortusmeyen_3pencere/
+            de_walkforward_test/sonuc_C_A_sortino25/
+            de_walkforward_test/sonuc_D_B_sortino25/
           if-no-files-found: warn
