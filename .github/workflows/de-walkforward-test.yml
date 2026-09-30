@@ -15,9 +15,23 @@ jobs:
       - name: Veri kontrol
         working-directory: de_walkforward_test
         run: python3 -u de_walkforward_standalone_v3.py --veri-kontrol --veri-esik 0.30 | tee veri_kontrol.txt
-      - name: Testi calistir
+      # A koşusu: önceki koşuyla aynı parametreler (150/45, 5 pencere, adım 20), tek fark --veri-temizle.
+      # Önceki (temizlemesiz) sonuçla doğrudan karşılaştırılabilir.
+      - name: Testi calistir (A - ayni parametreler, veri temizli)
         working-directory: de_walkforward_test
-        run: python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138
+        run: |
+          python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 150 --test 45 --n-windows 5 --window-step 20 --sortino-gun 138 --veri-temizle
+          mkdir -p sonuc_A_temizli_5pencere
+          cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_A_temizli_5pencere/
+      # B koşusu: örtüşmeyen test pencereleri (adım = test uzunluğu = 45), 3 bağımsız test dönemi.
+      # A başarısız olsa bile çalışır. Pencereler sığmazsa script kendi uyarı/küçültme mekanizmasını kullanır.
+      - name: Testi calistir (B - ortusmeyen pencereler, veri temizli)
+        if: always()
+        working-directory: de_walkforward_test
+        run: |
+          python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --veri-temizle
+          mkdir -p sonuc_B_ortusmeyen_3pencere
+          cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_B_ortusmeyen_3pencere/
       - name: Sonuclari yukle
         if: always()
         uses: actions/upload-artifact@v4
@@ -25,8 +39,6 @@ jobs:
           name: de-walkforward-sonuclar
           path: |
             de_walkforward_test/veri_kontrol.txt
-            de_walkforward_test/de_wf_full_log.txt
-            de_walkforward_test/bench_ozet.txt
-            de_walkforward_test/bench_sonuc.json
-            de_walkforward_test/bench_islemler.txt
+            de_walkforward_test/sonuc_A_temizli_5pencere/
+            de_walkforward_test/sonuc_B_ortusmeyen_3pencere/
           if-no-files-found: warn
