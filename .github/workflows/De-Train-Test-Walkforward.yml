@@ -56,19 +56,27 @@ jobs:
       - name: DE Train-Test kos
         working-directory: de_walkforward_test
         run: |
-          python de_train_test_walkforward.py
+          ls -lh
+          python de_train_test_walkforward.py || python -u de_train_test_walkforward.py
 
       - name: Sonuclari listele
         if: always()
         run: |
-          ls -lh de_walkforward_test/results/
+          ls -lh de_walkforward_test/results/ || echo "results yok"
           echo "--- de_train_test_walkforward.csv ---"
-          cat de_walkforward_test/results/de_train_test_walkforward.csv || true
+          cat de_walkforward_test/results/de_train_test_walkforward.csv 2>&1 || echo "csv yok"
+          echo "--- log varsa ---"
+          ls -lh de_walkforward_test/*.log 2>&1 | head -n 20 || true
 
-      - name: Commit
+      - name: Commit (hatasiz)
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f de_walkforward_test/results/de_train_test_walkforward.csv de_walkforward_test/de_train_test_walkforward.py de_walkforward_test/price_history_6y.json
-          git diff --staged --quiet || (git commit -m "DE train-test overfit kaniti $(date -u +%Y-%m-%dT%H:%M:%SZ)" && git push)
+          # dosya yoksa hata verme
+          git add -f de_walkforward_test/results/ 2>/dev/null || true
+          git add -f de_walkforward_test/price_history_6y.json 2>/dev/null || true
+          git add -f de_walkforward_test/de_train_test_walkforward.py 2>/dev/null || true
+          git add -f de_walkforward_test/*.log 2>/dev/null || true
+          git status
+          git diff --staged --quiet && echo "commit yok" || (git commit -m "DE train-test overfit kaniti $(date -u +%Y-%m-%dT%H:%M:%SZ)" && git push)
