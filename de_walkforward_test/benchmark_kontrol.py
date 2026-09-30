@@ -46,6 +46,11 @@ def to_series(v):
 def load(path):
     with open(path, encoding="utf-8") as f:
         raw = json.load(f)
+    if isinstance(raw, dict) and "tarihler" in raw and "fiyatlar" in raw:
+        # {"tarihler": [yeniden eskiye], "fiyatlar": {fon: [fiyat, ...]}}; 0 = veri yok
+        idx = pd.to_datetime(raw["tarihler"])
+        df = pd.DataFrame({k: pd.Series(v, index=idx) for k, v in raw["fiyatlar"].items()})
+        return df.sort_index().replace(0.0, np.nan)
     if isinstance(raw, dict):
         data = {k: to_series(v) for k, v in raw.items()}
     else:  # kayit listesi: [{kod, tarih, fiyat}, ...]
