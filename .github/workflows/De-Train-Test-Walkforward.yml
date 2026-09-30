@@ -1,0 +1,74 @@
+name: DE Train-Test Walkforward (DE overfit kaniti)
+
+on:
+  workflow_dispatch:
+    inputs:
+      girdi:
+        description: "Girdi"
+        default: "price_history_6y.json"
+
+permissions:
+  contents: write
+
+jobs:
+  de_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Bagimliliklar
+        run: |
+          pip install -r requirements.txt 2>/dev/null || true
+          pip install pandas numpy scipy
+
+      - name: Olcek duzelt (temiz veri garantisi)
+        working-directory: de_walkforward_test
+        run: |
+          python << 'PY'
+          import json, math
+          from pathlib import Path
+          p=Path('price_history_6y.json')
+          if not p.exists():
+            print("yok")
+            exit(0)
+          d=json.loads(p.read_text(encoding='utf-8'))
+          th=d['tarihler']; f=d['fiyatlar']; c=0
+          for kod,seri in f.items():
+            for i in range(len(seri)-1,0,-1):
+              eski=seri[i]; yeni=seri[i-1]
+              if not eski or not yeni or eski<1e-9 or yeni<1e-9: continue
+              r=yeni/eski
+              if r>50 or r<0.02:
+                lg=math.log10(r); k=round(lg)
+                if abs(lg-k)<0.15 and abs(k)>=2:
+                  car=10.0**k
+                  for j in range(i,len(seri)):
+                    if seri[j]: seri[j]*=car
+                  c+=1
+          if c>0:
+            p.write_text(json.dumps(d,separators=(',',':')),encoding='utf-8')
+          print(f"{c} duzeltme")
+          PY
+
+      - name: DE Train-Test kos
+        working-directory: de_walkforward_test
+        run: |
+          python de_train_test_walkforward.py
+
+      - name: Sonuclari listele
+        if: always()
+        run: |
+          ls -lh de_walkforward_test/results/
+          echo "--- de_train_test_walkforward.csv ---"
+          cat de_walkforward_test/results/de_train_test_walkforward.csv || true
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f de_walkforward_test/results/de_train_test_walkforward.csv de_walkforward_test/de_train_test_walkforward.py de_walkforward_test/price_history_6y.json
+          git diff --staged --quiet || (git commit -m "DE train-test overfit kaniti $(date -u +%Y-%m-%dT%H:%M:%SZ)" && git push)
