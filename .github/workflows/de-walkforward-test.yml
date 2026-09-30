@@ -47,6 +47,16 @@ jobs:
           python3 -u de_walkforward_standalone_v3.py --bench-n 500 --bench-detay --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9
           mkdir -p sonuc_D_B_sortino25
           cp de_wf_full_log.txt bench_ozet.txt bench_sonuc.json bench_islemler.txt sonuc_D_B_sortino25/
+      # E koşusu: DE walk-forward + statik DE, temiz fiyat dosyası, örtüşmeyen 3 pencere, baseline Sortino 2,5 / eşik 9.
+      # Süre bilinmiyor; adım zaman aşımı 300 dk, böylece sonuç yükleme adımı yine çalışır.
+      - name: Testi calistir (E - DE walk-forward, B pencereleri, baseline sortino 2.5)
+        if: always()
+        timeout-minutes: 300
+        working-directory: de_walkforward_test
+        run: |
+          mkdir -p sonuc_E_DE_B_sortino25
+          python3 -u de_walkforward_standalone_v3.py --train 140 --test 45 --n-windows 3 --window-step 45 --sortino-gun 138 --prices price_history_temiz.json --baseline-sortino 2.5 --baseline-x 9 2>&1 | tee sonuc_E_DE_B_sortino25/konsol.txt
+          cp de_wf_full_log.txt sonuc_E_DE_B_sortino25/ 2>/dev/null || true
       - name: Sonuclari yukle
         if: always()
         uses: actions/upload-artifact@v4
@@ -58,4 +68,5 @@ jobs:
             de_walkforward_test/sonuc_B_ortusmeyen_3pencere/
             de_walkforward_test/sonuc_C_A_sortino25/
             de_walkforward_test/sonuc_D_B_sortino25/
+            de_walkforward_test/sonuc_E_DE_B_sortino25/
           if-no-files-found: warn
