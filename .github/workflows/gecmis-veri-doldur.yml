@@ -7,7 +7,7 @@ on:
         description: "Toplam hedef gecmis (yil)"
         default: "6"
       girdi:
-        description: "Girdi dosyasi (temizlenmis evren icin price_history_temiz.json)"
+        description: "Girdi dosyasi"
         default: "price_history_temiz.json"
 
 permissions:
@@ -27,12 +27,19 @@ jobs:
       - name: Bagimliliklari kur
         run: pip install -r requirements.txt
 
-      - name: Gecmis veriyi cek (ayri dosyaya yazar, girdiyi degistirmez)
+      - name: Klasorleri kontrol et
+        run: |
+          pwd
+          ls -lh
+          ls -lh de_walkforward_test/
+
+      - name: Gecmis veriyi cek
+        working-directory: de_walkforward_test
         run: python fetch_gecmis_veri.py --yil "${{ inputs.yil }}" --girdi "${{ inputs.girdi }}" --cikti price_history_6y.json
 
-      - name: Degisikligi commit'le (hata olsa da ara dosya kaydedilir)
+      - name: Degisikligi commit'le
         if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Gecmis veri (fetch_gecmis_veri.py)"
-          file_pattern: price_history_6y.json gecmis_cache.json
+          commit_message: "Gecmis veri (fetch_gecmis_veri.py) - ${{ inputs.yil }}yil"
+          file_pattern: de_walkforward_test/price_history_6y.json de_walkforward_test/gecmis_cache.json
