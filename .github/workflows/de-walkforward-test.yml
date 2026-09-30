@@ -1,0 +1,217 @@
+name: DE Walk-Forward Test (6y)
+
+on:
+  workflow_dispatch:
+    inputs:
+      girdi:
+        description: "Girdi dosyasi (6y)"
+        default: "price_history_6y.json"
+
+permissions:
+  contents: write
+
+jobs:
+  walkforward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Bagimliliklari kur
+        run: |
+          pip install -r requirements.txt
+          pip install pandas numpy
+
+      - name: Backtest dosyasi yoksa olustur
+        run: |
+          ls -lh de_walkforward_test/
+          if [ ! -f de_walkforward_test/backtest_6y_walkforward.py ]; then
+            echo "Dosya yok, olusturuluyor..."
+            cat > de_walkforward_test/backtest_6y_walkforward.py << 'PYEOF'
+          """
+          backtest_6y_walkforward.py
+          TEFAS Backtest Dogruama - 6 yillik veri ile
+          """
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          import math
+
+          KOK = Path(__file__).parent
+          import argparse
+          ap = argparse.ArgumentParser()
+          ap.add_argument("--girdi", default="price_history_6y.json")
+          args = ap.parse_args()
+          VERI_YOLU = KOK / args.girdi
+          if not VERI_YOLU.exists():
+            # fallback
+            VERI_YOLU = KOK / "price_history_6y.json"
+          RESULT_DIR = KOK / "results"
+          RESULT_DIR.mkdir(exist_ok=True)
+
+          BASELINE_KATSAYI = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 2.5])
+          CENKER_KATSAYI = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 5.62])
+
+          def yukle():
+              with open(VERI_YOLU, encoding="utf-8") as f:
+                  data = json.load(f)
+              tarihler_desc = data["tarihler"]
+              fiyatlar = data["fiyatlar"]
+              tarihler_asc = tarihler_desc[::-1]
+              fiyatlar_asc = {kod: np.array(seri[::-1], dtype=float) for kod, seri in fiyatlar.items()}
+              return tarihler_asc, tarihler_desc, fiyatlar_asc
+
+          def olcek_kontrol(tarihler_asc, fiyatlar_asc):
+              bulgular = []
+              for kod, seri in fiyatlar_asc.items():
+                  for i in range(1, len(seri)):
+                      eski, yeni = seri[i-1], seri[i]
+                      if eski < 1e-9 or yeni < 1e-9:
+                          continue
+                      r = yeni / eski
+                      if r > 50 or r < 0.02:
+                          lg = math.log10(r)
+                          k = round(lg)
+                          yakin = abs(lg - k) < 0.15 and abs(k) >= 2
+                          bulgular.append({"kod": kod, "tarih": tarihler_asc[i], "oran": r, "log10": lg, "10kuvvet_yakin": yakin, "eski": eski, "yeni": yeni})
+              df = pd.DataFrame(bulgular)
+              df.to_csv(RESULT_DIR / "olcek_kontrol.csv", index=False)
+              print(f"[OLCEK] {len(df)} supheli sicrama")
+              return df
+
+          def hesapla_donemsel_metrikler(tarihler_asc, fiyatlar_asc, gun_idx_asc):
+              offsets = [1, 5, 21, 63, 126, 252]
+              kodlar = list(fiyatlar_asc.keys())
+              mat = np.zeros((len(kodlar), 6))
+              for j, off in enumerate(offsets):
+                  if gun_idx_asc - off < 0:
+                      continue
+                  for i, kod in enumerate(kodlar):
+                      now = fiyatlar_asc[kod][gun_idx_asc]
+                      past = fiyatlar_asc[kod][gun_idx_asc - off]
+                      if past > 1e-9:
+                          mat[i, j] = (now / past - 1) * 100
+              norm = np.zeros_like(mat)
+              for j in range(6):
+                  col = mat[:, j]
+                  valid = col[col != 0]
+                  if len(valid) < 10:
+                      continue
+                  p1, p99 = np.percentile(valid, [1, 99])
+                  col = np.clip(col, p1, p99)
+                  mean, std = col.mean(), col.std()
+                  if std < 1e-9:
+                      std = 1e-9
+                  z = (col - mean) / std
+                  z = np.clip(z, -3, 3)
+                  sig = 1 / (1 + np.exp(-z))
+                  norm[:, j] = sig
+              return kodlar, norm
+
+          def simulate_window(tarihler_asc, fiyatlar_asc, start_idx, end_idx, katsayi, periyod_valor=2):
+              kodlar = list(fiyatlar_asc.keys())
+              _, norm0 = hesapla_donemsel_metrikler(tarihler_asc, fiyatlar_asc, start_idx)
+              skor0 = norm0 @ katsayi
+              top2_idx = np.argsort(skor0)[-2:]
+              portfoy = [kodlar[i] for i in top2_idx if skor0[i] > 0]
+              if len(portfoy) < 2:
+                  portfoy = kodlar[:2]
+              sermaye = [100.0]
+              bekleyen_satis = {}
+              for gi in range(start_idx+1, end_idx+1):
+                  _, norm = hesapla_donemsel_metrikler(tarihler_asc, fiyatlar_asc, gi)
+                  skor = norm @ katsayi
+                  rank_order = np.argsort(-skor)
+                  rank_dict = {kodlar[rank_order[i]]: i+1 for i in range(len(kodlar))}
+                  for kod in list(portfoy):
+                      if kod in rank_dict and rank_dict[kod] > 10:
+                          bekleyen_satis[kod] = gi + periyod_valor
+                  for kod, sat_gun in list(bekleyen_satis.items()):
+                      if gi >= sat_gun:
+                          if kod in portfoy:
+                              portfoy.remove(kod)
+                          del bekleyen_satis[kod]
+                          for idx in rank_order:
+                              yeni_kod = kodlar[idx]
+                              if yeni_kod not in portfoy:
+                                  portfoy.append(yeni_kod)
+                                  break
+                  gun_getiri = 0
+                  cnt = 0
+                  for kod in portfoy:
+                      if fiyatlar_asc[kod][gi-1] > 1e-9:
+                          gun_getiri += (fiyatlar_asc[kod][gi] / fiyatlar_asc[kod][gi-1] - 1)
+                          cnt += 1
+                  if cnt:
+                      gun_getiri /= cnt
+                      sermaye.append(sermaye[-1] * (1 + gun_getiri))
+                  else:
+                      sermaye.append(sermaye[-1])
+              if len(sermaye) < 2:
+                  return 0.0, 0
+              toplam_getiri = sermaye[-1] / sermaye[0] - 1
+              gun_sayisi = end_idx - start_idx
+              yillik = (1 + toplam_getiri) ** (252 / max(gun_sayisi, 1)) - 1
+              return yillik * 100, sermaye[-1]
+
+          def main():
+              tarihler_asc, tarihler_desc, fiyatlar_asc = yukle()
+              print(f"Veri: {tarihler_asc[0]} -> {tarihler_asc[-1]}, {len(tarihler_asc)} gun, {len(fiyatlar_asc)} fon")
+              olcek_kontrol(tarihler_asc, fiyatlar_asc)
+              usable_start = 252
+              train_len = 252
+              test_len = 126
+              pencereler = []
+              idx = usable_start + train_len
+              while idx + test_len < len(tarihler_asc):
+                  train_s = idx - train_len
+                  train_e = idx - 1
+                  test_s = idx
+                  test_e = idx + test_len - 1
+                  pencereler.append((train_s, train_e, test_s, test_e))
+                  idx += test_len
+              print(f"{len(pencereler)} pencere")
+              rows = []
+              for pi, (train_s, train_e, test_s, test_e) in enumerate(pencereler):
+                  base_ret, _ = simulate_window(tarihler_asc, fiyatlar_asc, test_s, test_e, BASELINE_KATSAYI)
+                  cenker_ret, _ = simulate_window(tarihler_asc, fiyatlar_asc, test_s, test_e, CENKER_KATSAYI)
+                  rand_k = np.random.uniform(0.2, 3.0, size=6)
+                  rand_ret, _ = simulate_window(tarihler_asc, fiyatlar_asc, test_s, test_e, rand_k)
+                  yil_only = np.array([0,0,0,0,0,1.0])
+                  yil_ret, _ = simulate_window(tarihler_asc, fiyatlar_asc, test_s, test_e, yil_only)
+                  rows.append({"pencere": pi+1, "train_bas": tarihler_asc[train_s], "train_bit": tarihler_asc[train_e], "test_bas": tarihler_asc[test_s], "test_bit": tarihler_asc[test_e], "baseline": base_ret, "cenker": cenker_ret, "random_null": rand_ret, "yil_only": yil_ret})
+                  print(f"P{pi+1} base {base_ret:5.2f}% cenker {cenker_ret:5.2f}% rand {rand_ret:5.2f}% yil {yil_ret:5.2f}%")
+              df = pd.DataFrame(rows)
+              df.to_csv(RESULT_DIR / "walkforward_summary.csv", index=False)
+              print(df.to_string())
+
+          if __name__ == "__main__":
+              main()
+          PYEOF
+          else
+            echo "Dosya zaten var"
+          fi
+
+      - name: Walk-forward backtest kos (6y)
+        working-directory: de_walkforward_test
+        run: |
+          python backtest_6y_walkforward.py --girdi "${{ inputs.girdi }}" || python backtest_6y_walkforward.py
+
+      - name: Sonuclari listele
+        if: always()
+        run: |
+          ls -lh de_walkforward_test/results/ || echo "results yok"
+          cat de_walkforward_test/results/walkforward_summary.csv || true
+
+      - name: Sonuclari commit'le
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f de_walkforward_test/results/ de_walkforward_test/backtest_6y_walkforward.py 2>/dev/null || true
+          git diff --staged --quiet || (git commit -m "Walk-forward 6y results $(date -u +%Y-%m-%dT%H:%M:%SZ)" && git push)
