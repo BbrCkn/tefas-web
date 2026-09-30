@@ -1,11 +1,22 @@
 name: Gecmis Veri Doldur (tek seferlik)
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      yil:
+        description: "Toplam hedef gecmis (yil)"
+        default: "6"
+      girdi:
+        description: "Girdi dosyasi (temizlenmis evren icin price_history_temiz.json)"
+        default: "price_history_temiz.json"
+
+permissions:
+  contents: write
 
 jobs:
   doldur:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
 
@@ -16,11 +27,12 @@ jobs:
       - name: Bagimliliklari kur
         run: pip install -r requirements.txt
 
-      - name: Gecmis veriyi cek ve price_history.json'u guncelle
-        run: python fetch_gecmis_veri.py
+      - name: Gecmis veriyi cek (ayri dosyaya yazar, girdiyi degistirmez)
+        run: python fetch_gecmis_veri.py --yil "${{ inputs.yil }}" --girdi "${{ inputs.girdi }}" --cikti price_history_6y.json
 
-      - name: Degisikligi commit'le
+      - name: Degisikligi commit'le (hata olsa da ara dosya kaydedilir)
+        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Gecmis veri dolduruldu (fetch_gecmis_veri.py)"
-          file_pattern: price_history.json
+          commit_message: "Gecmis veri (fetch_gecmis_veri.py)"
+          file_pattern: price_history_6y.json gecmis_cache.json
