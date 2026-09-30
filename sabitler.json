@@ -1,16 +1,16 @@
 {
- "periyod": 138,
+ "periyod": 61,
  "risksiz_yillik": 0.11363095238095237,
  "risksiz_backtest": 0.415,
  "k": 3,
  "donemsel_katsayilar": {
-  "gunluk": 3.154574132492113,
-  "haftalik": 6.309148264984227,
-  "aylik": 19.87381703470032,
-  "uc_aylik": 28.706624605678236,
-  "alti_aylik": 14.826498422712934,
-  "yillik": 24.60567823343849
+  "gunluk": 3.6312849162011176,
+  "haftalik": 9.217877094972067,
+  "aylik": 27.37430167597765,
+  "uc_aylik": 6.424581005586592,
+  "alti_aylik": 27.09497206703911,
+  "yillik": 24.860335195530723
  },
- "sortino_agirlik": 2.5236593059936907,
- "serenity_generated_at": "2026-09-29T11:01:06"
+ "sortino_agirlik": 1.3966480446927374,
+ "serenity_generated_at": "2026-09-30T11:00:37"
 }
