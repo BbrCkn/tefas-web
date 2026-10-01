@@ -5,9 +5,8 @@ Her gun otomatik calisacak ana betik. Sirasiyla:
 1. TEFAS'tan bugunun fiyatlarini ceker
 2. Fiyat gecmisini gunceller (yeni gunu ekler, en eskiyi atar -- 255 gunluk
    pencere korunur)
-3. Donemsel getiri + Sortino hesaplayip Z skorunu uretir (2026-09-12'den
-   itibaren: Sharpe/MDD/Consistency/Otokorelasyon/EnBuyukGunOrani kaldirildi,
-   yerine tek risk metrigi olarak Sortino geldi)
+3. 6 donemsel getiriyi sabitler.json'daki katsayilarla (su an hepsi 1) toplayip
+   Z skorunu uretir (2026-10-01'den itibaren: risk metrikleri, Sortino, periyod yok)
 4. Tema kumelemeyi (TemaOlustur) calistirir
 5. Sirala, dunku sirayi kaydet, docs/data.json'i yazar (dashboard'un
    okudugu dosya)
@@ -25,7 +24,7 @@ import requests
 from pytefas import Crawler, TefasAPIError, TefasRateLimitError
 
 from puanlama_metrikleri import (
-    donemsel_getiriler, sortino, puanlama_motoru, tema_olustur,
+    donemsel_getiriler, puanlama_motoru, tema_olustur,
 )
 
 try:
@@ -619,7 +618,7 @@ def main():
 
     # Skor SADECE 6 donemsel getiri metriginden olusur (2026-10-01). Sortino ve
     # periyod kaldirildi: risk metrikleri + Sortino + Serenity katsayilari walk-forward
-    # testte baseline'i gecemedi. Katsayilar sabitler.json'daki donemsel_katsayilar.
+    # testte baseline'i gecemedi. Katsayilar sabitler.json'daki donemsel_katsayilar (su an hepsi 1 = esit agirlik).
 
     print("Tema kumeleme calisiyor...")
     valorler = np.array([fon_listesi[k].get("valor") for k in kodlar], dtype=object)
