@@ -544,6 +544,15 @@ def main():
         # sizardi (2026-09-11: DFI'da +126 TL fazladan aylik/yillik
         # kazanc, gunlukte gorunmuyor -- alt tarafta 597. satirdaki ayni
         # kontrolle simetrik hale getirildi).
+        # PPF ANLIK ISLEMLER (2026-10-05): site, PPF AL/SAT'ta portfoy.json'a
+        # adeti hemen yazar (tablo aninda gorunsun diye) AMA ayni anda
+        # gun basi adedi (onceki_adet) ve islem tarihini (islem_tarihi) de
+        # kaydeder. Getiri, Excel'deki gibi, o gunun islemleri HARIC
+        # (onceki gunun kapanisindaki adetle) hesaplanir: satilan paylar satis
+        # gununun kazancini alir, alinan paylar alis gununun kazancini almaz.
+        if (isinstance(pozisyon, dict) and pozisyon.get("islem_tarihi")
+                and pozisyon["islem_tarihi"] >= tarih and "onceki_adet" in pozisyon):
+            adet_dun = pozisyon["onceki_adet"]
         if isinstance(pozisyon, dict) and pozisyon.get("alis_tarihi") == tarih:
             adet_dun = 0
         # 2026-10-05: AYNI TEFAS tarihi icin tekrar calistirmada, ilk
@@ -725,6 +734,7 @@ def main():
             "ay6": round(float(donemsel["alti_aylik"][idx]), 4),
             "yil": round(float(donemsel["yillik"][idx]), 4),
             "tema": tema_sonuc.get(kod),
+            "fiyat": round(fiyat_bugun, 6),  # site, PPF islemini aninda gostermek icin kullanir
             "adet": adet,             # elde tutulan pay adedi
             "guncel": guncel,         # elde tutulan fonun bugunku TL degeri (adet x fiyat)
             "gunlukTL": gunluk_tl,    # bugunku TL bazli kar/zarar
