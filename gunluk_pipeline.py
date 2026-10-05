@@ -16,6 +16,7 @@ her gun calistirilacak.
 """
 
 import json
+import os
 import datetime
 from pathlib import Path
 
@@ -443,6 +444,19 @@ def main():
     if eksik:
         print(f"UYARI: {len(eksik)} fon icin bugun fiyat gelmedi (islem "
               f"gormemis olabilir): {eksik[:10]}{'...' if len(eksik)>10 else ''}")
+
+        # --- Deneme mantigi: zamanlanmis 10:30 ve 11:00 calismalari eksik fiyat varsa
+        # HICBIR SEY KAYDETMEDEN cikar (sonraki deneme tamamlasin); 11:30 (3. deneme)
+        # ve elle tetiklemeler eksik olsa da bitirir, eksikler tabloda gorunur.
+        # Tetik dizeleri fetch-tefas.yml'deki cron satirlariyla ayni olmali.
+        tetik = os.environ.get("TETIK_ZAMANI", "").strip()
+        deneme_haritasi = {"30 7 * * 1-5": 1, "0 8 * * 1-5": 2, "30 8 * * 1-5": 3}
+        deneme_no = deneme_haritasi.get(tetik)   # None = elle tetikleme
+        if deneme_no in (1, 2):
+            print(f"Deneme {deneme_no}/3: {len(eksik)} fon eksik, kaydedilmeden cikiliyor "
+                  f"(sonraki deneme bekleniyor).")
+            return
+        print(f"Deneme: {deneme_no if deneme_no else 'elle'} -- eksik fonlarla devam ediliyor.")
 
     # "onceki_gun_indeksi": END hesaplarken ve genel getiri karsilastirmalarinda
     # "dunku fiyat" olarak hangi sutuna bakacagimizi belirler.
