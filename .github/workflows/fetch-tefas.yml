@@ -64,7 +64,34 @@ jobs:
 
       - name: Degisen dosyalari GitHub'a geri yaz
         if: always() && steps.kontrol.outputs.calistir == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Otomatik gunluk guncelleme"
-          file_pattern: "docs/data.json durum.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json eksik_gun_manuel.xlsx sabitler.json"
+        run: |
+          # Calisma sirasinda repoya baska bir commit girmis olabilir (siteden yazma,
+          # elle dosya yukleme). Bu yuzden once commit atilir, sonra "pull --rebase"
+          # ile guncel hal alinip push denenir; reddedilirse 5 kereye kadar tekrarlanir.
+          # Listedeki dosyalardan biri repoda yoksa atlanir (eskiden tum commit coküyordu).
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for f in docs/data.json durum.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json eksik_gun_manuel.xlsx sabitler.json; do
+            if [ -e "$f" ]; then git add "$f"; else echo "Atlandi (dosya yok): $f"; fi
+          done
+
+          if git diff --cached --quiet; then
+            echo "Kaydedilecek degisiklik yok."
+            exit 0
+          fi
+
+          git commit -m "Otomatik gunluk guncelleme"
+
+          for deneme in 1 2 3 4 5; do
+            # -X theirs (rebase'te): cakisma olursa bu pipeline'in urettigi dosya kazanir
+            if git pull --rebase -X theirs origin main && git push origin main; then
+              echo "Push basarili (deneme $deneme)."
+              exit 0
+            fi
+            echo "Push basarisiz (deneme $deneme), tekrar denenecek..."
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
+          echo "5 denemede de push yapilamadi."
+          exit 1
