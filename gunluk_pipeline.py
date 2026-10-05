@@ -469,6 +469,7 @@ def main():
               f"yeni deger {bugun_fiyat['END']:.4f}")
 
     # --- fiyat gecmisi guncellemesi ---
+    fiyat_degisti = True   # yeni gun ise her zaman True; asagida ayni-gun kolunda belirlenir
     if yeni_gun_var_mi:
         # gercekten yeni bir gun: pencereyi kaydir, bugunun (o an elde
         # olan) fiyatlarini basa ekle
@@ -490,9 +491,12 @@ def main():
         for kod, yeni_fiyat in bugun_fiyat.items():
             seri = fiyat_gecmisi["fiyatlar"].get(kod)
             if seri:
-                if seri[0] != yeni_fiyat:
+                # END her calistirmada yeniden hesaplanan sentetik endeks,
+                # fiyat degisti sayilmaz (kayan nokta farki yanlis alarm vermesin)
+                if kod != "END" and yeni_fiyat is not None and abs(seri[0] - yeni_fiyat) > 1e-9:
                     guncellenen_sayisi += 1
                 seri[0] = yeni_fiyat
+        fiyat_degisti = guncellenen_sayisi > 0
         print(f"Pencere kaydirilmadi -- bugunun sutunu {guncellenen_sayisi} fonda "
               f"tazelendi, skorlar yeniden hesaplanacak.")
 
@@ -521,7 +525,16 @@ def main():
         fon_kazanc = {}
     bugun_ay_kk, bugun_yil_kk = tarih[:7], tarih[:4]
     gunluk_kazanc = {}
-    for kod in fon_listesi:
+    # 2026-10-05: YENI GUN YOK ve hicbir fonun fiyati degismediyse (hafta sonu,
+    # resmi tatil, TEFAS ayni veriyi donduruyor) HICBIR getiri hesabi/birikimi
+    # yapilmaz: fon_kazanc.json'a dokunulmaz, gosterilecek gunluk kazanc o
+    # TEFAS tarihi icin en son uygulanmis degerden okunur.
+    if not fiyat_degisti:
+        print("Yeni gun yok ve fiyat degismedi -> getiri hesabi/birikimi ATLANDI.")
+        for kod in fon_listesi:
+            g = fon_kazanc.get(kod, {})
+            gunluk_kazanc[kod] = g.get("son_uygulanan_kazanc", 0.0) if g.get("son_uygulanan_tarih") == tarih else 0.0
+    for kod in (fon_listesi if fiyat_degisti else []):
         pozisyon = portfoy.get(kod)
         adet_dun = pozisyon.get("adet", 0) if isinstance(pozisyon, dict) else (pozisyon or 0)
         # Bugun ALINMIS bir pozisyon icin (alis_tarihi==tarih), pipeline
@@ -533,6 +546,16 @@ def main():
         # kontrolle simetrik hale getirildi).
         if isinstance(pozisyon, dict) and pozisyon.get("alis_tarihi") == tarih:
             adet_dun = 0
+        # 2026-10-05: AYNI TEFAS tarihi icin tekrar calistirmada, ilk
+        # calistirmada kullanilan adet AYNEN yeniden kullanilir. Aksi halde
+        # o gun SATILAN bir fon (portfoyden silinmis, adet=0) ikinci
+        # calistirmada kazanc=0 hesaplanir ve onceki katki geri alinip yerine
+        # 0 yazildigi icin o gunun gercek kazanci aylik/yillikten SILINIR
+        # (ayni sekilde gun icinde PPF anlik AL/SAT yapilirsa gunun kazanci
+        # yeni adetle yeniden hesaplanirdi).
+        girdi_once = fon_kazanc.get(kod, {})
+        if girdi_once.get("son_uygulanan_tarih") == tarih and "son_uygulanan_adet" in girdi_once:
+            adet_dun = girdi_once["son_uygulanan_adet"]
         seri = fiyat_gecmisi["fiyatlar"].get(kod, [0.0, 0.0])
         f_bugun = seri[0] if len(seri) > 0 else 0.0
         f_dun = seri[1] if len(seri) > 1 else f_bugun
@@ -553,8 +576,10 @@ def main():
         girdi["yil_deger"] = round(girdi.get("yil_deger", 0.0) - onceki_katki + kazanc, 2)
         girdi["son_uygulanan_tarih"] = tarih
         girdi["son_uygulanan_kazanc"] = kazanc
+        girdi["son_uygulanan_adet"] = adet_dun
         fon_kazanc[kod] = girdi
-    kaydet(fon_kazanc, "fon_kazanc.json")
+    if fiyat_degisti:
+        kaydet(fon_kazanc, "fon_kazanc.json")
 
     # --- bekleyen AL/SAT emirlerini isle (Rutin'in 212/213 mantiginin karsiligi) ---
     if not EMIR_MOTORU_AKTIF:
