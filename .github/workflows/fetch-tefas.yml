@@ -16,15 +16,31 @@ jobs:
       - name: Kodu indir
         uses: actions/checkout@v4
 
+      - name: Manuel tetik izni kontrolu
+        id: kontrol
+        run: |
+          # ayarlar.json'da "manuel_guncelleme": false ise ELLE tetiklenen
+          # (workflow_dispatch) calismalar hicbir sey yapmadan biter.
+          # Zamanlanmis (cron 10:30) calisma her zaman calisir.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && grep -Eq '"manuel_guncelleme"[[:space:]]*:[[:space:]]*false' ayarlar.json 2>/dev/null; then
+            echo "Manuel guncelleme KAPALI -- bu elle tetikleme atlandi."
+            echo "calistir=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "calistir=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Python kur
+        if: steps.kontrol.outputs.calistir == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
       - name: Kutuphaneleri kur
+        if: steps.kontrol.outputs.calistir == 'true'
         run: pip install -r requirements.txt
 
       - name: Gunluk pipeline'i calistir
+        if: steps.kontrol.outputs.calistir == 'true'
         env:
           PYTHONUNBUFFERED: "1"   # ciktiyi tamponlamadan aninda akit -- uzun surebilecek
                                    # adimlarda (ornegin yeni fon gecmisi cekme) canli log
@@ -32,6 +48,7 @@ jobs:
         run: python gunluk_pipeline.py
 
       - name: Google Drive'a yedek al
+        if: steps.kontrol.outputs.calistir == 'true'
         continue-on-error: true
         env:
           GAS_WEBHOOK_URL: ${{ secrets.GAS_WEBHOOK_URL }}
@@ -39,7 +56,7 @@ jobs:
         run: python drive_yedek.py
 
       - name: Degisen dosyalari GitHub'a geri yaz
-        if: always()
+        if: always() && steps.kontrol.outputs.calistir == 'true'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Otomatik gunluk guncelleme"
