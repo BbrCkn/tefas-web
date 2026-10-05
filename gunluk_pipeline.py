@@ -304,7 +304,15 @@ def bugunku_fiyatlari_cek(fon_kodlari: set, tarih: str):
     for k in kayitlar:
         kod = k.get("fund_code")
         if kod in fon_kodlari:
-            sonuc[kod] = k.get("price")
+            # Fiyati 0 / bos / gecersiz gelen fon (TEFAS henuz yayinlamamis, ornegin
+            # sabah erken saatte Garanti grubu) sonuca HIC EKLENMEZ -- boylece 'eksik'
+            # sayilir, fiyat gecmisine 0 yazilmaz, sonraki calistirmada tamamlanir.
+            try:
+                fiyat = float(k.get("price"))
+            except (TypeError, ValueError):
+                fiyat = 0.0
+            if fiyat > 0:
+                sonuc[kod] = fiyat
         if tefas_tarihi is None and k.get("date"):
             tefas_tarihi = str(k["date"])[:10]
     return sonuc, tefas_tarihi
