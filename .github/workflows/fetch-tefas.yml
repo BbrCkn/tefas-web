@@ -3,7 +3,13 @@ name: TEFAS Gunluk Pipeline
 on:
   workflow_dispatch:   # "Run workflow" butonuyla elle tetikleme
   schedule:
-    - cron: '30 7 * * 1-5'   # Hafta ici, TR saatiyle ~10:30 (UTC 07:30)
+    # Hafta ici, TR saatiyle 10:30 / 11:00 / 11:30 (UTC 07:30 / 08:00 / 08:30).
+    # Eksik fiyat varsa 1. ve 2. deneme bekler, 3. deneme eksik olsa da bitirir.
+    # NOT: gunluk_pipeline.py bu uc cron dizesini tetik olarak tanir -- degistirirsen
+    # oradaki deneme haritasini da guncelle.
+    - cron: '30 7 * * 1-5'
+    - cron: '0 8 * * 1-5'
+    - cron: '30 8 * * 1-5'
 
 concurrency:
   group: tefas-gunluk-pipeline
@@ -42,6 +48,7 @@ jobs:
       - name: Gunluk pipeline'i calistir
         if: steps.kontrol.outputs.calistir == 'true'
         env:
+          TETIK_ZAMANI: ${{ github.event.schedule }}   # bos = elle tetikleme
           PYTHONUNBUFFERED: "1"   # ciktiyi tamponlamadan aninda akit -- uzun surebilecek
                                    # adimlarda (ornegin yeni fon gecmisi cekme) canli log
                                    # takibi icin gerekli
@@ -60,4 +67,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Otomatik gunluk guncelleme"
-          file_pattern: "docs/data.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json eksik_gun_manuel.xlsx sabitler.json"
+          file_pattern: "docs/data.json durum.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json eksik_gun_manuel.xlsx sabitler.json"
