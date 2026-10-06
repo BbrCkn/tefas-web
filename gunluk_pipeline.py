@@ -458,6 +458,22 @@ def main():
             return
         print(f"Deneme: {deneme_no if deneme_no else 'elle'} -- eksik fonlarla devam ediliyor.")
 
+    # 2026-10-06: ZAMANLANMIS calisma (cron), yeni gun yok, eksik fon yok ve
+    # hicbir fonun bugunku fiyati degismediyse -> gun zaten tamamlanmis demektir
+    # (1. deneme isi bitirdi). Hicbir sey yazmadan cik; gereksiz skor/commit olmasin.
+    # Elle tetiklemeler (TETIK_ZAMANI bos) bundan etkilenmez, her zaman tam calisir.
+    # Eksik fon sonradan gelmisse (fiyat degismis) bu kosul saglanmaz, normal akis surer.
+    if os.environ.get("TETIK_ZAMANI", "").strip() and not yeni_gun_var_mi and not eksik:
+        degisen_fon = 0
+        for kod, yeni_fiyat in bugun_fiyat.items():
+            seri = fiyat_gecmisi["fiyatlar"].get(kod)
+            if seri and yeni_fiyat is not None and abs(seri[0] - yeni_fiyat) > 1e-9:
+                degisen_fon += 1
+        if degisen_fon == 0:
+            print("Gun zaten tamamlanmis (yeni gun yok, eksik fon yok, fiyat degismedi) "
+                  "-> bu zamanlanmis calisma hicbir sey yapmadan cikiyor.")
+            return
+
     # "onceki_gun_indeksi": END hesaplarken ve genel getiri karsilastirmalarinda
     # "dunku fiyat" olarak hangi sutuna bakacagimizi belirler.
     # - Yeni bir gun ise: index 0 henuz DUNKU fiyati tutuyor (bugunku fiyati
