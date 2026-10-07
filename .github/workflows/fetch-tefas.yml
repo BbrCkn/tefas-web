@@ -6,9 +6,9 @@ on:
     types: [tefas-guncelle]
   schedule:
     # YEDEK tetik: asil tetikleme cron-job.org'dan (repository_dispatch) 10:30 / 11:00 / 11:30 TR'de gelir.
-    # Bu tek cron, cron-job.org aksarsa devreye girsin diye 12:07 TR'ye (UTC 09:07) birakildi;
+    # Bu tek cron, cron-job.org aksarsa devreye girsin diye 12:15 TR'ye (UTC 09:15) birakildi;
     # normal gunde veri zaten tamamlanmis oldugu icin hicbir sey yapmadan cikar.
-    - cron: '7 9 * * 1-5'
+    - cron: '15 9 * * 1-5'
 
 concurrency:
   group: tefas-gunluk-pipeline
