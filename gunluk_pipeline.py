@@ -452,6 +452,12 @@ def main():
         tetik = os.environ.get("TETIK_ZAMANI", "").strip()
         deneme_haritasi = {"30 7 * * 1-5": 1, "0 8 * * 1-5": 2, "30 8 * * 1-5": 3}
         deneme_no = deneme_haritasi.get(tetik)   # None = elle tetikleme
+        # Dis zamanlayici (cron-job.org -> repository_dispatch) deneme numarasini
+        # DENEME_NO ile dogrudan verir (1, 2 veya 3); GitHub cron'unun saat
+        # gecikmesinden bagimsiz, tam saatinde calisir.
+        dis_deneme = os.environ.get("DENEME_NO", "").strip()
+        if dis_deneme in ("1", "2", "3"):
+            deneme_no = int(dis_deneme)
         if deneme_no in (1, 2):
             print(f"Deneme {deneme_no}/3: {len(eksik)} fon eksik, kaydedilmeden cikiliyor "
                   f"(sonraki deneme bekleniyor).")
