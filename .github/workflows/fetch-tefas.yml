@@ -5,13 +5,10 @@ on:
   repository_dispatch: # Dis zamanlayici (cron-job.org) tam saatinde tetikler
     types: [tefas-guncelle]
   schedule:
-    # Hafta ici, TR saatiyle 10:30 / 11:00 / 11:30 (UTC 07:30 / 08:00 / 08:30).
-    # Eksik fiyat varsa 1. ve 2. deneme bekler, 3. deneme eksik olsa da bitirir.
-    # NOT: gunluk_pipeline.py bu uc cron dizesini tetik olarak tanir -- degistirirsen
-    # oradaki deneme haritasini da guncelle.
-    - cron: '30 7 * * 1-5'
-    - cron: '0 8 * * 1-5'
-    - cron: '30 8 * * 1-5'
+    # YEDEK tetik: asil tetikleme cron-job.org'dan (repository_dispatch) 10:30 / 11:00 / 11:30 TR'de gelir.
+    # Bu tek cron, cron-job.org aksarsa devreye girsin diye 12:07 TR'ye (UTC 09:07) birakildi;
+    # normal gunde veri zaten tamamlanmis oldugu icin hicbir sey yapmadan cikar.
+    - cron: '7 9 * * 1-5'
 
 concurrency:
   group: tefas-gunluk-pipeline
