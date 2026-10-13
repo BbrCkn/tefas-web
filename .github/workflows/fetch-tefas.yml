@@ -72,7 +72,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          for f in docs/data.json durum.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json eksik_gun_manuel.xlsx sabitler.json; do
+          for f in docs/data.json durum.json price_history.json onceki_rank.json fon_kazanc.json portfoy.json bekleyen_emirler.json bekleyen_valorler.json fon_listesi.json eklenecek_fonlar.json eksik_gun_doldur.json eksik_gun_manuel.xlsx sabitler.json bbr_durum.json; do
             if [ -e "$f" ]; then git add "$f"; else echo "Atlandi (dosya yok): $f"; fi
           done
 
