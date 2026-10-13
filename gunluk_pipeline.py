@@ -27,6 +27,7 @@ from pytefas import Crawler, TefasAPIError, TefasRateLimitError
 from puanlama_metrikleri import (
     donemsel_getiriler, puanlama_motoru, tema_olustur,
 )
+import bbr_hesap
 
 try:
     import openpyxl
@@ -680,6 +681,37 @@ def main():
     # --- suresi gecmis (hesaba gecmis) valor hatirlaticilarini temizle ---
     bekleyen_valorler = [v for v in bekleyen_valorler if v["hesaba_gecis_tarihi"] > tarih]
     kaydet(bekleyen_valorler, "bekleyen_valorler.json")
+
+    # --- BBR (portfoyun bilesik fon payi fiyati) -- Excel Rutin G221/G222 blogu ---
+    # Emirler islendikten SONRA, skor hesabindan ONCE: BBR'nin bugunku fiyati
+    # price_history'ye yazilir ki donemsel getiriler dogru hesaplansin.
+    # (2026-10-13: bu blok yoktu, BBR her gun dunku fiyatini kopyalayip duz gidiyordu.)
+    if "BBR" in fon_listesi and "BBR" in fiyat_gecmisi["fiyatlar"]:
+        try:
+            bbr_durum = bbr_hesap.excelden_baslat(fiyat_gecmisi)
+            if bbr_durum is None:
+                bbr_durum = yukle("bbr_durum.json")
+        except FileNotFoundError:
+            bbr_durum = None
+        if bbr_durum is not None:
+            deger_bugun = 0.0
+            for k_, poz_ in portfoy.items():
+                adet_ = poz_.get("adet", 0) if isinstance(poz_, dict) else (poz_ or 0)
+                seri_ = fiyat_gecmisi["fiyatlar"].get(k_)
+                if adet_ and seri_:
+                    deger_bugun += adet_ * seri_[0]
+            kazanc_toplam = sum(gunluk_kazanc.values())
+            bbr_fiyat, bbr_durum = bbr_hesap.gunluk_hesapla(
+                bbr_durum, tarih, round(deger_bugun, 2), kazanc_toplam)
+            if bbr_fiyat is not None:
+                fiyat_gecmisi["fiyatlar"]["BBR"][0] = bbr_fiyat
+                bbr_hesap.kaydet_durum(bbr_durum)
+                print(f"BBR guncellendi: fiyat {bbr_fiyat:.6f} (deger {deger_bugun:.2f}, "
+                      f"gunluk kazanc {kazanc_toplam:.2f})")
+            else:
+                print("BBR: hesaplanamadi, fiyat degismedi.")
+        else:
+            print("BBR: durum dosyasi yok (bbr_excel_baslangic.json eksik), atlandi.")
 
     kodlar = list(fon_listesi.keys())
     fiyat_full = np.array([fiyat_gecmisi["fiyatlar"][k] for k in kodlar])
