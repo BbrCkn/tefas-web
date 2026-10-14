@@ -462,6 +462,18 @@ def main():
         if deneme_no in (1, 2):
             print(f"Deneme {deneme_no}/3: {len(eksik)} fon eksik, kaydedilmeden cikiliyor "
                   f"(sonraki deneme bekleniyor).")
+            # 2026-10-14: fiyat/skor/pencereye DOKUNMADAN sadece durum bilgisini yaz:
+            # sitede "Son guncelleme <bu denemenin saati> + eksik fon kodlari" gorunsun.
+            # Bu alanlar sonraki TAM calismada data_json bastan uretildigi icin kendiliginden silinir.
+            try:
+                mevcut = yukle("docs/data.json")
+                mevcut["eksikFonlar"] = eksik
+                mevcut["sonDenemeZamani"] = int(datetime.datetime.now().timestamp() * 1000)
+                mevcut["sonDenemeNo"] = deneme_no
+                kaydet(mevcut, "docs/data.json")
+                print("  Durum bilgisi (eksik fon kodlari + deneme saati) docs/data.json'a yazildi.")
+            except Exception as e:
+                print(f"  UYARI: durum bilgisi yazilamadi: {e}")
             return
         print(f"Deneme: {deneme_no if deneme_no else 'elle'} -- eksik fonlarla devam ediliyor.")
 
