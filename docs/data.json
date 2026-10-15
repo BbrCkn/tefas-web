@@ -4301,11 +4301,10 @@
  },
  "bekleyenValorler": [],
  "eksikFonlar": [
-  "AES",
-  "YCY"
+  "AES"
  ],
  "temaSwapOldu": false,
  "eksikGunler": [],
- "sonDenemeZamani": 1792049463290,
- "sonDenemeNo": 1
+ "sonDenemeZamani": 1792051271050,
+ "sonDenemeNo": 2
 }
