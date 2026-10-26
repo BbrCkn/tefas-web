@@ -4300,7 +4300,13 @@
   "yillik": 203
  },
  "bekleyenValorler": [],
- "eksikFonlar": [],
+ "eksikFonlar": [
+  "GVA",
+  "AES",
+  "GUH"
+ ],
  "temaSwapOldu": true,
- "eksikGunler": []
+ "eksikGunler": [],
+ "sonDenemeZamani": 1792999858900,
+ "sonDenemeNo": 1
 }
