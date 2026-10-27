@@ -8,17 +8,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Dosyalar nerede kontrol et
+        run: |
+          echo "--- KÖK DİZİN ---"
+          ls -la
+          echo "--- TÜM DOSYALAR ---"
+          find . -type f -name "TefasControl*" | head -20
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Kutuphaneleri kur
         run: |
           pip install openpyxl playwright pandas
           playwright install chromium
           playwright install-deps chromium
+
       - name: TEFAS kontrolunu calistir
-        run: python TefasControl_Checker_FINAL.py
+        run: |
+          # Dosyayı bul ve çalıştır
+          FILE=$(find . -name "TefasControl_Checker_FINAL.py" | head -1)
+          echo "Bulunan dosya: $FILE"
+          python "$FILE"
+
       - uses: actions/upload-artifact@v4
         with:
           name: TefasControl-Sonuc-FINAL
-          path: TefasControl_Sonuc_FINAL.xlsx
+          path: "**/TefasControl_Sonuc_FINAL.xlsx"
