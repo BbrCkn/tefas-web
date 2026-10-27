@@ -1,0 +1,23 @@
+
+name: TefasControl FINAL A6-F558
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tefas-control-final:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          pip install -r TefasControl_Requirements_FINAL.txt
+          playwright install chromium
+          playwright install-deps chromium
+      - run: python TefasControl_Checker_FINAL.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TefasControl-Sonuc-FINAL
+          path: TefasControl_Sonuc_FINAL.xlsx
