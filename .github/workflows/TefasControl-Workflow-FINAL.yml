@@ -1,8 +1,7 @@
-name: TefasControl
 
+name: TefasControl
 on:
   workflow_dispatch:
-
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -11,123 +10,65 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Checker olustur - dogru selector
+      - name: Checker olustur
         run: |
           cat > checker.py << 'PYEOF'
-          import openpyxl
-          import asyncio
-          from playwright.async_api import async_playwright
-
+          import openpyxl, requests, time, json
           INPUT_FILE = "giris.xlsx"
           SHEET_NAME = "Tablo Verisi"
           OUTPUT_FILE = "TefasControl_Sonuc_FINAL.xlsx"
           START_ROW = 6
           END_ROW = 558
-
-          async def check_one(browser, kod):
-              url = f"https://www.tefas.gov.tr/tr/fon-detayli-analiz/{kod}"
-              context = await browser.new_context(
-                  user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36",
-                  locale="tr-TR"
-              )
-              page = await context.new_page()
-              try:
-                  await page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-                  await page.goto(url, wait_until="networkidle", timeout=30000)
-                  # Platform Durumu yazısı gelene kadar bekle - senin ekran görüntüsündeki yer
-                  try:
-                      await page.wait_for_selector("text=Platform Durumu", timeout=15000)
-                  except:
-                      pass
-                  await page.wait_for_timeout(2000)
-                  
-                  # Yöntem 1: Platform Durumu label'ının parent'ının text'i
-                  try:
-                      # Tüm body text'i al - en güvenilir
-                      body = await page.inner_text("body")
-                      # Senin işaretlediğin gibi
-                      if "TEFAS'ta işlem görüyor" in body or "TEFAS’ta işlem görüyor" in body or "islem goruyor" in body.lower():
-                          # Görmüyor içermiyorsa Evet
-                          if "Görmüyor" in body or "Gormuyor" in body:
-                              # İkisi de varsa Görmüyor'a bak
-                              # Platform Durumu'ndan sonraki kısma odaklan
-                              idx = body.find("Platform Durumu")
-                              snippet = body[idx:idx+200] if idx!=-1 else body
-                              if "Görmüyor" in snippet:
-                                  durum = "Hayır"
-                              else:
-                                  durum = "Evet"
-                          else:
-                              durum = "Evet"
-                      elif "TEFAS'ta İşlem Görmüyor" in body or "islem gormuyor" in body.lower():
-                          durum = "Hayır"
-                      else:
-                          # Yöntem 2: XPath ile Platform Durumu'nun yanındaki değeri al
-                          try:
-                              loc = page.locator("text=Platform Durumu")
-                              parent_text = await loc.first.evaluate("el => el.parentElement.parentElement.innerText")
-                              print(f"{kod} parent: {parent_text[:200]}")
-                              if "Görmüyor" in parent_text:
-                                  durum = "Hayır"
-                              elif "Görüyor" in parent_text:
-                                  durum = "Evet"
-                              else:
-                                  durum = "Bulunamadı"
-                          except Exception as e2:
-                              print(f"{kod} xpath hata {e2}")
-                              durum = "Bulunamadı"
-                  except Exception as e:
-                      print(f"{kod} body hata {e}")
-                      durum = "HATA"
-
-                  print(f"{kod} -> {durum}")
-                  await context.close()
-                  return kod, durum
-              except Exception as e:
-                  print(f"{kod} HATA: {e}")
-                  try:
-                      await context.close()
-                  except:
-                      pass
-                  return kod, "HATA"
-
-          async def main():
+          API_URL = "https://www.tefas.gov.tr/api/funds/fonGnlBlgSiraliGetir"
+          headers = {
+              "User-Agent": "Mozilla/5.0",
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "Origin": "https://www.tefas.gov.tr",
+              "Referer": "https://www.tefas.gov.tr/"
+          }
+          def main():
               wb = openpyxl.load_workbook(INPUT_FILE)
               ws = wb[SHEET_NAME]
               kodlar = [str(ws.cell(r, 1).value).strip() for r in range(START_ROW, END_ROW+1) if ws.cell(r, 1).value]
               print(f"Toplam {len(kodlar)} fon")
               results = {}
-              async with async_playwright() as p:
-                  browser = await p.chromium.launch(headless=True, args=["--disable-blink-features=AutomationControlled"])
-                  for i in range(0, len(kodlar), 5):
-                      batch = kodlar[i:i+5]
-                      tasks = [check_one(browser, k) for k in batch]
-                      batch_results = await asyncio.gather(*tasks)
-                      for kod, durum in batch_results:
-                          results[kod] = durum
-                  await browser.close()
+              try:
+                  payload = {"fontip": "YAT", "bastarih": "2024-10-27", "bittarih": "2024-10-28"}
+                  r = requests.post(API_URL, json=payload, headers=headers, timeout=30)
+                  print(f"API status {r.status_code}")
+                  data = r.json()
+                  print(f"API {len(data)} kayit")
+                  tefas_set = set()
+                  for item in data:
+                      for k in ["fonKodu","fonKod","kod","FONKODU","FONKOD","FonKodu","fonkodu"]:
+                          if k in item and item[k]:
+                              tefas_set.add(str(item[k]).strip().upper())
+                              break
+                  print(f"TEFAS set {len(tefas_set)}")
+                  for kod in kodlar:
+                      if kod.upper() in tefas_set:
+                          results[kod] = "Evet"
+                      else:
+                          results[kod] = "Hayir"
+              except Exception as e:
+                  print(f"Hata {e}")
+                  for kod in kodlar:
+                      results[kod] = "HATA"
               ws.cell(5, 7).value = "Platform Durumu"
               for r in range(START_ROW, END_ROW+1):
                   kod = ws.cell(r, 1).value
                   if kod and str(kod).strip() in results:
                       ws.cell(r, 7).value = results[str(kod).strip()]
               wb.save(OUTPUT_FILE)
-              print(f"Bitti")
-
+              print("Bitti")
           if __name__ == "__main__":
-              asyncio.run(main())
+              main()
           PYEOF
-
       - name: Kutuphaneleri kur
-        run: |
-          pip install openpyxl playwright
-          playwright install chromium
-          playwright install-deps chromium
-
+        run: pip install openpyxl requests
       - name: Calistir
         run: python checker.py
-
       - name: Sonucu yukle
         uses: actions/upload-artifact@v4
         with:
