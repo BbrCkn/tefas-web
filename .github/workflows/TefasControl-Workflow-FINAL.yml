@@ -1,9 +1,86 @@
 name: TefasControl API
+
 on:
   workflow_dispatch:
-...
-      - name: Checker API olustur
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Checker olustur
         run: |
           cat > checker.py << 'PYEOF'
-          import openpyxl, requests...
-...
+          import openpyxl
+          import requests
+          import json
+
+          INPUT_FILE = "giris.xlsx"
+          SHEET_NAME = "Tablo Verisi"
+          OUTPUT_FILE = "TefasControl_Sonuc_FINAL.xlsx"
+          START_ROW = 6
+          END_ROW = 558
+          API_URL = "https://www.tefas.gov.tr/api/funds/fonGnlBlgSiraliGetir"
+
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "Origin": "https://www.tefas.gov.tr",
+              "Referer": "https://www.tefas.gov.tr/"
+          }
+
+          def main():
+              wb = openpyxl.load_workbook(INPUT_FILE)
+              ws = wb[SHEET_NAME]
+              kodlar = [str(ws.cell(r, 1).value).strip() for r in range(START_ROW, END_ROW + 1) if ws.cell(r, 1).value]
+              print(f"Excelden {len(kodlar)} kod okundu")
+              results = {}
+              try:
+                  payload = {"fontip": "YAT", "bastarih": "2024-10-27", "bittarih": "2024-10-28"}
+                  r = requests.post(API_URL, json=payload, headers=headers, timeout=30)
+                  print(f"API status {r.status_code}")
+                  data = r.json()
+                  api_map = {}
+                  for item in data:
+                      for k in ["fonKodu", "fonKod", "kod", "FONKODU", "FONKOD", "fonkodu", "FonKodu"]:
+                          if k in item:
+                              api_map[str(item[k]).strip()] = item
+                              break
+                  print(f"API den {len(api_map)} kod geldi")
+                  for kod in kodlar:
+                      if kod in api_map:
+                          results[kod] = "Evet"
+                      else:
+                          results[kod] = "Hayir"
+              except Exception as e:
+                  print(f"API hata: {e}")
+                  results = {k: "HATA" for k in kodlar}
+
+              ws.cell(5, 7).value = "Platform Durumu"
+              for r in range(START_ROW, END_ROW + 1):
+                  kod = ws.cell(r, 1).value
+                  if kod and str(kod).strip() in results:
+                      ws.cell(r, 7).value = results[str(kod).strip()]
+              wb.save(OUTPUT_FILE)
+              print(f"Bitti: {OUTPUT_FILE}")
+
+          if __name__ == "__main__":
+              main()
+          PYEOF
+
+      - name: Kutuphaneleri kur
+        run: pip install openpyxl requests pandas
+
+      - name: Calistir
+        run: python checker.py
+
+      - name: Sonucu yukle
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonuc
+          path: TefasControl_Sonuc_FINAL.xlsx
