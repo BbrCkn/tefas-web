@@ -1,44 +1,4 @@
 {
- "TLY": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 2864.01,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "TRJ": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 262.81,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "KHA": {
-  "ay": "2026-09",
-  "ay_deger": -319.0,
-  "yil": "2026",
-  "yil_deger": -148.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "DFI": {
-  "ay": "2026-09",
-  "ay_deger": -2697.79,
-  "yil": "2026",
-  "yil_deger": -737.31,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": -2160.43
- },
- "ICH": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 264.83,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "RPM": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -57,15 +17,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "RBR": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 31.57,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "OSD": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -74,14 +25,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "AP7": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
  },
  "OLE": {
   "ay": "2026-11",
@@ -101,23 +44,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "UP2": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "BIH": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "BRG": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -127,14 +53,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "BBF": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "BBR": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -143,23 +61,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "EDT": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "THF": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
  },
  "YBS": {
   "ay": "2026-11",
@@ -224,15 +125,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "GBN": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "GYK": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -251,15 +143,6 @@
   "son_uygulanan_kazanc": 67.1,
   "son_uygulanan_adet": 17708
  },
- "IRV": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "TOT": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -268,59 +151,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "RPT": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "NVT": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "OPD": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "ONN": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "RSK": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "SOS": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
  },
  "TPF": {
   "ay": "2026-11",
@@ -349,15 +179,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "NSH": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "GLS": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -376,14 +197,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "PBI": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "DPK": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -394,15 +207,6 @@
   "son_uygulanan_adet": 0
  },
  "TE4": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "IJI": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -438,15 +242,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "USY": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "SUA": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -456,40 +251,7 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "DOH": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "HEH": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "IAT": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "HIM": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "SPN": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -515,14 +277,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "IAU": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
  },
  "KCV": {
   "ay": "2026-11",
@@ -579,15 +333,6 @@
   "son_uygulanan_adet": 0
  },
  "KTJ": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "DKR": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -686,14 +431,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "HDA": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "IJZ": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -713,15 +450,6 @@
   "son_uygulanan_adet": 0
  },
  "ITP": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "FZP": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -784,24 +512,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "EKF": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "YUN": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "RBH": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -828,22 +538,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "PHE": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 963.04,
-  "son_uygulanan_tarih": "2026-09-09",
-  "son_uygulanan_kazanc": 0.0
- },
- "HJB": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
  },
  "AFV": {
   "ay": "2026-11",
@@ -935,24 +629,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "CKS": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "GZE": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "YJK": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -989,41 +665,7 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "TTE": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "BMU": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "IPV": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "HDK": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "UPD": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1077,15 +719,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "IDF": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "GPF": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -1114,32 +747,6 @@
   "son_uygulanan_adet": 0
  },
  "GAH": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "HGM": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "ICZ": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "SPE": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1193,29 +800,11 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "FJZ": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "RTG": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
   "yil_deger": 342.28,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "DPB": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
@@ -1247,24 +836,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "ROF": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "IUV": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "OFI": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -1275,15 +846,6 @@
   "son_uygulanan_adet": 0
  },
  "DBH": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "DFD": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1311,24 +873,6 @@
   "son_uygulanan_adet": 0
  },
  "YBE": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "MJG": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "IML": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1373,24 +917,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "GTY": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "YGM": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 558.08,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "GPA": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -1410,15 +936,6 @@
   "son_uygulanan_adet": 0
  },
  "IBB": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "GAE": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1454,15 +971,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "IJA": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "YAC": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -1471,14 +979,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "PFS": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
  },
  "DMG": {
   "ay": "2026-11",
@@ -1534,33 +1034,7 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "BHF": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "YLO": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "FMG": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "RPD": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1578,23 +1052,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "RPG": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "HAM": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": -154.68,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
  "IKP": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -1603,23 +1060,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "UP1": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "PBR": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 1971.77,
-  "son_uygulanan_tarih": "2026-09-09",
-  "son_uygulanan_kazanc": 0.0
  },
  "OJK": {
   "ay": "2026-11",
@@ -1631,23 +1071,6 @@
   "son_uygulanan_adet": 0
  },
  "IPJ": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "KHC": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
- },
- "KZL": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1701,51 +1124,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "OGD": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "YKT": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "GTA": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "HRZ": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "GID": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "DYN": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -1754,14 +1132,6 @@
   "son_uygulanan_tarih": "2026-11-03",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
- },
- "HVK": {
-  "ay": "2026-09",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-09-18",
-  "son_uygulanan_kazanc": 0.0
  },
  "GVA": {
   "ay": "2026-11",
@@ -1835,25 +1205,7 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "DPI": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "FBZ": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "FSH": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",
@@ -1934,15 +1286,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "IZB": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "KDE": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -1979,24 +1322,6 @@
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
  },
- "NOI": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "PTF": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
  "SSK": {
   "ay": "2026-11",
   "ay_deger": 0.0,
@@ -2016,33 +1341,6 @@
   "son_uygulanan_adet": 0
  },
  "TFF": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "UNT": {
-  "ay": "2026-11",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-11-03",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "YCY": {
-  "ay": "2026-10",
-  "ay_deger": 0.0,
-  "yil": "2026",
-  "yil_deger": 0.0,
-  "son_uygulanan_tarih": "2026-10-19",
-  "son_uygulanan_kazanc": 0.0,
-  "son_uygulanan_adet": 0
- },
- "YHP": {
   "ay": "2026-11",
   "ay_deger": 0.0,
   "yil": "2026",

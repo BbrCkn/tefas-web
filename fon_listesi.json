@@ -15,10 +15,6 @@
   "ad": "NUROL PORTFÖY BİRİNCİ BORÇLANMA ARAÇLARI FONU",
   "valor": 1
  },
- "RSK": {
-  "ad": "ROTA PORTFÖY ONSEKİZİNCİ SERBEST FON",
-  "valor": 2
- },
  "OSD": {
   "ad": "OSMANLI PORTFÖY ÖZEL SEKTÖR BORÇLANMA ARAÇLARI FONU",
   "valor": 1
@@ -35,29 +31,13 @@
   "ad": "YAPI KREDİ PORTFÖY KATILIM HİSSE SENEDİ FONU (HİSSE SENEDİ YOĞUN FON)",
   "valor": 2
  },
- "UP2": {
-  "ad": "ÜNLÜ PORTFÖY ONİKİNCİ SERBEST FON",
-  "valor": 1
- },
  "OLE": {
   "ad": "OSMANLI PORTFÖY BİRİNCİ FON SEPETİ FONU",
-  "valor": 2
- },
- "RBR": {
-  "ad": "RE-PIE PORTFÖY BİRİNCİ KATILIM SERBEST FON",
   "valor": 2
  },
  "BRG": {
   "ad": "TEB PORTFÖY BURGAN BANK PARA PİYASASI (TL) FONU",
   "valor": 0
- },
- "EDT": {
-  "ad": "DENİZ PORTFÖY TED EĞİTİME DESTEK SERBEST FON",
-  "valor": 1
- },
- "RPT": {
-  "ad": "ROTA PORTFÖY İKİNCİ SERBEST (TL) FON",
-  "valor": 2
  },
  "TBV": {
   "ad": "İŞ PORTFÖY ÖZEL SEKTÖR BORÇLANMA ARAÇLARI (TL) FONU",
@@ -79,10 +59,6 @@
   "ad": "GARANTİ PORTFÖY ÖZEL SEKTÖR BORÇLANMA ARAÇLARI FONU",
   "valor": 1
  },
- "IJI": {
-  "ad": "İSTANBUL PORTFÖY HİSSE SENEDİ SERBEST (TL) FON (HİSSE SENEDİ YOĞUN FON )",
-  "valor": 2
- },
  "AYR": {
   "ad": "AK PORTFÖY ÖZEL SEKTÖR BORÇLANMA ARAÇLARI (TL) FONU",
   "valor": 1
@@ -95,21 +71,9 @@
   "ad": "OYAK PORTFÖY BİRİNCİ BORÇLANMA ARAÇLARI FONU",
   "valor": 1
  },
- "GBN": {
-  "ad": "GARANTİ PORTFÖY BEŞİNCİ (TL) SERBEST FON",
-  "valor": 1
- },
- "NVT": {
-  "ad": "NEO PORTFÖY ÜÇÜNCÜ SERBEST (TL) FON",
-  "valor": 1
- },
  "TOT": {
   "ad": "TEB PORTFÖY ÖZEL SEKTÖR BORÇLANMA ARAÇLARI FONU",
   "valor": 1
- },
- "NSH": {
-  "ad": "NUROL PORTFÖY İSTATİSTİKSEL ARBİTRAJ HİSSE SENEDİ SERBEST FON (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 2
  },
  "SGT": {
   "ad": "GARANTİ PORTFÖY SİBER GÜVENLİK TEKNOLOJİLERİ DEĞİŞKEN FON",
@@ -118,10 +82,6 @@
  "YVD": {
   "ad": "YAPI KREDİ PORTFÖY İKİNCİ PARA PİYASASI (TL) FONU",
   "valor": 0
- },
- "OPD": {
-  "ad": "OSMANLI PORTFÖY ANKA SERBEST FON",
-  "valor": 1
  },
  "GYK": {
   "ad": "INVEO PORTFÖY BORÇLANMA ARAÇLARI (TL) FONU",
@@ -135,10 +95,6 @@
   "ad": "INVEO PORTFÖY TEKNOLOJİ DEĞİŞKEN FON",
   "valor": 3
  },
- "ICZ": {
-  "ad": "AK PORTFÖY TEKNOLOJİ ŞİRKETLERİ HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 2
- },
  "KNJ": {
   "ad": "KUVEYT TÜRK PORTFÖY ENERJİ KATILIM FONU",
   "valor": 3
@@ -150,14 +106,6 @@
  "KTJ": {
   "ad": "KUVEYT TÜRK PORTFÖY TEKNOLOJİ KATILIM FONU",
   "valor": 3
- },
- "TTE": {
-  "ad": "İŞ PORTFÖY BIST TEKNOLOJİ AĞIRLIK SINIRLAMALI ENDEKSİ HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 2
- },
- "IRV": {
-  "ad": "İSTANBUL PORTFÖY İSTATİSTİKSEL ARBİTRAJ SERBEST FON",
-  "valor": 2
  },
  "MPK": {
   "ad": "AKTİF PORTFÖY KİRA SERTİFİKASI KATILIM (TL) FONU",
@@ -178,10 +126,6 @@
  "IAE": {
   "ad": "İSTANBUL PORTFÖY AGRESİF DEĞİŞKEN FON",
   "valor": 2
- },
- "ONN": {
-  "ad": "AKTİF PORTFÖY AKTİF ONİKS SERBEST (TL) FON",
-  "valor": 1
  },
  "CKF": {
   "ad": "ALBARAKA PORTFÖY ÇOKLU VARLIK KATILIM FONU",
@@ -243,10 +187,6 @@
   "ad": "KUVEYT TÜRK PORTFÖY ÇOKLU VARLIK KATILIM FONU",
   "valor": 2
  },
- "USY": {
-  "ad": "ÜNLÜ PORTFÖY DEĞER YATIRIMLARI SERBEST FON",
-  "valor": 3
- },
  "TE4": {
   "ad": "TEB PORTFÖY BİRİNCİ DEĞİŞKEN FON",
   "valor": 2
@@ -275,10 +215,6 @@
   "ad": "ÜNLÜ PORTFÖY BİRİNCİ DEĞİŞKEN FON",
   "valor": 2
  },
- "DKR": {
-  "ad": "DENİZ PORTFÖY ONDÖRDÜNCÜ SERBEST FON",
-  "valor": 2
- },
  "GPF": {
   "ad": "GARANTİ PORTFÖY ÇOKLU VARLIK KATILIM FONU",
   "valor": 1
@@ -305,10 +241,6 @@
  },
  "GPT": {
   "ad": "AKTİF PORTFÖY ROBOTİK TEKNOLOJİLERİ DEĞİŞKEN FON",
-  "valor": 2
- },
- "ROF": {
-  "ad": "ROTA PORTFÖY ONUNCU SERBEST FON",
   "valor": 2
  },
  "AFV": {
@@ -343,10 +275,6 @@
   "ad": "AKTİF PORTFÖY KATILIM FON SEPETİ FONU",
   "valor": 2
  },
- "GTY": {
-  "ad": "GARANTİ PORTFÖY TREND SERBEST FON",
-  "valor": 3
- },
  "GPB": {
   "ad": "GARANTİ PORTFÖY BİRİNCİ DEĞİŞKEN FON",
   "valor": 2
@@ -363,25 +291,9 @@
   "ad": "GARANTİ PORTFÖY ÜÇÜNCÜ DEĞİŞKEN FON",
   "valor": 2
  },
- "MJG": {
-  "ad": "AKTİF PORTFÖY GÜMÜŞ FON SEPETİ FONU",
-  "valor": 3
- },
- "YUN": {
-  "ad": "YAPI KREDİ PORTFÖY İSTİNYE SERBEST (DÖVİZ) FON",
-  "valor": 3
- },
  "GSP": {
   "ad": "AZİMUT PORTFÖY PYŞ KAR PAYI ÖDEYEN HİSSE SENEDİ FONU (HİSSE SENEDİ YOĞUN FON)",
   "valor": 2
- },
- "FZP": {
-  "ad": "FİBA PORTFÖY SERBEST FON",
-  "valor": 1
- },
- "RPG": {
-  "ad": "ROTA PORTFÖY ALTIN FONU",
-  "valor": 1
  },
  "DBB": {
   "ad": "DENİZ PORTFÖY BORÇLANMA ARAÇLARI FONU",
@@ -390,10 +302,6 @@
  "ZDD": {
   "ad": "ZİRAAT PORTFÖY TEMKİNLİ DEĞİŞKEN FON",
   "valor": 2
- },
- "SPN": {
-  "ad": "AZİMUT PORTFÖY İSTATİSTİKSEL ARBİTRAJ HİSSE SENEDİ SERBEST FON (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 3
  },
  "ZFB": {
   "ad": "AK PORTFÖY FİNTEK VE BLOKZİNCİRİ TEKNOLOJİLERİ DEĞİŞKEN FON",
@@ -435,10 +343,6 @@
   "ad": "TEB PORTFÖY İKİNCİ DEĞİŞKEN FON",
   "valor": 2
  },
- "KZL": {
-  "ad": "KUVEYT TÜRK PORTFÖY ALTIN KATILIM FONU",
-  "valor": 1
- },
  "AK3": {
   "ad": "AK PORTFÖY HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)",
   "valor": 2
@@ -450,10 +354,6 @@
  "JET": {
   "ad": "ATA PORTFÖY HAVACILIK VE SAVUNMA TEKNOLOJİLERİ DEĞİŞKEN FON",
   "valor": 3
- },
- "EKF": {
-  "ad": "QİNVEST PORTFÖY KİRA SERTİFİKASI KATILIM (TL) FONU",
-  "valor": 1
  },
  "HBF": {
   "ad": "HSBC PORTFÖY ALTIN FONU",
@@ -467,21 +367,9 @@
   "ad": "GARANTİ PORTFÖY MUTLAK GETİRİ HEDEFLİ DEĞİŞKEN FON",
   "valor": 2
  },
- "UP1": {
-  "ad": "ÜNLÜ PORTFÖY ALTIN FONU",
-  "valor": 1
- },
- "GID": {
-  "ad": "GARANTİ PORTFÖY İNŞAAT SEKTÖRÜ DEĞİŞKEN FON",
-  "valor": 3
- },
  "OPL": {
   "ad": "OSMANLI PORTFÖY İKİNCİ DEĞİŞKEN FON",
   "valor": 2
- },
- "CKS": {
-  "ad": "İŞ PORTFÖY BİRİNCİ KATILIM SERBEST (DÖVİZ) FON",
-  "valor": 3
  },
  "TIE": {
   "ad": "İŞ PORTFÖY BIST 30 ENDEKSİ HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)",
@@ -503,10 +391,6 @@
   "ad": "YAPI KREDİ PORTFÖY KARMA FON",
   "valor": 2
  },
- "GAE": {
-  "ad": "GARANTİ PORTFÖY BİST30 ENDEKSİ HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 2
- },
  "YZG": {
   "ad": "YAPI KREDİ PORTFÖY GÜMÜŞ FON SEPETİ FONU",
   "valor": 3
@@ -523,33 +407,9 @@
   "ad": "AK PORTFÖY ORTA VADELI BORÇLANMA ARAÇLARI FONU",
   "valor": 1
  },
- "YKT": {
-  "ad": "YAPI KREDİ PORTFÖY ALTIN FONU",
-  "valor": 1
- },
- "GTA": {
-  "ad": "GARANTİ PORTFÖY ALTIN FONU",
-  "valor": 1
- },
- "GZE": {
-  "ad": "GARANTİ PORTFÖY EMTİA SERBEST FON",
-  "valor": 3
- },
  "IPV": {
   "ad": "İŞ PORTFÖY EUROBOND BORÇLANMA ARAÇLARI (DÖVİZ) FONU",
   "valor": 3
- },
- "OGD": {
-  "ad": "OYAK PORTFÖY ALTIN KATILIM FONU",
-  "valor": 1
- },
- "HRZ": {
-  "ad": "AKTİF PORTFÖY BIST HALKA ARZ ŞİRKETLERİ HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 2
- },
- "FMG": {
-  "ad": "QNB PORTFÖY GÜMÜŞ SERBEST FON",
-  "valor": 2
  },
  "OIR": {
   "ad": "OSMANLI PORTFÖY DENGELİ FON SEPETİ FONU",
@@ -559,36 +419,16 @@
   "ad": "İŞ PORTFÖY EMTİA YABANCI BYF FON SEPETİ FONU",
   "valor": 3
  },
- "IML": {
-  "ad": "İŞ PORTFÖY MODEL PORTFÖY HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 2
- },
  "YAC": {
   "ad": "YAPI KREDİ PORTFÖY İKİNCİ FON SEPETİ FONU",
-  "valor": 3
- },
- "IDF": {
-  "ad": "İŞ PORTFÖY SERBEST (DÖVİZ) FON",
-  "valor": 3
- },
- "UPD": {
-  "ad": "ÜNLÜ PORTFÖY DÖRDÜNCÜ SERBEST (DÖVIZ) FON",
   "valor": 3
  },
  "YLO": {
   "ad": "YAPI KREDİ PORTFÖY ELEKTRİKLİ ARAÇLAR DEĞİŞKEN FON",
   "valor": 3
  },
- "SPE": {
-  "ad": "AZİMUT PORTFÖY 5.0 SERBEST (DÖVIZ) FON",
-  "valor": 3
- },
  "OFI": {
   "ad": "OYAK PORTFÖY İKİNCİ FON SEPETİ FONU",
-  "valor": 2
- },
- "IJA": {
-  "ad": "INVEO PORTFÖY ATAK DEĞİŞKEN FON",
   "valor": 2
  },
  "EDU": {
@@ -605,10 +445,6 @@
  },
  "PIL": {
   "ad": "ROTA PORTFÖY PİL TEKNOLOJİLERİ VE ENERJİ FON SEPETİ FONU",
-  "valor": 3
- },
- "DFD": {
-  "ad": "DENİZ PORTFÖY EMTİA SERBEST FON",
   "valor": 3
  },
  "AFT": {
@@ -635,32 +471,12 @@
   "ad": "İŞ PORTFÖY ELEKTRİKLİ ARAÇLAR KARMA FON",
   "valor": 3
  },
- "DPB": {
-  "ad": "DENİZ PORTFÖY SERBEST (DÖVİZ) FON",
-  "valor": 3
- },
- "FJZ": {
-  "ad": "FİBA PORTFÖY FIRTINA SERBEST (DÖVİZ) FON",
-  "valor": 3
- },
- "IUV": {
-  "ad": "İŞ PORTFÖY BEŞİNCİ SERBEST (DÖVİZ)  FON",
-  "valor": 3
- },
  "DBH": {
   "ad": "DENİZ PORTFÖY EUROBOND (DÖVİZ) BORÇLANMA ARAÇLARI FONU",
   "valor": 3
  },
- "YGM": {
-  "ad": "YAPI KREDİ PORTFÖY EMTİA SERBEST FON",
-  "valor": 2
- },
  "IBB": {
   "ad": "İŞ PORTFÖY ATAK DEĞİŞKEN FON",
-  "valor": 2
- },
- "RPD": {
-  "ad": "RE-PIE PORTFÖY BİRİNCİ DEĞİŞKEN FON",
   "valor": 2
  },
  "YBE": {
@@ -719,16 +535,8 @@
   "ad": "YAPI KREDİ PORTFÖY ÇOKLU VARLIK DEĞİŞKEN FON",
   "valor": 2
  },
- "DPI": {
-  "ad": "DENİZ PORTFÖY İSTATİSTİKSEL ARBİTRAJ HİSSE SENEDİ SERBEST FON (HİSSE SENEDİ YOĞUN FON)",
-  "valor": 2
- },
  "FBZ": {
   "ad": "FİBA PORTFÖY TEKNOLOJİ SERBEST FON",
-  "valor": 3
- },
- "FSH": {
-  "ad": "FİBA PORTFÖY FON SEPETİ SERBEST FON",
   "valor": 3
  },
  "GBZ": {
@@ -763,10 +571,6 @@
   "ad": "INVEO PORTFÖY DÖNÜŞTÜRÜCÜ TEKNOLOJİLER FON SEPETİ FONU",
   "valor": 3
  },
- "IZB": {
-  "ad": "İSTANBUL PORTFÖY BİRİNCİ FON SEPETİ SERBEST FON",
-  "valor": 2
- },
  "KDE": {
   "ad": "KUVEYT TÜRK PORTFÖY DENGELİ KATILIM FONU",
   "valor": 2
@@ -783,14 +587,6 @@
   "ad": "KUVEYT TÜRK PORTFÖY DİNAMİK KATILIM FONU",
   "valor": 2
  },
- "NOI": {
-  "ad": "TACİRLER PORTFÖY NOVA İSTATİSTİKSEL ARBİTRAJ SERBEST FON",
-  "valor": 2
- },
- "PTF": {
-  "ad": "QNB PORTFÖY TREND SERBEST FON",
-  "valor": 1
- },
  "SSK": {
   "ad": "DENİZ PORTFÖY SAĞLIK SEKTÖRÜ DEĞİŞKEN FON",
   "valor": 2
@@ -802,13 +598,5 @@
  "TFF": {
   "ad": "TEB PORTFÖY AMERİKA TEKNOLOJİ YABANCI BYF FON SEPETİ FONU",
   "valor": 4
- },
- "UNT": {
-  "ad": "İŞ PORTFÖY ÜÇÜNCÜ SERBEST (TL) FON",
-  "valor": 1
- },
- "YHP": {
-  "ad": "YAPI KREDİ PORTFÖY KADIKÖY SERBEST FON",
-  "valor": null
  }
 }
