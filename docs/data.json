@@ -4301,11 +4301,10 @@
  },
  "bekleyenValorler": [],
  "eksikFonlar": [
-  "GPU",
-  "AES"
+  "GPU"
  ],
  "temaSwapOldu": true,
  "eksikGunler": [],
- "sonDenemeZamani": 1793777459466,
- "sonDenemeNo": 1
+ "sonDenemeZamani": 1793779268369,
+ "sonDenemeNo": 2
 }
