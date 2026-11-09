@@ -5,7 +5,9 @@
   "islem_tarihi": "2026-11-05"
  },
  "HLL": {
-  "adet": 310574,
-  "alis_tarihi": "2026-11-06"
+  "adet": 0,
+  "alis_tarihi": "2026-11-06",
+  "onceki_adet": 310574,
+  "islem_tarihi": "2026-11-09"
  }
 }
