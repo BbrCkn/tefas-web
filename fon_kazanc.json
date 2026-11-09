@@ -136,9 +136,9 @@
  },
  "YVD": {
   "ay": "2026-11",
-  "ay_deger": 499.07,
+  "ay_deger": 393.6,
   "yil": "2026",
-  "yil_deger": 12951.39,
+  "yil_deger": 12845.9,
   "son_uygulanan_tarih": "2026-11-09",
   "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 0
@@ -1355,7 +1355,7 @@
   "yil": "2026",
   "yil_deger": 367.72,
   "son_uygulanan_tarih": "2026-11-09",
-  "son_uygulanan_kazanc": 367.72,
+  "son_uygulanan_kazanc": 0.0,
   "son_uygulanan_adet": 310574
  }
 }
