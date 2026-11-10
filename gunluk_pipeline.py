@@ -22,6 +22,7 @@ from pathlib import Path
 
 import numpy as np
 import requests
+from zoneinfo import ZoneInfo
 from pytefas import Crawler, TefasAPIError, TefasRateLimitError
 
 from puanlama_metrikleri import (
@@ -121,6 +122,57 @@ def serenity_katsayilarini_guncelle(sabitler: dict) -> dict:
           f"donemsel={yeni_dk}, periyod={yeni_periyod}, "
           f"sortino_agirlik={yeni_sortino_agirlik}")
     return sabitler
+
+
+def bildirim_gonder(mesaj: str) -> None:
+    """ntfy.sh uzerinden telefona bildirim yollar. NTFY_TOPIC (GitHub Secret)
+    tanimli degilse sessizce atlar; hata olursa pipeline'i ASLA durdurmaz."""
+    topic = os.environ.get("NTFY_TOPIC", "").strip()
+    if not topic:
+        return
+    try:
+        requests.post(f"https://ntfy.sh/{topic}",
+                      data=mesaj.encode("utf-8"),
+                      headers={"Title": "TEFAS"}, timeout=10)
+        print(f"[Bildirim] gonderildi: {mesaj}")
+    except Exception as e:
+        print(f"[Bildirim UYARI] gonderilemedi: {e}")
+
+
+def tarih_tr(t: str) -> str:
+    """'2026-11-10' -> '10.11.2026'"""
+    return datetime.date.fromisoformat(t).strftime("%d.%m.%Y")
+
+
+def eksik_metni(eksik: list, en_fazla: int = 8) -> str:
+    s = ", ".join(eksik[:en_fazla])
+    return s + (f" +{len(eksik) - en_fazla}" if len(eksik) > en_fazla else "")
+
+
+def durum_bildir(tarih: str, eksik: list, yeni_gun_var_mi: bool, deneme_no) -> None:
+    """Gun sonu/tamamlanma bildirimi (sadece 1/2/3. deneme -- elle tetiklemede gitmez).
+
+    - Gun ILK KEZ tamamlandiysa (yeni_gun_var_mi) "tamamlandi" gider; hangi denemede
+      olursa olsun. Sonraki denemelerde yeni gun olmadigi icin tekrar mesaj GITMEZ.
+    - 1./2. denemede eksik varsa mesaj zaten erken cikista ("tamamlanmadi") gonderilir.
+    - 3. denemede eksikle bitiyorsa "eksik tamamlandi" gider.
+    - Tatil (TEFAS bugun yeni veri yayinlamadi): sadece 3. denemede bilgi mesaji."""
+    if deneme_no not in (1, 2, 3):
+        return
+    bugun = datetime.datetime.now(ZoneInfo("Europe/Istanbul")).date().isoformat()
+    if tarih != bugun:
+        if deneme_no == 3:
+            bildirim_gonder(f"{tarih_tr(bugun)} için TEFAS'ta yeni veri yok "
+                            f"(son veri: {tarih_tr(tarih)})")
+        return
+    if not yeni_gun_var_mi:
+        return  # gun daha once tamamlanmis, o zaman bildirim gitti
+    if eksik:
+        if deneme_no == 3:
+            bildirim_gonder(f"{tarih_tr(tarih)} Güncelleme eksik tamamlandı. "
+                            f"Eksik: {eksik_metni(eksik)}")
+    else:
+        bildirim_gonder(f"{tarih_tr(tarih)} Güncelleme tamamlandı")
 
 
 def bugunun_tarihi_veya_son_is_gunu() -> str:
@@ -429,10 +481,12 @@ def main():
         bugun_fiyat, tefas_tarihi = bugunku_fiyatlari_cek(set(fon_listesi.keys()), tarih_tahmin)
     except (TefasRateLimitError, TefasAPIError) as e:
         print(f"HATA: TEFAS'tan veri cekilemedi: {e}")
+        bildirim_gonder("Güncelleme tamamlanmadı. TEFAS'tan veri çekilemedi")
         return
 
     if not tefas_tarihi:
         print("HATA: TEFAS'tan tarih bilgisi alinamadi, islem durduruldu.")
+        bildirim_gonder("Güncelleme tamamlanmadı. TEFAS tarihi alınamadı")
         return
 
     son_bilinen_tarih = fiyat_gecmisi["tarihler"][0] if fiyat_gecmisi["tarihler"] else None
@@ -442,23 +496,24 @@ def main():
           f"-> {'YENI GUN' if yeni_gun_var_mi else 'henuz yeni veri yok, pencere kaydirilmayacak'}")
 
     eksik = [k for k in fon_listesi if k not in bugun_fiyat and k not in ("END", "BBR")]
+    # --- Deneme mantigi: zamanlanmis 10:30 ve 11:00 calismalari eksik fiyat varsa
+    # HICBIR SEY KAYDETMEDEN cikar (sonraki deneme tamamlasin); 11:30 (3. deneme)
+    # ve elle tetiklemeler eksik olsa da bitirir, eksikler tabloda gorunur.
+    # Tetik dizeleri fetch-tefas.yml'deki cron satirlariyla ayni olmali.
+    tetik = os.environ.get("TETIK_ZAMANI", "").strip()
+    deneme_haritasi = {"30 7 * * 1-5": 1, "0 8 * * 1-5": 2, "30 8 * * 1-5": 3}
+    deneme_no = deneme_haritasi.get(tetik)   # None = elle tetikleme
+    # Dis zamanlayici (cron-job.org -> repository_dispatch) deneme numarasini
+    # DENEME_NO ile dogrudan verir (1, 2 veya 3); GitHub cron'unun saat
+    # gecikmesinden bagimsiz, tam saatinde calisir.
+    dis_deneme = os.environ.get("DENEME_NO", "").strip()
+    if dis_deneme in ("1", "2", "3"):
+        deneme_no = int(dis_deneme)
+
     if eksik:
         print(f"UYARI: {len(eksik)} fon icin bugun fiyat gelmedi (islem "
               f"gormemis olabilir): {eksik[:10]}{'...' if len(eksik)>10 else ''}")
 
-        # --- Deneme mantigi: zamanlanmis 10:30 ve 11:00 calismalari eksik fiyat varsa
-        # HICBIR SEY KAYDETMEDEN cikar (sonraki deneme tamamlasin); 11:30 (3. deneme)
-        # ve elle tetiklemeler eksik olsa da bitirir, eksikler tabloda gorunur.
-        # Tetik dizeleri fetch-tefas.yml'deki cron satirlariyla ayni olmali.
-        tetik = os.environ.get("TETIK_ZAMANI", "").strip()
-        deneme_haritasi = {"30 7 * * 1-5": 1, "0 8 * * 1-5": 2, "30 8 * * 1-5": 3}
-        deneme_no = deneme_haritasi.get(tetik)   # None = elle tetikleme
-        # Dis zamanlayici (cron-job.org -> repository_dispatch) deneme numarasini
-        # DENEME_NO ile dogrudan verir (1, 2 veya 3); GitHub cron'unun saat
-        # gecikmesinden bagimsiz, tam saatinde calisir.
-        dis_deneme = os.environ.get("DENEME_NO", "").strip()
-        if dis_deneme in ("1", "2", "3"):
-            deneme_no = int(dis_deneme)
         if deneme_no in (1, 2):
             print(f"Deneme {deneme_no}/3: {len(eksik)} fon eksik, kaydedilmeden cikiliyor "
                   f"(sonraki deneme bekleniyor).")
@@ -474,6 +529,7 @@ def main():
                 print("  Durum bilgisi (eksik fon kodlari + deneme saati) docs/data.json'a yazildi.")
             except Exception as e:
                 print(f"  UYARI: durum bilgisi yazilamadi: {e}")
+            bildirim_gonder(f"Güncelleme tamamlanmadı. {eksik_metni(eksik)} eksik")
             return
         print(f"Deneme: {deneme_no if deneme_no else 'elle'} -- eksik fonlarla devam ediliyor.")
 
@@ -491,6 +547,7 @@ def main():
         if degisen_fon == 0:
             print("Gun zaten tamamlanmis (yeni gun yok, eksik fon yok, fiyat degismedi) "
                   "-> bu zamanlanmis calisma hicbir sey yapmadan cikiyor.")
+            durum_bildir(tarih, eksik, yeni_gun_var_mi, deneme_no)
             return
 
     # "onceki_gun_indeksi": END hesaplarken ve genel getiri karsilastirmalarinda
@@ -870,6 +927,7 @@ def main():
     kaydet(yeni_rank, "onceki_rank.json")
     kaydet(data_json, "docs/data.json")
     print(f"Tamamlandi: {len(dashboard_funds)} fon icin docs/data.json yazildi.")
+    durum_bildir(tarih, eksik, yeni_gun_var_mi, deneme_no)
 
 
 if __name__ == "__main__":
