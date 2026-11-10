@@ -49,6 +49,7 @@ jobs:
         env:
           TETIK_ZAMANI: ${{ github.event.schedule || (github.event_name == 'repository_dispatch' && 'dis-zamanlayici') || '' }}   # bos = elle tetikleme
           DENEME_NO: ${{ github.event.client_payload.deneme }}   # dis zamanlayicidan gelen deneme numarasi (1/2/3)
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}   # telefona bildirim (ntfy.sh) -- topic adi GitHub Secret'ta, koda yazilmaz
           PYTHONUNBUFFERED: "1"   # ciktiyi tamponlamadan aninda akit -- uzun surebilecek
                                    # adimlarda (ornegin yeni fon gecmisi cekme) canli log
                                    # takibi icin gerekli
@@ -95,3 +96,14 @@ jobs:
           done
           echo "5 denemede de push yapilamadi."
           exit 1
+
+      - name: Hata bildirimi (telefona)
+        # Onceki herhangi bir adim (pipeline coktu, kurulum, push) basarisiz olduysa calisir.
+        # Drive yedegi continue-on-error oldugu icin tek basina hata sayilmaz.
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          if [ -n "$NTFY_TOPIC" ]; then
+            curl -s -H "Title: TEFAS" -d "Güncelleme tamamlanmadı. İş akışı hata verdi, Actions logunu kontrol et" "https://ntfy.sh/$NTFY_TOPIC" || true
+          fi
