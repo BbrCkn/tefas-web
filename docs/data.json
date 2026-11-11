@@ -3188,20 +3188,12 @@
  },
  "bekleyenValorler": [],
  "eksikFonlar": [
-  "SGT",
-  "YIT",
-  "GBV",
-  "GPU",
   "GPI",
   "GAH",
-  "GZH",
-  "GVA",
-  "GUH",
-  "GZG",
-  "GZL"
+  "GUH"
  ],
  "temaSwapOldu": false,
  "eksikGunler": [],
- "sonDenemeZamani": 1794382262434,
- "sonDenemeNo": 1
+ "sonDenemeZamani": 1794384069983,
+ "sonDenemeNo": 2
 }
