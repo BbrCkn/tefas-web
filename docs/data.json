@@ -3187,7 +3187,23 @@
   "yillik": 216
  },
  "bekleyenValorler": [],
- "eksikFonlar": [],
+ "eksikFonlar": [
+  "SGT",
+  "YIT",
+  "GBV",
+  "GPB",
+  "GPU",
+  "GPI",
+  "GAH",
+  "GZH",
+  "GVA",
+  "AES",
+  "GUH",
+  "GZG",
+  "GZL"
+ ],
  "temaSwapOldu": false,
- "eksikGunler": []
+ "eksikGunler": [],
+ "sonDenemeZamani": 1794555059892,
+ "sonDenemeNo": 1
 }
