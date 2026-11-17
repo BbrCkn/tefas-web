@@ -3187,7 +3187,15 @@
   "yillik": 218
  },
  "bekleyenValorler": [],
- "eksikFonlar": [],
+ "eksikFonlar": [
+  "YJK",
+  "GBV",
+  "YZG",
+  "YAC",
+  "AES"
+ ],
  "temaSwapOldu": false,
- "eksikGunler": []
+ "eksikGunler": [],
+ "sonDenemeZamani": 1794900663298,
+ "sonDenemeNo": 1
 }
