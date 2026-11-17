@@ -3188,14 +3188,10 @@
  },
  "bekleyenValorler": [],
  "eksikFonlar": [
-  "YJK",
-  "GBV",
-  "YZG",
-  "YAC",
-  "AES"
+  "GBV"
  ],
  "temaSwapOldu": false,
  "eksikGunler": [],
- "sonDenemeZamani": 1794900663298,
- "sonDenemeNo": 1
+ "sonDenemeZamani": 1794902481500,
+ "sonDenemeNo": 2
 }
