@@ -3208,7 +3208,12 @@
   "yillik": 224
  },
  "bekleyenValorler": [],
- "eksikFonlar": [],
+ "eksikFonlar": [
+  "AES",
+  "GUH"
+ ],
  "temaSwapOldu": false,
- "eksikGunler": []
+ "eksikGunler": [],
+ "sonDenemeZamani": 1795591869429,
+ "sonDenemeNo": 1
 }
